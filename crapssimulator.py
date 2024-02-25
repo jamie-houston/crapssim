@@ -26,7 +26,7 @@ with open('data.csv', 'w', newline='') as f:
     for i in range(n_sim):
         table = craps.Table()
         for s in strategies:
-            table.add_player(craps.Player(bankroll, strategies[s], s, verbose=False))
+            table.add_player(craps.Player(bankroll, strategies[s], s, verbose=True))
 
         table.run(max_rolls=float("inf"), max_shooter=1)
         for s in strategies:
