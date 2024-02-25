@@ -15,8 +15,8 @@ def run_printout(n_roll, n_shooter, bankroll, strategy, strategy_name, runout):
     with open(outfile_name, 'w') as f_out:
         sys.stdout = f_out
         table = Table()
-        table.add_player(Player(bankroll, strategy))
-        table.run(n_roll, n_shooter, verbose=True)
+        table.add_player(Player(bankroll, strategy, verbose=True))
+        table.run(n_roll, n_shooter)
     sys.stdout = sys.__stdout__ # reset stdout
 
 def run_simulation(n_sim, n_roll, bankroll, strategy, strategy_name, runout):

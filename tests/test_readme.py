@@ -21,8 +21,8 @@ def test_second_chunk():
     for i in range(n_sim):
         table = craps.Table() 
         for s in strategies:
-            table.add_player(craps.Player(bankroll, strategies[s], s))
+            table.add_player(craps.Player(bankroll, strategies[s], s, verbose=False))
 
-        table.run(max_rolls=float("inf"), max_shooter=10, verbose=False)
+        table.run(max_rolls=float("inf"), max_shooter=10)
         for s in strategies:
             print(f"{i}, {s}, {table._get_player(s).bankroll}, {bankroll}, {table.dice.n_rolls}")

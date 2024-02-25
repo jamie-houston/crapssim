@@ -3,16 +3,16 @@ import customstrat
 import csv
 
 # n_sim = 10000
-n_sim = 1
-bankroll = 200
+n_sim = 100
+bankroll = 2000
 strategies = {
-    # "nofield": customstrat.nofield,
-    # "hedged2come": customstrat.hedged2come,
-    # "knockout": craps.strategy.knockout,
-    # "pass2come": craps.strategy.pass2come,
-    # "risk12": craps.strategy.risk12,
-    "darkandlight": customstrat.dark_and_light
-    # "corey": customstrat.corey
+    "nofield": customstrat.nofield,
+    "hedged2come": customstrat.hedged2come,
+    "knockout": craps.strategy.knockout,
+    "pass2come": craps.strategy.pass2come,
+    "risk12": craps.strategy.risk12,
+    "darkandlight": customstrat.dark_and_light,
+    "corey": customstrat.corey
 }
 
 with open('data.csv', 'w', newline='') as f:
@@ -26,9 +26,9 @@ with open('data.csv', 'w', newline='') as f:
     for i in range(n_sim):
         table = craps.Table()
         for s in strategies:
-            table.add_player(craps.Player(bankroll, strategies[s], s))
+            table.add_player(craps.Player(bankroll, strategies[s], s, verbose=False))
 
-        table.run(max_rolls=float("inf"), max_shooter=1, verbose=True)
+        table.run(max_rolls=float("inf"), max_shooter=1)
         for s in strategies:
             current_result = result_summary[s]
             row = [i, s, table._get_player(s).bankroll, bankroll, table.dice.n_rolls, table._get_player(s).bankroll-bankroll, (table._get_player(s).bankroll-bankroll)/table.dice.n_rolls]
