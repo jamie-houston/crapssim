@@ -98,7 +98,7 @@ class Table(object):
             self._add_player_bets()
             for p in self.players:
                 bets = [
-                    f"{b.name}{b.subname}, ${b.bet_amount}" for b in p.bets_on_table
+                    f"{b}, ${b.bet_amount}" for b in p.bets_on_table
                 ]
                 if verbose:
                     print(f"{p.name}'s current bets: {bets}")
@@ -189,6 +189,12 @@ class _Point(object):
 
     def __eq__(self, other):
         return self.status == other
+
+    def is_on(self):
+        return self.status == "On"
+
+    def is_off(self):
+        return self.status == "Off"
 
     def update(self, dice_object: Dice):
         if self.status == "Off" and dice_object.total in [4, 5, 6, 8, 9, 10]:

@@ -28,12 +28,15 @@ class Player(object):
         # TODO: initial betting strategy
 
     def bet(self, bet_object):
-        if self.bankroll >= bet_object.bet_amount:
-            self.bankroll -= bet_object.bet_amount
-            self.bets_on_table.append(
-                bet_object
-            )  # TODO: make sure this only happens if that bet isn't on the table, otherwise wager amount gets updated
-            self.total_bet_amount += bet_object.bet_amount
+        if self.has_matching_bet(bet_object):
+            print(f"{self.name} already has {bet_object.name}.  Not betting again")
+        else:
+            if self.bankroll >= bet_object.bet_amount:
+                self.bankroll -= bet_object.bet_amount
+                self.bets_on_table.append(
+                    bet_object
+                )  # TODO: make sure this only happens if that bet isn't on the table, otherwise wager amount gets updated
+                self.total_bet_amount += bet_object.bet_amount
 
     def remove(self, bet_object):
         # TODO: add bet attribute for whether a bet can be removed and put condition in here
@@ -41,6 +44,12 @@ class Player(object):
             self.bankroll += bet_object.bet_amount
             self.bets_on_table.remove(bet_object)
             self.total_bet_amount -= bet_object.bet_amount
+    
+    def has_matching_bet(self, bet_object):
+        for current_bet in self.bets_on_table:
+            if bet_object.name == current_bet.name and bet_object.subname == current_bet.subname:
+                return True
+        return False
 
     def has_bet(self, *bets_to_check):
         """ returns True if bets_to_check and self.bets_on_table has at least one thing in common """
@@ -81,18 +90,18 @@ class Player(object):
                 self.total_bet_amount -= b.bet_amount
                 self.bets_on_table.remove(b)
                 if verbose:
-                    print(f"{self.name} won ${win_amount} on {b.name} bet!")
+                    print(f"{self.name} won ${win_amount} on {b} bet!")
             elif status == "lose":
                 self.total_bet_amount -= b.bet_amount
                 self.bets_on_table.remove(b)
                 if verbose:
-                    print(f"{self.name} lost ${b.bet_amount} on {b.name} bet.")
+                    print(f"{self.name} lost ${b.bet_amount} on {b} bet.")
             elif status == "push":
                 self.bankroll += b.bet_amount
                 self.total_bet_amount -= b.bet_amount
                 self.bets_on_table.remove(b)
                 if verbose:
-                    print(f"{self.name} pushed ${b.bet_amount} on {b.name} bet.")
+                    print(f"{self.name} pushed ${b.bet_amount} on {b} bet.")
 
             info[b.name] = {"status": status, "win_amount": win_amount}
         return info

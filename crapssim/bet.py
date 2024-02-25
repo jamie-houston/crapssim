@@ -51,6 +51,10 @@ class Bet(object):
         return status, win_amount
 
 
+    def __str__(self):
+        return self.name + " " + self.subname
+
+
 """
 Passline and Come bets
 """
