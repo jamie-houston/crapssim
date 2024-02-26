@@ -1,7 +1,7 @@
 from crapssim.bet import PassLine, Odds, Come
 from crapssim.bet import DontPass, LayOdds
 from crapssim.bet import Place, Place4, Place5, Place6, Place8, Place9, Place10
-from crapssim.bet import Field, Horn
+from crapssim.bet import Field, Horn, Hard
 
 """
 Various betting strategies that are based on conditions of the CrapsTable.
@@ -49,7 +49,11 @@ def dark_and_light(player, table, unit=5, strat_info=None):
             if bet.name == "Come" and 7 not in bet.winning_numbers:
                 player.bet(Odds(unit*2, bet))
     
-    # player.bet(Horn(unit, )
+    player.bet(Horn(unit*.2))
+    player.bet(Hard(unit, 4))
+    player.bet(Hard(unit, 6))
+    player.bet(Hard(unit, 8))
+    player.bet(Hard(unit, 10))
 
     # else:
     #     if player.num_bet("Come") < 3:
@@ -85,7 +89,7 @@ Fundamental Strategies
 
 def passline(player, table, unit=5, strat_info=None):
     # Pass line bet
-    if table.point == "Off" and not player.has_bet("PassLine"):
+    if table.point.is_off() and not player.has_bet("PassLine"):
         player.bet(PassLine(unit))
 
 def dontpass(player, table, unit=5, odds=0):

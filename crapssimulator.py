@@ -12,7 +12,7 @@ strategies = {
     # "pass2come": craps.strategy.pass2come,
     # "risk12": craps.strategy.risk12,
     "darkandlight": customstrat.dark_and_light,
-    "corey": customstrat.corey
+    # "corey": customstrat.corey
 }
 
 with open('data.csv', 'w', newline='') as f:

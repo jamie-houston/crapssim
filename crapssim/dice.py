@@ -33,6 +33,9 @@ class Dice(object):
         self.result = outcome
         self.total = sum(self.result)
 
+    def __repr__(self) -> str:
+        return f"{self.total} {self.result}"
+
 
 if __name__ == "__main__":
 

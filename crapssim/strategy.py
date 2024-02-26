@@ -16,7 +16,7 @@ Fundamental Strategies
 
 def passline(player, table, unit=5, strat_info=None):
     # Pass line bet
-    if table.point == "Off" and not player.has_bet("PassLine"):
+    if table.point.is_off() and not player.has_bet("PassLine"):
         player.bet(PassLine(unit))
 
 
@@ -112,7 +112,7 @@ def place68(player, table, unit=5, strat_info=None):
 
 def dontpass(player, table, unit=5, strat_info=None):
     # Don't pass bet
-    if table.point == "Off" and not player.has_bet("DontPass"):
+    if table.point.is_off() and not player.has_bet("DontPass"):
         player.bet(DontPass(unit))
 
 
@@ -169,7 +169,7 @@ def place68_2come(player, table, unit=5, strat_info=None):
     if player.num_bet("Come", "PassLine") < 2 and len(player.bets_on_table) < 4:
         if table.point.is_on():
             player.bet(Come(unit))
-        if table.point == "Off" and (
+        if table.point.is_off() and (
             player.has_bet("Place6") or player.has_bet("Place8")
         ):
             player.bet(PassLine(unit))
@@ -230,7 +230,7 @@ def hammerlock(player, table, unit=5, strat_info=None):
     )
 
     # 3 phases, place68, place_inside, takedown
-    if strat_info is None or table.point == "Off":
+    if strat_info is None or table.point.is_off():
         strat_info = {"mode": "place68"}
         for bet_nm in ["Place5", "Place6", "Place8", "Place9"]:
             player.remove_if_present(bet_nm)
@@ -272,7 +272,7 @@ def hammerlock(player, table, unit=5, strat_info=None):
                 strat_info={"numbers": {5, 6, 8, 9}},
                 skip_point=False,
             )
-    elif strat_info["mode"] == "takedown" and table.point == "Off":
+    elif strat_info["mode"] == "takedown" and table.point.is_off():
         strat_info = None
 
     return strat_info
@@ -283,7 +283,7 @@ def risk12(player, table, unit=5, strat_info=None):
 
     if table.pass_rolls == 0:
         strat_info = {"winnings": 0}
-    elif table.point == "Off":
+    elif table.point.is_off():
         if table.last_roll in table.payouts["fielddouble"]:
             # win double from the field, lose pass line, for a net of 1 unit win
             strat_info["winnings"] += unit
@@ -294,7 +294,7 @@ def risk12(player, table, unit=5, strat_info=None):
             # win the field and pass line, for a net of 2 units win
             strat_info["winnings"] += 2 * unit
 
-    if table.point == "Off":
+    if table.point.is_off():
         player.bet(
             Field(
                 unit,

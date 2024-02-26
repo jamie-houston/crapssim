@@ -123,6 +123,13 @@ class Odds(Bet):
             self.payoutratio = 3 / 2
         elif self.winning_numbers == [6] or self.winning_numbers == [8]:
             self.payoutratio = 6 / 5
+        elif self.winning_numbers == [7]:
+            if self.losing_numbers == [4] or self.losing_numbers == [10]:
+                self.payoutratio = 5/6
+            elif self.losing_numbers == [5] or self.losing_numbers == [9]:
+                self.payoutratio = 2 / 3
+            elif self.losing_numbers == [6] or self.losing_numbers == [8]:
+                self.payoutratio = 5 / 6
 
 
 """
@@ -294,13 +301,52 @@ class LayOdds(Bet):
 
 
 class Horn(Bet):
-    def __init__(self, bet_amount, bet_object):
+    def __init__(self, bet_amount):
         super().__init__(bet_amount)
         self.name = "Horn"
-        self.subname = "".join(str(e) for e in bet_object.winning_numbers)
-        self.winning_numbers = bet_object.winning_numbers
-        self.losing_numbers = bet_object.losing_numbers
-        if self.winning_numbers in [3,11]:
-            self.payoutratio = 30
-        elif self.winning_numbers in [2,12]:
-            self.payoutratio = 15
+        self.winning_numbers = [2,3,11,12]
+        self.subname = "".join(str(e) for e in self.winning_numbers)
+        self.losing_numbers = [4,5,6,7,8,9,10]
+
+    def _update_bet(self, table_object, dice_object):
+        status = None
+        win_amount = 0
+
+        if dice_object.total in [2,12]:
+            status = "win"
+            win_amount = (30/4) * self.bet_amount
+        elif dice_object.total in [3,11]:
+            status = "win"
+            win_amount = (15/4) * self.bet_amount
+        else:
+            status = "lose"
+
+        return status, win_amount
+
+
+class Hard(Bet):
+    def __init__(self, bet_amount, hard_number):
+        super().__init__(bet_amount)
+        self.name = "Hard"
+        self.subname = str(hard_number)
+        self.winning_numbers = [hard_number]
+        self.losing_numbers = [7]
+        if self.winning_numbers in [4,10]:
+            self.payoutratio = 9
+        else:
+            self.payoutratio = 7
+
+    def _update_bet(self, table_object, dice_object):
+        status = None
+        win_amount = 0
+
+        if dice_object.total in self.winning_numbers:
+            if dice_object.result[0] == dice_object.result[1]:
+                status = "win"
+                win_amount = 9 * self.bet_amount
+            else:
+                status = "lose"
+        else: 
+            return super()._update_bet(table_object, dice_object)
+
+        return status, win_amount
