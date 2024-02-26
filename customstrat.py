@@ -1,7 +1,7 @@
 from crapssim.bet import PassLine, Odds, Come
 from crapssim.bet import DontPass, LayOdds
 from crapssim.bet import Place, Place4, Place5, Place6, Place8, Place9, Place10
-from crapssim.bet import Field
+from crapssim.bet import Field, Horn
 
 """
 Various betting strategies that are based on conditions of the CrapsTable.
@@ -18,7 +18,7 @@ def corey(player, table, unit=5, strat_info=None):
     passline(player, table, unit)
     
     # When on, 2 come, play odds on 6 or 8, play field when not on 4 or 10
-    if table.point == "On":
+    if table.point.is_on():
         if table.point.number in [6, 8] and not player.has_bet("Odds") and player.has_bet("PassLine"):
             player.bet(Odds(3 * unit, player.get_bet("PassLine")))
         if player.num_bet("Come") < 2:
@@ -45,6 +45,11 @@ def dark_and_light(player, table, unit=5, strat_info=None):
 
     if table.point.is_on():
         player.bet(Come(unit))
+        for bet in all_bets:
+            if bet.name == "Come" and 7 not in bet.winning_numbers:
+                player.bet(Odds(unit*2, bet))
+    
+    # player.bet(Horn(unit, )
 
     # else:
     #     if player.num_bet("Come") < 3:
@@ -57,7 +62,7 @@ def nofield(player, table, unit=5, strat_info=None):
     passline(player, table, unit)
     
     # When on, 2 come, play odds on 6 or 8
-    if table.point == "On":
+    if table.point.is_on():
         if table.point.number in [6, 8] and not player.has_bet("Odds") and player.has_bet("PassLine"):
             player.bet(Odds(3 * unit, player.get_bet("PassLine")))
         if player.num_bet("Come") < 2:
@@ -68,7 +73,7 @@ def hedged2come (player, table, unit=5, strat_info=None):
     dontpass(player, table, unit)
     passline(player, table, unit)
 
-    if table.point == "On":
+    if table.point.is_on():
         if table.point.number in [6,8] and not player.has_bet("Odds") and player.has_bet("PassLine"):
             player.bet(Odds(3 * unit, player.get_bet("PassLine")))
         if player.num_bet("Come") < 2:

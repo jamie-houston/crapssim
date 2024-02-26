@@ -3,19 +3,20 @@ import customstrat
 import csv
 
 # n_sim = 10000
-n_sim = 100
+n_sim = 1
 bankroll = 2000
 strategies = {
-    "nofield": customstrat.nofield,
-    "hedged2come": customstrat.hedged2come,
-    "knockout": craps.strategy.knockout,
-    "pass2come": craps.strategy.pass2come,
-    "risk12": craps.strategy.risk12,
+    # "nofield": customstrat.nofield,
+    # "hedged2come": customstrat.hedged2come,
+    # "knockout": craps.strategy.knockout,
+    # "pass2come": craps.strategy.pass2come,
+    # "risk12": craps.strategy.risk12,
     "darkandlight": customstrat.dark_and_light,
     "corey": customstrat.corey
 }
 
 with open('data.csv', 'w', newline='') as f:
+    verbose = True
     writer = csv.writer(f)
     header = ["Sim Number", "Strategy", "End Bankroll", "Start Bankroll", "Dice Rolls", "Difference", "Dollar/Roll"]
     writer.writerow(header)
@@ -24,9 +25,9 @@ with open('data.csv', 'w', newline='') as f:
     for s in strategies:
         result_summary[s] = 0
     for i in range(n_sim):
-        table = craps.Table()
+        table = craps.Table(verbose=verbose)
         for s in strategies:
-            table.add_player(craps.Player(bankroll, strategies[s], s, verbose=True))
+            table.add_player(craps.Player(bankroll, strategies[s], s, verbose=verbose))
 
         table.run(max_rolls=float("inf"), max_shooter=1)
         for s in strategies:

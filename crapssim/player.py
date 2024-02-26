@@ -29,11 +29,8 @@ class Player(object):
         # TODO: initial betting strategy
 
     def bet(self, bet_object):
-        if self.has_matching_bet(bet_object):
+        if not self.has_matching_bet(bet_object):
             # don't add duplicate bet
-            if self.verbose:
-                print(f"{self.name} already has {bet_object.name}.  Not betting again")
-        else:
             if self.bankroll >= bet_object.bet_amount:
                 self.bankroll -= bet_object.bet_amount
                 self.bets_on_table.append(bet_object)

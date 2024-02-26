@@ -54,6 +54,9 @@ class Bet(object):
     def __str__(self):
         return self.name + " " + self.subname
 
+    def __repr__(self) -> str:
+        return self.name + " " + self.subname
+
 
 """
 Passline and Come bets
@@ -113,6 +116,7 @@ class Odds(Bet):
         self.winning_numbers = bet_object.winning_numbers
         self.losing_numbers = bet_object.losing_numbers
 
+        # TODO: Payout is opposite for dont pass/dont come (self.winning_numbers == [7])
         if self.winning_numbers == [4] or self.winning_numbers == [10]:
             self.payoutratio = 2 / 1
         elif self.winning_numbers == [5] or self.winning_numbers == [9]:
@@ -129,7 +133,7 @@ Place Bets on 4,5,6,8,9,10
 class Place(Bet):
     def _update_bet(self, table_object, dice_object):
         # place bets are inactive when point is "Off"
-        if table_object.point == "On":
+        if table_object.point.is_on():
             return super()._update_bet(table_object, dice_object)
         else:
             return None, 0
@@ -287,3 +291,16 @@ class LayOdds(Bet):
             self.payoutratio = 2 / 3
         elif self.losing_numbers == [6] or self.losing_numbers == [8]:
             self.payoutratio = 5 / 6
+
+
+class Horn(Bet):
+    def __init__(self, bet_amount, bet_object):
+        super().__init__(bet_amount)
+        self.name = "Horn"
+        self.subname = "".join(str(e) for e in bet_object.winning_numbers)
+        self.winning_numbers = bet_object.winning_numbers
+        self.losing_numbers = bet_object.losing_numbers
+        if self.winning_numbers in [3,11]:
+            self.payoutratio = 30
+        elif self.winning_numbers in [2,12]:
+            self.payoutratio = 15

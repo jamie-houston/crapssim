@@ -107,14 +107,15 @@ class Table(object):
                     print(f"{p.name}'s current bets: {bets}")
 
             self.dice.roll()
-            self._update_player_bets(self.dice)
-            self._update_table(self.dice)
             if self.verbose:
                 print("")
                 print("Dice out!")
                 print(f"Shooter rolled {self.dice.total} {self.dice.result}")
+            self._update_player_bets(self.dice)
+            self._update_table(self.dice)
+            if self.verbose:
                 print(f"Point is {self.point.status} ({self.point.number})")
-                print(f"Total Player Cash is ${self.total_player_cash}")
+                # print(f"Total Player Cash is ${self.total_player_cash}")
 
             # evaluate the stopping condition
             if runout:
@@ -150,9 +151,9 @@ class Table(object):
     def _update_table(self, dice):
         """ update table attributes based on previous dice roll """
         self.pass_rolls += 1
-        if self.point == "On" and dice.total == 7:
+        if self.point.is_on() and dice.total == 7:
             self.n_shooters += 1
-        if self.point == "On" and (dice.total == 7 or dice.total == self.point.number):
+        if self.point.is_on() and (dice.total == 7 or dice.total == self.point.number):
             self.pass_rolls = 0
 
         self.point.update(self.dice)

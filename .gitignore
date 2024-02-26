@@ -2,6 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
+*.csv
+__pycache__
 
 .vscode
 Articles/
