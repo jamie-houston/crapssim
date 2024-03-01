@@ -22,6 +22,7 @@ class Bet(object):
         Numbers to roll that cause this bet to lose
     payoutratio : float
         Ratio that bet pays out on a win
+    
 
     """
 

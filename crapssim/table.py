@@ -155,7 +155,7 @@ class Table(object):
         if self.point.is_on() and (dice.total == 7 or dice.total == self.point.number):
             self.pass_rolls = 0
 
-        self.point.update(self.dice)
+        self.point.update(dice)
         self.total_player_cash = sum(
             [p.total_bet_amount + p.bankroll for p in self.players]
         )
