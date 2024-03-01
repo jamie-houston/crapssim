@@ -26,12 +26,16 @@ class Player(object):
         self.bets_on_table = []
         self.total_bet_amount = 0
         self.verbose = verbose
-        # TODO: initial betting strategy
+        self.biggest_win = 0
+        self.biggest_loss = 0
+        self.biggest_bet = 0
 
     def bet(self, bet_object):
         if not self.has_matching_bet(bet_object):
             # don't add duplicate bet
             if self.bankroll >= bet_object.bet_amount:
+                if self.biggest_bet < bet_object.bet_amount:
+                    self.biggest_bet = bet_object.bet_amount
                 self.bankroll -= bet_object.bet_amount
                 self.bets_on_table.append(bet_object)
                 self.total_bet_amount += bet_object.bet_amount
@@ -82,14 +86,19 @@ class Player(object):
         info = {}
         for b in self.bets_on_table[:]:
             status, win_amount = b._update_bet(table_object, dice_object)
+            win_amount = int(win_amount)
 
             if status == "win":
+                if win_amount > self.biggest_win:
+                    self.biggest_win = win_amount
                 self.bankroll += win_amount + b.bet_amount
                 self.total_bet_amount -= b.bet_amount
                 self.bets_on_table.remove(b)
                 if self.verbose:
                     print(f"{self.name} won ${win_amount} on {b} bet!")
             elif status == "lose":
+                if b.bet_amount > self.biggest_loss:
+                    self.biggest_loss = b.bet_amount
                 self.total_bet_amount -= b.bet_amount
                 self.bets_on_table.remove(b)
                 if self.verbose:

@@ -104,12 +104,11 @@ class Table(object):
                     f"{b}, ${b.bet_amount}" for b in p.bets_on_table
                 ]
                 if self.verbose:
-                    print(f"{p.name}'s current bets: {bets}")
+                    print(f"{p.name}: bankroll: {p.bankroll}. current bets: {bets}")
 
             self.dice.roll()
             if self.verbose:
-                print("")
-                print("Dice out!")
+                print("\nDice out!")
                 print(f"Shooter rolled {self.dice}")
             self._update_player_bets(self.dice)
             self._update_table(self.dice)
@@ -193,6 +192,9 @@ class _Point(object):
 
     def __eq__(self, other):
         return self.status == other
+
+    def __repr__(self) -> str:
+        return self.status + " " + self.number
 
     def is_on(self):
         return self.status == "On"

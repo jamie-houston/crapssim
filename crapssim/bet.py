@@ -33,7 +33,7 @@ class Bet(object):
     # TODO: add whether bet can be removed
 
     def __init__(self, bet_amount):
-        self.bet_amount = float(bet_amount)
+        self.bet_amount = int(bet_amount)
 
     # def __eq__(self, other):
     #     return self.name == other.name
@@ -326,6 +326,7 @@ class Horn(Bet):
 
 class Hard(Bet):
     def __init__(self, bet_amount, hard_number):
+        bet_amount = round(bet_amount)
         super().__init__(bet_amount)
         self.name = "Hard"
         self.subname = str(hard_number)
@@ -333,6 +334,8 @@ class Hard(Bet):
         self.losing_numbers = [7]
         if self.winning_numbers in [4,10]:
             self.payoutratio = 9
+        elif self.winning_numbers in [2,12]:
+            self.payoutratio = 30
         else:
             self.payoutratio = 7
 
@@ -343,7 +346,7 @@ class Hard(Bet):
         if dice_object.total in self.winning_numbers:
             if dice_object.result[0] == dice_object.result[1]:
                 status = "win"
-                win_amount = 9 * self.bet_amount
+                win_amount = self.payoutratio * self.bet_amount
             else:
                 status = "lose"
         else: 

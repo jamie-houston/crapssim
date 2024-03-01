@@ -32,6 +32,14 @@ def corey(player, table, unit=5, strat_info=None):
                 )
             )
 
+def all_in(player, table, unit=5, strat_info=None):
+    # bet horn and all hards
+    player.bet(Horn(unit))
+    player.bet(Hard(unit, 4))
+    player.bet(Hard(unit, 6))
+    player.bet(Hard(unit, 8))
+    player.bet(Hard(unit, 10))
+
 def dark_and_light(player, table, unit=5, strat_info=None):
     # When off, pass line
     # when on, come bet
@@ -39,26 +47,73 @@ def dark_and_light(player, table, unit=5, strat_info=None):
     # 2,12 - bet * .1
     # 3 - bet * .2
     # come/pass bet = total bet * .75
+    # point on hard number, bet hard
+
     all_bets = player.bets_on_table
-    # passline(player, table, unit*2)
     dontpass(player, table, unit*2, odds=2)
 
     if table.point.is_on():
-        player.bet(Come(unit))
+        current_total = unit
         for bet in all_bets:
             if bet.name == "Come" and 7 not in bet.winning_numbers:
-                player.bet(Odds(unit*2, bet))
-    
-    player.bet(Horn(unit*.2))
-    player.bet(Hard(unit, 4))
-    player.bet(Hard(unit, 6))
-    player.bet(Hard(unit, 8))
-    player.bet(Hard(unit, 10))
+                current_total += bet.bet_amount
+                player.bet(Odds(bet.bet_amount * 2, bet))
+        # if player.num_bet("Come") < 3:
+        player.bet(Come(current_total))
+        player.bet(Horn(current_total*.2))
+        # if table.point.number in [4,6,8,10]:
+        #     player.bet(Hard(unit, table.point.number))
 
     # else:
     #     if player.num_bet("Come") < 3:
     #     if player.num_bet("Come") < 3:
     #         player.bet(Come(unit))
+
+def keep_coming_back(player, table, unit=5, strat_info=None):
+    # Get total of existing bets - half of winnings
+    # Bet that amount on the field or 1/30 on 2 and 12
+    # Bet twice that on come
+    all_bets = player.bets_on_table
+    current_total = unit
+
+    for bet in all_bets:
+        current_total += bet.bet_amount
+
+    # player.bet(Field(current_total))
+    player.bet(Hard(current_total/30, 2))
+    player.bet(Hard(current_total/30, 12))
+    # current_total *= 2
+    if table.point.is_off():
+        passline(player, table, current_total)
+    else:
+        player.bet(Come(current_total))
+
+
+def coming_everywhere(player, table, unit=5, strat_info=None):
+    # Bet unit on the pass line
+    # Place bet unit on all numbers
+    # Bet 10% of all bets on the table on the horn
+    # Bet sum of all bets (including horn) on come
+    passline(player, table, unit)
+    all_bets = player.bets_on_table
+    current_total = unit
+
+    for bet in all_bets:
+        current_total += bet.bet_amount
+
+    player.bet(Horn(current_total*.1))
+    current_total += current_total * .1
+
+    if table.point.is_on():
+        if len(all_bets) == 1:
+            player.bet(Place10(unit))
+            player.bet(Place9(unit))
+            player.bet(Place8(unit))
+            player.bet(Place6(unit))
+            player.bet(Place5(unit))
+            player.bet(Place4(unit))
+        current_total += unit * 6
+        player.bet(Come(current_total+unit))
 
 
 def nofield(player, table, unit=5, strat_info=None):
