@@ -1,5 +1,27 @@
 from crapssim.dice import Dice
 
+"""
+Supported Bet Types
+- Multi-Roll
+    - Pass/Don't Pass
+        - Odds
+    - Come/Don't Come
+        - Odds
+    - Place
+- Single-Roll
+    - Field
+    - Hard (2,4,6,8,10,12) - Note - I'm cheating with 2 and 12 instead of horn bets
+    - Horn
+
+
+- TODO:
+    - Lay
+    - Win
+    - Move Horn bets from hard and lay individual numbers (2,3,11,12)
+    - CE
+    - Seven
+    - Any Craps
+"""
 
 class Bet(object):
     """

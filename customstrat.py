@@ -79,9 +79,12 @@ def keep_coming_back(player, table, unit=5, strat_info=None):
     for bet in all_bets:
         current_total += bet.bet_amount
 
+    # TODO: Make bet total based on winning and current bets... bet less when you're up
     # player.bet(Field(current_total))
-    player.bet(Hard(current_total/30, 2))
-    player.bet(Hard(current_total/30, 12))
+    horn_bet = current_total/30
+    print(f"Betting {horn_bet} on Horn")
+    player.bet(Hard(horn_bet, 2))
+    player.bet(Hard(horn_bet, 12))
     # current_total *= 2
     if table.point.is_off():
         passline(player, table, current_total)

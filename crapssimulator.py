@@ -3,19 +3,19 @@ import customstrat
 import csv
 
 # n_sim = 10000
-n_sim = 10
-bankroll = 100000
+n_sim = 1
+bankroll = 1000
 strategies = {
-    "nofield": customstrat.nofield,
-    "hedged2come": customstrat.hedged2come,
-    "knockout": craps.strategy.knockout,
-    "pass2come": craps.strategy.pass2come,
-    "risk12": craps.strategy.risk12,
-    "darkandlight": customstrat.dark_and_light,
-    "coming everywhere": customstrat.coming_everywhere,
+    # "nofield": customstrat.nofield,
+    # "hedged2come": customstrat.hedged2come,
+    # "knockout": craps.strategy.knockout,
+    # "pass2come": craps.strategy.pass2come,
+    # "risk12": craps.strategy.risk12,
+    # "darkandlight": customstrat.dark_and_light,
+    # "coming everywhere": customstrat.coming_everywhere,
     "keep coming back": customstrat.keep_coming_back,
-    "corey": customstrat.corey,
-    "allin": customstrat.all_in,
+    # "corey": customstrat.corey,
+    # "allin": customstrat.all_in,
 }
 
 with open('data.csv', 'w', newline='') as f:
@@ -34,7 +34,7 @@ with open('data.csv', 'w', newline='') as f:
         for s in strategies:
             table.add_player(craps.Player(bankroll, strategies[s], s, verbose=verbose))
 
-        table.run(max_rolls=float("inf"), max_shooter=5)
+        table.run(max_rolls=float("inf"), max_shooter=3)
         total_rolls += table.dice.n_rolls
         print(f"Rolls: {table.dice.n_rolls}")
         for s in strategies:

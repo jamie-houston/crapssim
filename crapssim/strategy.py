@@ -9,6 +9,14 @@ Each strategy must take a table and a player_object, and implicitly
 uses the methods from the player object.
 """
 
+# TODO: Create strategy class with pre-defined places
+# new_shooter():
+# point_of():
+# point_on():
+# on_win():
+# on_loss():
+# etc
+
 """
 Fundamental Strategies
 """
