@@ -355,9 +355,9 @@ class Hard(Bet):
         self.subname = str(hard_number)
         self.winning_numbers = [hard_number]
         self.losing_numbers = [7]
-        if self.winning_numbers in [4,10]:
+        if any(set(self.winning_numbers).intersection([4,10])):
             self.payoutratio = 9
-        elif self.winning_numbers in [2,12]:
+        elif any(set(self.winning_numbers).intersection([2,12])):
             self.payoutratio = 30
         else:
             self.payoutratio = 7

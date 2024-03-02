@@ -1,6 +1,6 @@
 import pytest
 import crapssim as craps 
-from crapssim.bet import Hard, Place6
+from crapssim.bet import Hard, Place6, Horn
 from crapssim.dice import Dice
 
 def test_hard_way():
@@ -24,6 +24,32 @@ def test_place_bet():
 
     verify_roll_wins(table, player, bet, (3,3))
     verify_roll_loses(table, player, bet, (1,3))
+
+def test_horn_bet():
+    unit = 10
+    bankroll = 100
+    player = craps.Player(bankroll=bankroll)
+    table = craps.Table()
+    bet = Hard(unit, 2)
+
+    verify_roll_wins(table, player, bet, (1,1))
+    verify_roll_loses(table, player, bet, (1,3))
+
+def test_payout_correct():
+    table = craps.Table()
+    unit = 5
+    dice = Dice()
+    bet = Hard(unit, 2)
+    dice.fixed_roll((1,1))
+    (status, win_amount) = bet._update_bet(table, dice)
+    assert win_amount == unit * 30
+    assert status == "win"
+
+    bet = Horn(unit)
+    dice.fixed_roll((1,1))
+    (status, win_amount) = bet._update_bet(table, dice)
+    assert win_amount == unit * 30/4
+    assert status == "win"
 
 def set_point(table, roll):
     dice = Dice()
