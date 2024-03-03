@@ -1,19 +1,23 @@
 import crapssim as craps
 import customstrat
 import csv
+from crapssim.strategy.strategy import *
+
 
 # n_sim = 10000
 n_sim = 1
 bankroll = 1000
 strategies = {
+    # "strategy pattern": Strategy.update_bets,
+    # "dark pattern": DarkAndLightStrategy.update_bets,
     # "nofield": customstrat.nofield,
     # "hedged2come": customstrat.hedged2come,
     # "knockout": craps.strategy.knockout,
     # "pass2come": craps.strategy.pass2come,
     # "risk12": craps.strategy.risk12,
-    # "darkandlight": customstrat.dark_and_light,
+    "darkandlight": customstrat.dark_and_light,
     # "coming everywhere": customstrat.coming_everywhere,
-    "keep coming back": customstrat.keep_coming_back,
+    # "keep coming back": customstrat.keep_coming_back,
     # "corey": customstrat.corey,
     # "allin": customstrat.all_in,
 }
@@ -34,7 +38,11 @@ with open('data.csv', 'w', newline='') as f:
         for s in strategies:
             table.add_player(craps.Player(bankroll, strategies[s], s, verbose=verbose))
 
-        table.run(max_rolls=float("inf"), max_shooter=3)
+        darkStrat = DarkAndLightStrategy()
+        noFieldStrat = NoFieldStrategy()
+        table.add_player(craps.Player(bankroll, darkStrat.update_bets, "Dark Strat", verbose=verbose))
+        # table.add_player(craps.Player(bankroll, noFieldStrat.update_bets, "No Field Strat", verbose=verbose))
+        table.run(max_rolls=float("inf"), max_shooter=1)
         total_rolls += table.dice.n_rolls
         print(f"Rolls: {table.dice.n_rolls}")
         for s in strategies:

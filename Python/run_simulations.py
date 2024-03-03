@@ -1,6 +1,6 @@
 from crapssim import Table
 from crapssim import Player
-from crapssim import strategy
+from crapssim.strategy import strategy
 import sys 
 import os 
 

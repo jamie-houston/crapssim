@@ -1,7 +1,8 @@
 from crapssim.bet import PassLine, Odds, Come
 from crapssim.bet import DontPass, LayOdds
-from crapssim.bet import Place, Place4, Place5, Place6, Place8, Place9, Place10
+from crapssim.bet import Place, Place4, Place5, Place6, Place8, Place9, Place10, SingleRoll
 from crapssim.bet import Field, Horn, Hard
+from crapssim.strategy.strategy import Strategy
 
 """
 Various betting strategies that are based on conditions of the CrapsTable.
@@ -48,6 +49,7 @@ def dark_and_light(player, table, unit=5, strat_info=None):
     # 3 - bet * .2
     # come/pass bet = total bet * .75
     # point on hard number, bet hard
+    strategy = Strategy("dark and light", verbose = True)
 
     all_bets = player.bets_on_table
     dontpass(player, table, unit*2, odds=2)
@@ -81,10 +83,9 @@ def keep_coming_back(player, table, unit=5, strat_info=None):
 
     # TODO: Make bet total based on winning and current bets... bet less when you're up
     # player.bet(Field(current_total))
-    horn_bet = current_total/30
-    print(f"Betting {horn_bet} on Horn")
-    player.bet(Hard(horn_bet, 2))
-    player.bet(Hard(horn_bet, 12))
+    horn_bet = round(current_total/30,2)
+    player.bet(SingleRoll(horn_bet, 2))
+    player.bet(SingleRoll(horn_bet, 12))
     # current_total *= 2
     if table.point.is_off():
         passline(player, table, current_total)
@@ -92,20 +93,24 @@ def keep_coming_back(player, table, unit=5, strat_info=None):
         player.bet(Come(current_total))
 
 
-def coming_everywhere(player, table, unit=5, strat_info=None):
+def coming_everywhere(player, table, unit=1, strat_info=None):
     # Bet unit on the pass line
     # Place bet unit on all numbers
     # Bet 10% of all bets on the table on the horn
     # Bet sum of all bets (including horn) on come
-    passline(player, table, unit)
     all_bets = player.bets_on_table
     current_total = unit
 
     for bet in all_bets:
         current_total += bet.bet_amount
 
-    player.bet(Horn(current_total*.1))
-    current_total += current_total * .1
+    # player.bet(SingleRoll(current_total*.1, 2))
+    # player.bet(SingleRoll(current_total*.1, 12))
+    # player.bet(SingleRoll(current_total*.1, 3))
+    # current_total += current_total * .1
+    current_total -= max(unit, player.bankroll - 1000)
+    current_total = max(unit, current_total)
+    passline(player, table, current_total + unit)
 
     if table.point.is_on():
         if len(all_bets) == 1:
@@ -115,7 +120,7 @@ def coming_everywhere(player, table, unit=5, strat_info=None):
             player.bet(Place6(unit))
             player.bet(Place5(unit))
             player.bet(Place4(unit))
-        current_total += unit * 6
+            current_total += unit * 6
         player.bet(Come(current_total+unit))
 
 
@@ -156,4 +161,5 @@ def dontpass(player, table, unit=5, odds=0):
         player.bet(DontPass(unit))
     
     if table.point.is_on():
-        player.bet(Odds(odds * unit, player.get_bet("DontPass")))
+        if player.has_bet("DontPass"):
+            player.bet(Odds(odds * unit, player.get_bet("DontPass")))

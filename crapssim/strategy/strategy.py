@@ -1,4 +1,4 @@
-from crapssim.bet import PassLine, Odds, Come
+from crapssim.bet import Horn, PassLine, Odds, Come
 from crapssim.bet import DontPass, LayOdds
 from crapssim.bet import Place, Place4, Place5, Place6, Place8, Place9, Place10
 from crapssim.bet import Field
@@ -9,17 +9,113 @@ Each strategy must take a table and a player_object, and implicitly
 uses the methods from the player object.
 """
 
-# TODO: Create strategy class with pre-defined places
-# new_shooter():
-# point_of():
-# point_on():
-# on_win():
-# on_loss():
-# etc
-
 """
 Fundamental Strategies
 """
+
+class Strategy(object):
+    """
+    Bet based on status.  
+    Overwrite any method you want to use
+    Do NOT overwrite update bets unless you don't want the other methods to work
+    1. New Shooter
+    2. Coming Out
+    3. Point Set
+    4. Point Hit
+    5. Seven Out
+   
+    """
+    def __init__(self, unit=5, verbose=False):
+        self.unit = unit
+        self.verbose = verbose
+
+    def update_bets(self, player, table, unit, strat_info = None):
+            if table.point.is_on():
+                if table.last_roll == table.point.number:
+                    self.on_point_set(player, table, table.last_roll)
+            else:
+                if table.last_roll == None:
+                    self.on_new_shooter(player, table)
+                if self.verbose:
+                    print(f"STRAT::Roll: {table.last_roll}")
+                elif table.last_roll != 7:
+                    self.on_point_hit(player, table, table.last_roll)
+                self.on_coming_out(player, table)
+            self.place_bets(player, table)
+
+    def on_point_set(self,player, table, last_roll):
+        # When the point starts
+        if self.verbose:
+            print(f"STRAT::Point established {last_roll}")
+    
+    def on_point_hit(self, player, table, last_roll):
+        if self.verbose:
+            print(f"STRAT::Point hit {last_roll}")
+    
+    def on_new_shooter(self, player, table):
+        # New shooter coming out
+        if self.verbose:
+            print("\nSTRAT::New Shooter!")
+
+    def place_bets(self, player, table):
+        if self.verbose:
+            print(f"STRAT::Place bets")
+
+    def on_coming_out(self, player, table):
+        # When the point is off
+        if self.verbose:
+            print(f"STRAT::Coming Out")
+    
+
+class NoFieldStrategy(Strategy):
+    def __init__(self, unit=5, verbose=False):
+        super().__init__(unit, verbose)
+
+    def on_coming_out(self, player, table):
+    # When off, pass line
+        if self.verbose:
+            print(f"NOFIELD:Coming Out")
+        passline(player, table, self.unit)
+    
+    def on_point_set(self, player, table, last_roll):
+        if table.point.number in [6, 8] and not player.has_bet("Odds") and player.has_bet("PassLine"):
+            player.bet(Odds(3 * self.unit, player.get_bet("PassLine")))
+        if player.num_bet("Come") < 2:
+            player.bet(Come(self.unit))
+
+
+class DarkAndLightStrategy(Strategy):
+    # When off, pass line
+    # when on, come bet
+    # 2 odds on each
+    # 2,12 - bet * .1
+    # 3 - bet * .2
+    # come/pass bet = total bet * .75
+    # point on hard number, bet hard
+    def on_new_shooter(self, player, table):
+        print("DARK::New Shooter")
+
+    def on_coming_out(self, player, table):
+        dontpass(player, table, self.unit*2)
+
+    def on_point_set(self, player, table, last_roll):
+        all_bets = player.bets_on_table
+
+        current_total = self.unit
+        for bet in all_bets:
+            if bet.name == "Come" and 7 not in bet.winning_numbers:
+                current_total += bet.bet_amount
+                player.bet(Odds(bet.bet_amount * 2, bet))
+        # if player.num_bet("Come") < 3:
+        player.bet(Come(current_total))
+        player.bet(Horn(current_total*.2))
+        # if table.point.number in [4,6,8,10]:
+        #     player.bet(Hard(unit, table.point.number))
+
+        # else:
+        #     if player.num_bet("Come") < 3:
+        #     if player.num_bet("Come") < 3:
+        #         player.bet(Come(unit))
 
 
 def passline(player, table, unit=5, strat_info=None):

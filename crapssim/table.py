@@ -17,7 +17,7 @@ class Table(object):
     ----------
     players : list
         List of player objects at the table
-    total_player_cash : float
+    total_player_cash : decimal
         Sum of all players bankroll and bets on table
     point : string
         The point for the table.  It is either "Off" when point is off or "On"
@@ -50,6 +50,10 @@ class Table(object):
         self.n_shooters = 1
         self.verbose = verbose
 
+    def __repr__(self) -> str:
+        return f"Point: ${self.point} roll: {self.last_roll}"
+        
+        
     @classmethod
     def with_payouts(cls, **kwagrs):
         table = cls()
@@ -89,11 +93,6 @@ class Table(object):
         if self.verbose:
             print(f"Initial players: {[p.name for p in self.players]}")
 
-        # maybe wrap this into update table or something
-        self.total_player_cash = sum(
-            [p.total_bet_amount + p.bankroll for p in self.players]
-        )
-
         continue_rolling = True
         while continue_rolling:
 
@@ -114,20 +113,21 @@ class Table(object):
             self._update_table(self.dice)
             if self.verbose:
                 print(f"Point is {self.point.status} ({self.point.number})")
-                print(f"Total Player Cash is ${self.total_player_cash}")
+                print(f"Total Player Cash is ${self.total_player_cash()}")
+                print(f"Total Player Bet Amount is ${self.total_player_bets()}")
 
             # evaluate the stopping condition
             if runout:
                 continue_rolling = (
                     self.dice.n_rolls < max_rolls
                     and self.n_shooters <= max_shooter
-                    and self.total_player_cash > 0
+                    and self.total_player_cash() > 0
                 ) or self.player_has_bets
             else:
                 continue_rolling = (
                     self.dice.n_rolls < max_rolls
                     and self.n_shooters <= max_shooter
-                    and self.total_player_cash > 0
+                    and self.total_player_cash() > 0
                 )
 
     def _add_player_bets(self):
@@ -147,6 +147,16 @@ class Table(object):
             info = p._update_bet(self, dice)
             self.bet_update_info[p] = info
 
+    def total_player_bets(self):
+        return round(sum(
+            [p.total_bet_amount for p in self.players]
+        ),2)
+
+    def total_player_cash(self):
+        return round(sum(
+            [p.total_bet_amount + p.bankroll for p in self.players]
+        ),2)
+
     def _update_table(self, dice):
         """ update table attributes based on previous dice roll """
         self.pass_rolls += 1
@@ -156,9 +166,6 @@ class Table(object):
             self.pass_rolls = 0
 
         self.point.update(dice)
-        self.total_player_cash = sum(
-            [p.total_bet_amount + p.bankroll for p in self.players]
-        )
         self.player_has_bets = sum([len(p.bets_on_table) for p in self.players]) >= 1
         self.last_roll = dice.total
 
@@ -215,7 +222,7 @@ if __name__ == "__main__":
     import sys
 
     # import strategy
-    from crapssim import strategy
+    from crapssim.strategy import strategy
 
     sim = False
     printout = True
@@ -239,7 +246,7 @@ if __name__ == "__main__":
                 table = Table()
                 table.add_player(Player(bankroll, strategy, verbose=False))
                 table.run(n_roll, n_shooter, runout=runout)
-                out = f"{table.total_player_cash},{table.dice.n_rolls}"
+                out = f"{table.total_player_cash()},{table.dice.n_rolls}"
                 f_out.write(str(out))
                 f_out.write(str("\n"))
 

@@ -56,7 +56,7 @@ class Bet(object):
     # TODO: add whether bet can be removed
 
     def __init__(self, bet_amount):
-        self.bet_amount = int(bet_amount)
+        self.bet_amount = round(bet_amount, 2)
 
     # def __eq__(self, other):
     #     return self.name == other.name
@@ -68,7 +68,7 @@ class Bet(object):
         if dice_object.total in self.winning_numbers:
             status = "win"
             win_amount = self.payoutratio * self.bet_amount
-        elif dice_object.total in self.losing_numbers:
+        elif len(self.losing_numbers) == 0 or dice_object.total in self.losing_numbers:
             status = "lose"
 
         return status, win_amount
@@ -349,7 +349,6 @@ class Horn(Bet):
 
 class Hard(Bet):
     def __init__(self, bet_amount, hard_number):
-        bet_amount = round(bet_amount)
         super().__init__(bet_amount)
         self.name = "Hard"
         self.subname = str(hard_number)
@@ -357,10 +356,11 @@ class Hard(Bet):
         self.losing_numbers = [7]
         if any(set(self.winning_numbers).intersection([4,10])):
             self.payoutratio = 9
-        elif any(set(self.winning_numbers).intersection([2,12])):
-            self.payoutratio = 30
-        else:
+        elif any(set(self.winning_numbers).intersection([6,8])):
             self.payoutratio = 7
+        else:
+            raise Exception("Invalid bet")
+        
 
     def _update_bet(self, table_object, dice_object):
         status = None
@@ -375,4 +375,30 @@ class Hard(Bet):
         else: 
             return super()._update_bet(table_object, dice_object)
 
+        return status, win_amount
+
+class SingleRoll(Bet):
+    def __init__(self, bet_amount, winning_number):
+        super().__init__(bet_amount)
+        self.name = str(winning_number)
+        self.subname = "Single Roll"
+        self.winning_numbers = [winning_number]
+        if any(set(self.winning_numbers).intersection([2,12])):
+            self.payoutratio = 30
+        elif any(set(self.winning_numbers).intersection([3,11])):
+            self.payoutratio = 15
+        else:
+            raise Exception("Invalid bet")
+ 
+
+
+    def __update_bet(self, table_object, dice_object):
+        status = None
+        win_amount = 0
+        if dice_object.total in self.winning_numbers:
+            status = "win"
+            win_amount = self.payoutratio * self.bet_amount
+        else:
+            status = "lose"
+        
         return status, win_amount

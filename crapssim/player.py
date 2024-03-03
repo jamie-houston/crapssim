@@ -29,6 +29,9 @@ class Player(object):
         self.biggest_win = 0
         self.biggest_loss = 0
         self.biggest_bet = 0
+    
+    def __repr__(self) -> str:
+        return f"${self.bankroll} - bets:${self.total_bet_amount}"
 
     def bet(self, bet_object):
         if not self.has_matching_bet(bet_object):
@@ -36,7 +39,7 @@ class Player(object):
             if self.bankroll >= bet_object.bet_amount:
                 if self.biggest_bet < bet_object.bet_amount:
                     self.biggest_bet = bet_object.bet_amount
-                self.bankroll -= bet_object.bet_amount
+                self.bankroll = round(self.bankroll - bet_object.bet_amount, 2)
                 self.bets_on_table.append(bet_object)
                 self.total_bet_amount += bet_object.bet_amount
 
