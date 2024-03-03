@@ -61,6 +61,12 @@ class Player(object):
         bet_names = {b.name for b in self.bets_on_table}
         return bool(bet_names.intersection(bets_to_check))
 
+    def has_bet_type(self, bet_type):
+        for bet in self.bets_on_table:
+            if isinstance(bet, bet_type):
+                return True
+        return False
+
     def get_bet(self, bet_name, bet_subname=""):
         """returns first betting object matching bet_name and bet_subname.
         If bet_subname="Any", returns first betting object matching bet_name"""
@@ -71,6 +77,11 @@ class Player(object):
             bet_name_list = [[b.name, b.subname] for b in self.bets_on_table]
             ind = bet_name_list.index([bet_name, bet_subname])
         return self.bets_on_table[ind]
+    
+    def get_bet_type(self, bet_type):
+        for bet in self.bets_on_table:
+            if isinstance(bet, bet_type):
+                return bet
 
     def num_bet(self, *bets_to_check):
         """ returns the total number of bets in self.bets_on_table that match bets_to_check """

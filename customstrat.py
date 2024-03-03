@@ -52,7 +52,7 @@ def dark_and_light(player, table, unit=5, strat_info=None):
     strategy = Strategy("dark and light", verbose = True)
 
     all_bets = player.bets_on_table
-    dontpass(player, table, unit*2, odds=2)
+    dontpass(player, table, unit*2)
 
     if table.point.is_on():
         current_total = unit
@@ -160,6 +160,3 @@ def dontpass(player, table, unit=5, odds=0):
     if table.point.is_off() and not player.has_bet("DontPass"):
         player.bet(DontPass(unit))
     
-    if table.point.is_on():
-        if player.has_bet("DontPass"):
-            player.bet(Odds(odds * unit, player.get_bet("DontPass")))
