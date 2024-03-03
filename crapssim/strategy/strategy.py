@@ -39,8 +39,6 @@ class Strategy(object):
             else:
                 if table.last_roll == None:
                     self.on_new_shooter(player, table)
-                if self.verbose:
-                    print(f"STRAT::Roll: {table.last_roll}")
                 elif table.last_roll != 7:
                     self.on_point_hit(player, table, table.last_roll)
                 self.on_coming_out(player, table)
@@ -84,8 +82,7 @@ class NoFieldStrategy(Strategy):
             print(f"NOFIELD:Coming Out")
         passline(player, table, self.unit)
     
-    def on_point_set(self, player, table, last_roll):
-        # if table.point.number in [6, 8] and not player.has_bet("Odds") and player.has_bet("PassLine"):
+    def on_active_point(self, player, table):
         if table.point.number in [6, 8] and not player.has_bet_type(Odds) and player.has_bet_type(PassLine):
             player.bet(Odds(3 * self.unit, player.get_bet_type(PassLine)))
         if player.num_bet("Come") < 2:
