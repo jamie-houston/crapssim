@@ -49,8 +49,6 @@ def dark_and_light(player, table, unit=5, strat_info=None):
     # 3 - bet * .2
     # come/pass bet = total bet * .75
     # point on hard number, bet hard
-    strategy = Strategy("dark and light", verbose = True)
-
     all_bets = player.bets_on_table
     dontpass(player, table, unit*2)
 

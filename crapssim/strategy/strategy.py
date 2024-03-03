@@ -18,11 +18,13 @@ class Strategy(object):
     Bet based on status.  
     Overwrite any method you want to use
     Do NOT overwrite update bets unless you don't want the other methods to work
-    1. New Shooter
-    2. Coming Out
-    3. Point Set
-    4. Point Hit
-    5. Seven Out
+    1. New Shooter - first roll of shooter
+    2. Coming Out - point not set
+    3. Point Set - first roll after point is set
+    4. Point Hit - first roll after point is hit
+    5. Seven Out - seven out
+    6. Active Point - point is set
+    7. Any status - Any time in roll
    
     """
     def __init__(self, unit=5, verbose=False):
@@ -33,6 +35,7 @@ class Strategy(object):
             if table.point.is_on():
                 if table.last_roll == table.point.number:
                     self.on_point_set(player, table, table.last_roll)
+                self.on_active_point(player, table)
             else:
                 if table.last_roll == None:
                     self.on_new_shooter(player, table)
@@ -41,7 +44,7 @@ class Strategy(object):
                 elif table.last_roll != 7:
                     self.on_point_hit(player, table, table.last_roll)
                 self.on_coming_out(player, table)
-            self.place_bets(player, table)
+            self.on_any_status(player, table)
 
     def on_point_set(self,player, table, last_roll):
         # When the point starts
@@ -57,9 +60,13 @@ class Strategy(object):
         if self.verbose:
             print("\nSTRAT::New Shooter!")
 
-    def place_bets(self, player, table):
+    def on_any_status(self, player, table):
         if self.verbose:
-            print(f"STRAT::Place bets")
+            print(f"STRAT::Any Status")
+
+    def on_active_point(self, player, table):
+        if self.verbose:
+            print(f"STRAT::Active Point")
 
     def on_coming_out(self, player, table):
         # When the point is off
@@ -99,7 +106,9 @@ class DarkAndLightStrategy(Strategy):
     def on_coming_out(self, player, table):
         dontpass(player, table, self.unit*2)
 
-    def on_point_set(self, player, table, last_roll):
+    def on_active_point(self, player, table):
+        if self.verbose:
+            print("DARK::On Active Point")
         all_bets = player.bets_on_table
 
         current_total = self.unit
