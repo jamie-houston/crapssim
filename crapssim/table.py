@@ -51,7 +51,7 @@ class Table(object):
         self.verbose = verbose
 
     def __repr__(self) -> str:
-        return f"Point: ${self.point} roll: {self.last_roll}"
+        return f"Point: {self.point} last roll: {self.last_roll}"
         
         
     @classmethod
@@ -95,7 +95,11 @@ class Table(object):
 
         continue_rolling = True
         while continue_rolling:
-
+            for p in self.players:
+                if p.bankroll > p.target_bankroll:
+                    if self.verbose:
+                        print(f"{p.name} has reached their goal of {p.target_bankroll}") 
+                    p.reached_target = True
             # players make their bets
             self._add_player_bets()
             for p in self.players:
@@ -201,7 +205,7 @@ class _Point(object):
         return self.status == other
 
     def __repr__(self) -> str:
-        return self.status + " " + self.number
+        return f"{self.status} ({self.number})"
 
     def is_on(self):
         return self.status == "On"

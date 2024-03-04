@@ -10,6 +10,7 @@ class Player(object):
         A function that implements a particular betting strategy.  See betting_strategies.py
     name : string, optional (default = "Player")
         Name of the player
+    target_bankroll : Desired amount to get to.  Once reached, roll is successful
 
     Attributes
     ----------
@@ -19,8 +20,9 @@ class Player(object):
         Sum of bet value for the player
     """
 
-    def __init__(self, bankroll, bet_strategy=None, name="Player", verbose=False):
+    def __init__(self, bankroll, bet_strategy=None, name="Player", target_bankroll=None, verbose=False):
         self.bankroll = bankroll
+        self.target_bankroll = target_bankroll
         self.bet_strategy = bet_strategy
         self.name = name
         self.bets_on_table = []
@@ -29,6 +31,7 @@ class Player(object):
         self.biggest_win = 0
         self.biggest_loss = 0
         self.biggest_bet = 0
+        self.reached_target = False
     
     def __repr__(self) -> str:
         return f"${self.bankroll} - bets:${self.total_bet_amount}"

@@ -7,19 +7,20 @@ from crapssim.strategy.strategy import *
 # n_sim = 10000
 n_sim = 1
 bankroll = 1000
+target_bankroll = 1200
 strategies = {
-    # "darkandlight strat": DarkAndLightStrategy().update_bets,
-    # "darkandlight": customstrat.dark_and_light,
+    "darkandlight strat": DarkAndLightStrategy().update_bets,
+    "darkandlight": customstrat.dark_and_light,
     "nofield": customstrat.nofield,
     "nofield strat": NoFieldStrategy().update_bets,
-    # "hedged2come": customstrat.hedged2come,
-    # "knockout": craps.strategy.knockout,
-    # "pass2come": craps.strategy.pass2come,
-    # "risk12": craps.strategy.risk12,
-    # "coming everywhere": customstrat.coming_everywhere,
-    # "keep coming back": customstrat.keep_coming_back,
-    # "corey": customstrat.corey,
-    # "allin": customstrat.all_in,
+    "hedged2come": customstrat.hedged2come,
+    "knockout": craps.strategy.knockout,
+    "pass2come": craps.strategy.pass2come,
+    "risk12": craps.strategy.risk12,
+    "coming everywhere": customstrat.coming_everywhere,
+    "keep coming back": customstrat.keep_coming_back,
+    "corey": customstrat.corey,
+    "allin": customstrat.all_in,
 }
 
 with open('data.csv', 'w', newline='') as f:
@@ -36,9 +37,9 @@ with open('data.csv', 'w', newline='') as f:
         print("\nNew Shooter!")
         table = craps.Table(verbose=verbose)
         for s in strategies:
-            table.add_player(craps.Player(bankroll, strategies[s], s, verbose=verbose))
+            table.add_player(craps.Player(bankroll, strategies[s], s, target_bankroll=target_bankroll, verbose=verbose))
 
-        table.run(max_rolls=float("inf"), max_shooter=5)
+        table.run(max_rolls=float("inf"), max_shooter=10)
         total_rolls += table.dice.n_rolls
         print(f"Rolls: {table.dice.n_rolls}")
         for s in strategies:
@@ -54,6 +55,8 @@ with open('data.csv', 'w', newline='') as f:
 
     for player in table.players:
         print(f"{player.name} - biggest win: {player.biggest_win} biggest loss: {player.biggest_loss} biggest best: {player.biggest_bet}")
+        if player.reached_target:
+            print(f"***{player.name} reached target of {player.target_bankroll}***")
 
     for strategy, result in sorted(result_summary.items(), key=lambda item: item[1]):
     # for strat,result in result_summary.items():
