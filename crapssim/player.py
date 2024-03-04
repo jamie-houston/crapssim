@@ -36,6 +36,9 @@ class Player(object):
     def __repr__(self) -> str:
         return f"${self.bankroll} - bets:${self.total_bet_amount}"
 
+    def __str__(self) -> str:
+        return f"{self.name} - bets:{self.total_bet_amount}"
+
     def bet(self, bet_object):
         if not self.has_matching_bet(bet_object):
             # don't add duplicate bet

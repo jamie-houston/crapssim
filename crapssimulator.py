@@ -1,7 +1,7 @@
 import crapssim as craps
 import customstrat
 import csv
-from crapssim.strategy.strategy import *
+from crapssim.strategy.custom import DarkAndLightStrategy, NoFieldStrategy, KeepComingBackStrategy, ComingEverywhereStrategy
 
 
 # n_sim = 10000
@@ -9,18 +9,21 @@ n_sim = 1
 bankroll = 1000
 target_bankroll = 1200
 strategies = {
-    "darkandlight strat": DarkAndLightStrategy().update_bets,
-    "darkandlight": customstrat.dark_and_light,
-    "nofield": customstrat.nofield,
-    "nofield strat": NoFieldStrategy().update_bets,
-    "hedged2come": customstrat.hedged2come,
-    "knockout": craps.strategy.knockout,
-    "pass2come": craps.strategy.pass2come,
-    "risk12": craps.strategy.risk12,
-    "coming everywhere": customstrat.coming_everywhere,
-    "keep coming back": customstrat.keep_coming_back,
-    "corey": customstrat.corey,
-    "allin": customstrat.all_in,
+    # "darkandlight strat": DarkAndLightStrategy().update_bets,
+    # "darkandlight": customstrat.dark_and_light,
+    # "nofield": customstrat.nofield,
+    # "nofield strat": NoFieldStrategy().update_bets,
+    # "hedged2come": customstrat.hedged2come,
+    # "knockout": craps.strategy.knockout,
+    # "pass2come": craps.strategy.pass2come,
+    # "risk12": craps.strategy.risk12,
+    # "coming everywhere": customstrat.coming_everywhere,
+    "keep coming strat": KeepComingBackStrategy().update_bets,
+    "coming everywhere strat": ComingEverywhereStrategy().update_bets,
+    # "allin": customstrat.all_in,
+    # "corey strat": ().u
+    # "corey": customstrat.corey,
+    # "allin": customstrat.all_in,
 }
 
 with open('data.csv', 'w', newline='') as f:
@@ -39,7 +42,7 @@ with open('data.csv', 'w', newline='') as f:
         for s in strategies:
             table.add_player(craps.Player(bankroll, strategies[s], s, target_bankroll=target_bankroll, verbose=verbose))
 
-        table.run(max_rolls=float("inf"), max_shooter=10)
+        table.run(max_rolls=float("inf"), max_shooter=2)
         total_rolls += table.dice.n_rolls
         print(f"Rolls: {table.dice.n_rolls}")
         for s in strategies:

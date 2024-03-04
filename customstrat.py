@@ -2,7 +2,6 @@ from crapssim.bet import PassLine, Odds, Come
 from crapssim.bet import DontPass, LayOdds
 from crapssim.bet import Place, Place4, Place5, Place6, Place8, Place9, Place10, SingleRoll
 from crapssim.bet import Field, Horn, Hard
-from crapssim.strategy.strategy import Strategy
 
 """
 Various betting strategies that are based on conditions of the CrapsTable.
@@ -40,55 +39,6 @@ def all_in(player, table, unit=5, strat_info=None):
     player.bet(Hard(unit, 6))
     player.bet(Hard(unit, 8))
     player.bet(Hard(unit, 10))
-
-def dark_and_light(player, table, unit=5, strat_info=None):
-    # When off, pass line
-    # when on, come bet
-    # 2 odds on each
-    # 2,12 - bet * .1
-    # 3 - bet * .2
-    # come/pass bet = total bet * .75
-    # point on hard number, bet hard
-    all_bets = player.bets_on_table
-    dontpass(player, table, unit*2)
-
-    if table.point.is_on():
-        current_total = unit
-        for bet in all_bets:
-            if bet.name == "Come" and 7 not in bet.winning_numbers:
-                current_total += bet.bet_amount
-                player.bet(Odds(bet.bet_amount * 2, bet))
-        # if player.num_bet("Come") < 3:
-        player.bet(Come(current_total))
-        player.bet(Horn(current_total*.2))
-        # if table.point.number in [4,6,8,10]:
-        #     player.bet(Hard(unit, table.point.number))
-
-    # else:
-    #     if player.num_bet("Come") < 3:
-    #     if player.num_bet("Come") < 3:
-    #         player.bet(Come(unit))
-
-def keep_coming_back(player, table, unit=5, strat_info=None):
-    # Get total of existing bets - half of winnings
-    # Bet that amount on the field or 1/30 on 2 and 12
-    # Bet twice that on come
-    all_bets = player.bets_on_table
-    current_total = unit
-
-    for bet in all_bets:
-        current_total += bet.bet_amount
-
-    # TODO: Make bet total based on winning and current bets... bet less when you're up
-    # player.bet(Field(current_total))
-    horn_bet = round(current_total/30,2)
-    player.bet(SingleRoll(horn_bet, 2))
-    player.bet(SingleRoll(horn_bet, 12))
-    # current_total *= 2
-    if table.point.is_off():
-        passline(player, table, current_total)
-    else:
-        player.bet(Come(current_total))
 
 
 def coming_everywhere(player, table, unit=1, strat_info=None):
