@@ -22,6 +22,7 @@ class Player(object):
 
     def __init__(self, bankroll, bet_strategy=None, name="Player", target_bankroll=None, verbose=False):
         self.bankroll = bankroll
+        self.starting_bankroll = bankroll
         self.target_bankroll = target_bankroll
         self.bet_strategy = bet_strategy
         self.name = name
@@ -86,7 +87,7 @@ class Player(object):
     
     def get_bet_type(self, bet_type):
         for bet in self.bets_on_table:
-            if isinstance(bet, bet_type):
+            if bet.__class__ == bet_type:
                 return bet
 
     def num_bet(self, *bets_to_check):
@@ -106,7 +107,7 @@ class Player(object):
         info = {}
         for b in self.bets_on_table[:]:
             status, win_amount = b._update_bet(table_object, dice_object)
-            win_amount = int(win_amount)
+            win_amount = round(win_amount, 2)
 
             if status == "win":
                 if win_amount > self.biggest_win:

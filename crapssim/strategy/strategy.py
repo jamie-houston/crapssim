@@ -33,18 +33,18 @@ class Strategy(object):
         self.verbose = verbose
 
     def update_bets(self, player, table, unit, strat_info = None):
-            ic(f"Update Bets for {player} and {table}")
-            if table.point.is_on():
-                if table.last_roll == table.point.number:
-                    self.on_point_set(player, table, table.last_roll)
-                self.on_active_point(player, table)
-            else:
-                if table.last_roll == None:
-                    self.on_new_shooter(player, table)
-                elif table.last_roll != 7:
-                    self.on_point_hit(player, table, table.last_roll)
-                self.on_coming_out(player, table)
-            self.on_any_status(player, table)
+        # self.last_bet_info = ic(table.bet_update_info[player])
+        if table.point.is_on():
+            if table.last_roll == table.point.number:
+                self.on_point_set(player, table, table.last_roll)
+            self.on_active_point(player, table)
+        else:
+            if table.last_roll == None:
+                self.on_new_shooter(player, table)
+            elif table.last_roll != 7:
+                self.on_point_hit(player, table, table.last_roll)
+            self.on_coming_out(player, table)
+        self.on_any_status(player, table)
 
     def on_point_set(self,player, table, last_roll):
         # When the point starts

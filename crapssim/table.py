@@ -96,7 +96,7 @@ class Table(object):
         continue_rolling = True
         while continue_rolling:
             for p in self.players:
-                if p.bankroll > p.target_bankroll:
+                if p.target_bankroll is not None and p.bankroll > p.target_bankroll:
                     if self.verbose:
                         print(f"{p.name} has reached their goal of {p.target_bankroll}") 
                     p.reached_target = True

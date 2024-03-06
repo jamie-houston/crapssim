@@ -41,52 +41,9 @@ def all_in(player, table, unit=5, strat_info=None):
     player.bet(Hard(unit, 10))
 
 
-def coming_everywhere(player, table, unit=1, strat_info=None):
-    # Bet unit on the pass line
-    # Place bet unit on all numbers
-    # Bet 10% of all bets on the table on the horn
-    # Bet sum of all bets (including horn) on come
-    all_bets = player.bets_on_table
-    current_total = unit
-
-    for bet in all_bets:
-        current_total += bet.bet_amount
-
-    # player.bet(SingleRoll(current_total*.1, 2))
-    # player.bet(SingleRoll(current_total*.1, 12))
-    # player.bet(SingleRoll(current_total*.1, 3))
-    # current_total += current_total * .1
-    current_total -= max(unit, player.bankroll - 1000)
-    current_total = max(unit, current_total)
-    passline(player, table, current_total + unit)
-
-    if table.point.is_on():
-        if len(all_bets) == 1:
-            player.bet(Place10(unit))
-            player.bet(Place9(unit))
-            player.bet(Place8(unit))
-            player.bet(Place6(unit))
-            player.bet(Place5(unit))
-            player.bet(Place4(unit))
-            current_total += unit * 6
-        player.bet(Come(current_total+unit))
-
-
-def nofield(player, table, unit=5, strat_info=None):
-    # When off, pass line
-    passline(player, table, unit)
-    
-    # When on, 2 come, play odds on 6 or 8
-    if table.point.is_on():
-        if table.point.number in [6, 8] and not player.has_bet("Odds") and player.has_bet("PassLine"):
-            player.bet(Odds(3 * unit, player.get_bet("PassLine")))
-        if player.num_bet("Come") < 2:
-            player.bet(Come(unit))
-
 def hedged2come (player, table, unit=5, strat_info=None):
     # When off, don't pass line
     dontpass(player, table, unit)
-    passline(player, table, unit)
 
     if table.point.is_on():
         if table.point.number in [6,8] and not player.has_bet("Odds") and player.has_bet("PassLine"):
