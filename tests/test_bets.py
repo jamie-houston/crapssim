@@ -10,7 +10,9 @@ def test_hard_way():
     player = craps.Player(bankroll=bankroll)
     table = craps.Table()
     verify_roll_wins(table, player, bet, (2,2))
+    verify_bet_on_table(player, bet)
     verify_roll_loses(table, player, bet, (1,3))
+    verify_bet_not_on_table(player, bet)
 
 def test_place_bet():
     unit = 12
@@ -23,7 +25,11 @@ def test_place_bet():
     set_point(table, (3,6))
 
     verify_roll_wins(table, player, bet, (3,3))
-    verify_roll_loses(table, player, bet, (1,3))
+    verify_bet_on_table(player, bet)
+    verify_no_outcome(table, player, bet, (2,3))
+    verify_bet_on_table(player, bet)
+    verify_roll_loses(table, player, bet, (1,6))
+    verify_bet_not_on_table(player, bet)
 
 def test_single_roll():
     unit = 10
@@ -33,8 +39,9 @@ def test_single_roll():
     bet = SingleRoll(unit, 2)
 
     verify_roll_wins(table, player, bet, (1,1))
-    verify_no_bets(player)
+    verify_bet_not_on_table(player, bet)
     verify_roll_loses(table, player, bet, (1,3))
+    verify_bet_not_on_table(player, bet)
 
 def test_payout_correct():
     table = craps.Table()
@@ -60,9 +67,11 @@ def set_point(table, roll):
     # roll once to establish point
     table._update_table(dice)
 
-def verify_no_bets(player):
-    assert player.bets_on_table == []
+def verify_bet_not_on_table(player, bet):
+    assert player.has_bet(bet) == False
 
+def verify_bet_on_table(player, bet):
+    assert player.has_matching_bet(bet)
 
 def verify_roll_wins(table, player, bet, roll):
     dice = Dice()
@@ -72,22 +81,28 @@ def verify_roll_wins(table, player, bet, roll):
 
     # roll hard way
     dice.fixed_roll(roll)
-    player._update_bet(table, dice)
-    
+    info = player._update_bet(table, dice)
+    assert info[bet.name]["status"] == "win"
     # validate win and payout
     assert player.bankroll == current_bankroll + (bet.bet_amount * bet.payoutratio)
-
-    # validate bet no longer valid (1 time bet)
-    assert player.bets_on_table == []
 
 def verify_roll_loses(table, player, bet, roll):
     dice = Dice()
     # roll non-hardway
-    current_bankroll = player.bankroll
     player.bet(bet)
     dice.fixed_roll(roll)
-    player._update_bet(table, dice)
+    info = player._update_bet(table, dice)
 
     # validate loss
-    assert player.bankroll == current_bankroll - bet.bet_amount
+    assert info[bet.name]["status"] == "lose"
+    
+def verify_no_outcome(table, player, bet, roll):
+    dice = Dice()
+    # roll non-hardway
+    player.bet(bet)
+    dice.fixed_roll(roll)
+    info = player._update_bet(table, dice)
+
+    # validate loss
+    assert info[bet.name]["status"] == None
     

@@ -383,6 +383,8 @@ class SingleRoll(Bet):
         self.name = str(winning_number)
         self.subname = "Single Roll"
         self.winning_numbers = [winning_number]
+        self.losing_numbers = [2,3,4,5,6,7,8,9,10,11,12]
+        self.losing_numbers.remove(winning_number)
         if any(set(self.winning_numbers).intersection([2,12])):
             self.payoutratio = 30
         elif any(set(self.winning_numbers).intersection([3,11])):

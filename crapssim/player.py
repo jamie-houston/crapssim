@@ -114,7 +114,6 @@ class Player(object):
                     self.biggest_win = win_amount
                 self.bankroll += win_amount + b.bet_amount
                 self.total_bet_amount -= b.bet_amount
-                self.bets_on_table.remove(b)
                 if self.verbose:
                     print(f"{self.name} won ${win_amount} on {b} bet!")
             elif status == "lose":
@@ -127,7 +126,6 @@ class Player(object):
             elif status == "push":
                 self.bankroll += b.bet_amount
                 self.total_bet_amount -= b.bet_amount
-                self.bets_on_table.remove(b)
                 if self.verbose:
                     print(f"{self.name} pushed ${b.bet_amount} on {b} bet.")
 
