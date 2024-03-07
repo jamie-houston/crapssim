@@ -1,6 +1,6 @@
 import pytest
 import crapssim as craps 
-from crapssim.bet import Hard, Place6, Horn, SingleRoll
+from crapssim.bet import BetStatus, Hard, Place6, Horn, SingleRoll
 from crapssim.dice import Dice
 
 def test_hard_way():
@@ -49,15 +49,15 @@ def test_payout_correct():
     dice = Dice()
     bet = SingleRoll(unit, 12)
     dice.fixed_roll((6,6))
-    (status, win_amount) = bet._update_bet(table, dice)
-    assert win_amount == unit * 30
-    assert status == "win"
+    result = bet._update_bet(table, dice)
+    assert result.win_amount == unit * 30
+    assert result.status == BetStatus.WIN
 
     bet = Horn(unit)
     dice.fixed_roll((1,1))
-    (status, win_amount) = bet._update_bet(table, dice)
-    assert win_amount == unit * 30/4
-    assert status == "win"
+    result = bet._update_bet(table, dice)
+    assert result.win_amount == unit * 30/4
+    assert result.status == BetStatus.WIN
 
 def set_point(table, roll):
     dice = Dice()
@@ -81,8 +81,8 @@ def verify_roll_wins(table, player, bet, roll):
 
     # roll hard way
     dice.fixed_roll(roll)
-    info = player._update_bet(table, dice)
-    assert info[bet.name]["status"] == "win"
+    info = player._update_bet(table, dice)[bet.name]
+    assert info.status == BetStatus.WIN
     # validate win and payout
     assert player.bankroll == current_bankroll + (bet.bet_amount * bet.payoutratio)
 
@@ -94,7 +94,7 @@ def verify_roll_loses(table, player, bet, roll):
     info = player._update_bet(table, dice)
 
     # validate loss
-    assert info[bet.name]["status"] == "lose"
+    assert info.status == BetStatus.LOSE
     
 def verify_no_outcome(table, player, bet, roll):
     dice = Dice()
@@ -104,5 +104,5 @@ def verify_no_outcome(table, player, bet, roll):
     info = player._update_bet(table, dice)
 
     # validate loss
-    assert info[bet.name]["status"] == None
+    assert info.status == BetStatus.PUSH
     

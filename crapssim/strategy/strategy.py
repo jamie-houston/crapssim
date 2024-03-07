@@ -1,4 +1,4 @@
-from crapssim.bet import Horn, PassLine, Odds, Come
+from crapssim.bet import BetStatus, DontCome, Horn, PassLine, Odds, Come
 from crapssim.bet import DontPass, LayOdds
 from crapssim.bet import Place, Place4, Place5, Place6, Place8, Place9, Place10
 from crapssim.bet import Field
@@ -19,6 +19,8 @@ class Strategy(object):
     Bet based on status.  
     Overwrite any method you want to use
     Do NOT overwrite update bets unless you don't want the other methods to work
+
+    Status of roll in chronological order:
     1. New Shooter - first roll of shooter
     2. Coming Out - point not set
     3. Point Set - first roll after point is set
@@ -26,6 +28,14 @@ class Strategy(object):
     5. Seven Out - seven out
     6. Active Point - point is set
     7. Any status - Any time in roll
+
+    Bet results:
+    1. on_win - win
+    2. on_loss - loss
+    3. on_push
+    4. on_any_bet_result
+    
+
    
     """
     def __init__(self, unit=5, verbose=False):
@@ -33,7 +43,19 @@ class Strategy(object):
         self.verbose = verbose
 
     def update_bets(self, player, table, unit, strat_info = None):
-        # self.last_bet_info = ic(table.bet_update_info[player])
+        last_bets = table.bet_update_info and table.bet_update_info.get(player) 
+        if last_bets is not None:
+            for bet, bet_info in last_bets.items():
+                match bet_info.status:
+                    case BetStatus.PUSH:
+                        if self.verbose:
+                            print(f"STRAT::Bet {bet} was a push")
+                    case BetStatus.WIN:
+                        self.on_win(player, table, bet_info)
+                    case BetStatus.LOSE:
+                        self.on_loss(player, table, bet_info)
+                self.on_any_bet_result(player, table, bet_info)
+
         if table.point.is_on():
             if table.last_roll == table.point.number:
                 self.on_point_set(player, table, table.last_roll)
@@ -45,6 +67,22 @@ class Strategy(object):
                 self.on_point_hit(player, table, table.last_roll)
             self.on_coming_out(player, table)
         self.on_any_status(player, table)
+    
+    def on_any_bet_result(self, player, table, bet_info):
+        # Called with any bet result
+        if self.verbose:
+            print(f"On any bet result : {bet_info}")
+
+    def on_win(self, player, table, winning_bet):
+        # Called with any winning bet
+        if self.verbose:
+            print(f"STRAT::Winning Bet : {winning_bet}")
+
+    def on_loss(self, player, table, losing_bet_info):
+        # Called with any losing bet
+        if self.verbose:
+            print(f"STRAT::Losing Bet: {losing_bet_info}")
+
 
     def on_point_set(self,player, table, last_roll):
         # When the point starts
@@ -76,7 +114,7 @@ class Strategy(object):
 
 def passline(player, table, unit=5, strat_info=None):
     # Pass line bet
-    if table.point.is_off() and not player.has_bet("PassLine"):
+    if table.point.is_off() and not player.has_bet_type(PassLine):
         player.bet(PassLine(unit))
 
 
@@ -96,10 +134,10 @@ def passline_odds(player, table, unit=5, strat_info=None, mult=1):
 
     if (
         table.point.is_on()
-        and player.has_bet("PassLine")
-        and not player.has_bet("Odds")
+        and player.has_bet_type(PassLine)
+        and not player.has_bet_type(Odds)
     ):
-        player.bet(Odds(mult * unit, player.get_bet("PassLine")))
+        player.bet(Odds(mult * unit, player.get_bet_type(PassLine)))
 
 
 def passline_odds2(player, table, unit=5, strat_info=None):
@@ -172,9 +210,13 @@ def place68(player, table, unit=5, strat_info=None):
 
 def dontpass(player, table, unit=5, strat_info=None):
     # Don't pass bet
-    if table.point.is_off() and not player.has_bet("DontPass"):
+    if table.point.is_off() and not player.has_bet_type(DontPass):
         player.bet(DontPass(unit))
 
+def dontcome(player, table, unit=5, strat_info=None):
+    # Don't come bet
+    if table.point.is_on():
+        player.bet(DontCome(unit))
 
 def layodds(player, table, unit=5, strat_info=None, win_mult=1):
     # Assume that someone tries to win the `win_mult` times the unit on each bet, which corresponds

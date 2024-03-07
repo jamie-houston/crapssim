@@ -1,3 +1,18 @@
+import os, sys
+currDir = os.path.dirname(os.path.realpath(__file__))
+rootDir = os.path.abspath(os.path.join(currDir, '..'))
+if rootDir not in sys.path: # add parent dir to paths
+    sys.path.append(rootDir)
+# import sys
+# import os
+
+# # Get the parent directory
+# parent_dir = os.path.dirname(os.path.realpath(__file__))
+
+# # Add the parent directory to sys.path
+# sys.path.append(parent_dir)
+
+# Import the module from the parent directory
 import crapssim as craps
 
 if __name__ == "__main__":

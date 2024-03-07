@@ -1,3 +1,6 @@
+from crapssim.bet import BetStatus
+
+
 class Player(object):
     """
     Player standing at the craps table
@@ -35,7 +38,7 @@ class Player(object):
         self.reached_target = False
     
     def __repr__(self) -> str:
-        return f"${self.bankroll} - bets:${self.total_bet_amount}"
+        return f"{self.name}: bank: ${self.bankroll} bets:${self.total_bet_amount}"
 
     def __str__(self) -> str:
         return f"{self.name} - bets:{self.total_bet_amount}"
@@ -106,28 +109,33 @@ class Player(object):
     def _update_bet(self, table_object, dice_object):
         info = {}
         for b in self.bets_on_table[:]:
-            status, win_amount = b._update_bet(table_object, dice_object)
-            win_amount = round(win_amount, 2)
+            bet_result = b._update_bet(table_object, dice_object)
+            bet_result.win_amount = round(bet_result.win_amount, 2)
 
-            if status == "win":
-                if win_amount > self.biggest_win:
-                    self.biggest_win = win_amount
-                self.bankroll += win_amount + b.bet_amount
-                self.total_bet_amount -= b.bet_amount
-                if self.verbose:
-                    print(f"{self.name} won ${win_amount} on {b} bet!")
-            elif status == "lose":
-                if b.bet_amount > self.biggest_loss:
-                    self.biggest_loss = b.bet_amount
-                self.total_bet_amount -= b.bet_amount
-                self.bets_on_table.remove(b)
-                if self.verbose:
-                    print(f"{self.name} lost ${b.bet_amount} on {b} bet.")
-            elif status == "push":
-                self.bankroll += b.bet_amount
-                self.total_bet_amount -= b.bet_amount
-                if self.verbose:
-                    print(f"{self.name} pushed ${b.bet_amount} on {b} bet.")
+            match bet_result.status:
+                case BetStatus.WIN:
+                    if bet_result.win_amount > self.biggest_win:
+                        self.biggest_win = bet_result.win_amount
+                    self.bankroll += bet_result.win_amount + b.bet_amount
+                    self.total_bet_amount -= b.bet_amount
+                    self.bets_on_table.remove(b)
+                    if self.verbose:
+                        print(f"{self.name} won ${bet_result.win_amount} on {b} bet!")
+                case BetStatus.LOSE:
+                    if b.bet_amount > self.biggest_loss:
+                        self.biggest_loss = b.bet_amount
+                    self.total_bet_amount -= b.bet_amount
+                    self.bets_on_table.remove(b)
+                    if self.verbose:
+                        print(f"{self.name} lost ${b.bet_amount} on {b} bet.")
+                case BetStatus.PUSH:
+                    self.bankroll += b.bet_amount
+                    self.total_bet_amount -= b.bet_amount
+                    if self.verbose:
+                        print(f"{self.name} pushed ${b.bet_amount} on {b} bet.")
 
-            info[b.name] = {"status": status, "win_amount": win_amount}
+            bet_result.__dict__.update(b.__dict__)
+
+
+            info[b.name] = bet_result
         return info

@@ -1,4 +1,9 @@
+import decimal
 from crapssim.dice import Dice
+from dataclasses import dataclass
+from enum import Enum
+
+
 
 """
 Supported Bet Types
@@ -62,16 +67,15 @@ class Bet(object):
     #     return self.name == other.name
 
     def _update_bet(self, table_object, dice_object: Dice):
-        status = None
-        win_amount = 0
+        result = BetResult(status = BetStatus.PUSH)
 
         if dice_object.total in self.winning_numbers:
-            status = "win"
-            win_amount = self.payoutratio * self.bet_amount
+            result.status = BetStatus.WIN
+            result.win_amount = self.payoutratio * self.bet_amount
         elif len(self.losing_numbers) == 0 or dice_object.total in self.losing_numbers:
-            status = "lose"
+            result.status = BetStatus.LOSE
 
-        return status, win_amount
+        return result
 
 
     def __str__(self):
@@ -98,20 +102,19 @@ class PassLine(Bet):
         super().__init__(bet_amount)
 
     def _update_bet(self, table_object, dice_object):
-        status = None
-        win_amount = 0
+        result = BetResult(status = BetStatus.PUSH)
 
         if dice_object.total in self.winning_numbers:
-            status = "win"
-            win_amount = self.payoutratio * self.bet_amount
+            result.status = BetResult.WIN
+            result.win_amount = self.payoutratio * self.bet_amount
         elif dice_object.total in self.losing_numbers:
-            status = "lose"
+            result.status = BetResult.LOSE
         elif self.prepoint:
             self.winning_numbers = [dice_object.total]
             self.losing_numbers = [7]
             self.prepoint = False
 
-        return status, win_amount
+        return result
 
 
 class Come(PassLine):
@@ -120,10 +123,10 @@ class Come(PassLine):
         self.name = "Come"
 
     def _update_bet(self, table_object, dice_object):
-        status, win_amount = super()._update_bet(table_object, dice_object)
+        result = super()._update_bet(table_object, dice_object)
         if not self.prepoint and self.subname == "":
             self.subname = "".join(str(e) for e in self.winning_numbers)
-        return status, win_amount
+        return result
 
 
 """
@@ -166,7 +169,7 @@ class Place(Bet):
         if table_object.point.is_on():
             return super()._update_bet(table_object, dice_object)
         else:
-            return None, 0
+            return BetResult()
 
 
 class Place4(Place):
@@ -247,22 +250,21 @@ class Field(Bet):
         super().__init__(bet_amount)
 
     def _update_bet(self, table_object, dice_object):
-        status = None
-        win_amount = 0
+        result = BetResult(status = BetStatus.PUSH)
 
         if dice_object.total in self.triple_winning_numbers:
-            status = "win"
-            win_amount = 3 * self.bet_amount
+            result.status = BetResult.WIN
+            result.win_amount = 3 * self.bet_amount
         elif dice_object.total in self.double_winning_numbers:
-            status = "win"
-            win_amount = 2 * self.bet_amount
+            result.status = BetResult.WIN
+            result.win_amount = 2 * self.bet_amount
         elif dice_object.total in self.winning_numbers:
-            status = "win"
-            win_amount = 1 * self.bet_amount
+            result.status = BetResult.WIN
+            result.win_amount = 1 * self.bet_amount
         elif dice_object.total in self.losing_numbers:
-            status = "lose"
+            result.status = BetResult.LOSE
 
-        return status, win_amount
+        return result
 
 
 """
@@ -283,24 +285,30 @@ class DontPass(Bet):
         super().__init__(bet_amount)
 
     def _update_bet(self, table_object, dice_object):
-        status = None
-        win_amount = 0
+        result = BetResult(status = BetStatus.PUSH)
 
         if dice_object.total in self.winning_numbers:
-            status = "win"
-            win_amount = self.payoutratio * self.bet_amount
+            result.status = BetResult.WIN
+            result.win_amount = self.payoutratio * self.bet_amount
         elif dice_object.total in self.losing_numbers:
-            status = "lose"
+            result.status = BetResult.LOSE
         elif dice_object.total in self.push_numbers:
-            status = "push"
+            # status = "push"
+            pass
         elif self.prepoint:
             self.winning_numbers = [7]
             self.losing_numbers = [dice_object.total]
             self.push_numbers = []
             self.prepoint = False
+            self.subname = "".join(str(e) for e in self.losing_numbers)
 
-        return status, win_amount
+        return result
 
+class DontCome(DontPass):
+    def __init__(self, bet_amount):
+        super().__init__(bet_amount)
+        self.name = "DontCome"
+        
 
 """
 Don't pass/Don't come lay odds
@@ -332,19 +340,16 @@ class Horn(Bet):
         self.losing_numbers = [4,5,6,7,8,9,10]
 
     def _update_bet(self, table_object, dice_object):
-        status = None
-        win_amount = 0
+        result = BetResult(status = BetStatus.LOSE)
 
         if dice_object.total in [2,12]:
-            status = "win"
-            win_amount = (30/4) * self.bet_amount
+            result.status = BetStatus.WIN
+            result.win_amount = (30/4) * self.bet_amount
         elif dice_object.total in [3,11]:
-            status = "win"
-            win_amount = (15/4) * self.bet_amount
-        else:
-            status = "lose"
+            result.status = BetStatus.WIN
+            result.win_amount = (15/4) * self.bet_amount
 
-        return status, win_amount
+        return result
 
 
 class Hard(Bet):
@@ -363,19 +368,16 @@ class Hard(Bet):
         
 
     def _update_bet(self, table_object, dice_object):
-        status = None
-        win_amount = 0
+        result = BetResult(status = BetStatus.PUSH)
 
         if dice_object.total in self.winning_numbers:
             if dice_object.result[0] == dice_object.result[1]:
-                status = "win"
-                win_amount = self.payoutratio * self.bet_amount
-            else:
-                status = "lose"
+                result.status = BetStatus.WIN
+                result.win_amount = self.payoutratio * self.bet_amount
         else: 
             return super()._update_bet(table_object, dice_object)
 
-        return status, win_amount
+        return result
 
 class SingleRoll(Bet):
     def __init__(self, bet_amount, winning_number):
@@ -394,13 +396,20 @@ class SingleRoll(Bet):
  
 
 
-    def __update_bet(self, table_object, dice_object):
-        status = None
-        win_amount = 0
+    def _update_bet(self, table_object, dice_object):
+        result = BetResult(status = BetStatus.LOSE)
         if dice_object.total in self.winning_numbers:
-            status = "win"
-            win_amount = self.payoutratio * self.bet_amount
-        else:
-            status = "lose"
+            result.status = BetStatus.WIN
+            result.win_amount = self.payoutratio * self.bet_amount
         
-        return status, win_amount
+        return result
+
+class BetStatus(Enum):
+    WIN = 1,
+    LOSE = 2,
+    PUSH = 3
+
+@dataclass
+class BetResult(Bet):
+    status: BetStatus = BetStatus.PUSH
+    win_amount: decimal = 0

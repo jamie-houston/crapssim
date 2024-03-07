@@ -1,4 +1,4 @@
-from crapssim.strategy.strategy import Strategy, passline, dontpass
+from crapssim.strategy.strategy import Strategy, dontcome, passline, dontpass
 from crapssim.bet import *
 from icecream import ic
 
@@ -27,22 +27,16 @@ class DarkAndLightStrategy(Strategy):
     # 3 - bet * .2
     # come/pass bet = total bet * .75
     # point on hard number, bet hard
-    def on_new_shooter(self, player, table):
-        print("DARK::New Shooter")
-
     def on_coming_out(self, player, table):
-        dontpass(player, table, self.unit*2)
+        player.bet(DontPass(self.unit*2))
 
     def on_active_point(self, player, table):
+        player.bet(Come(self.unit))
         if self.verbose:
             print("DARK::On Active Point")
-        all_bets = player.bets_on_table
 
-        current_total = self.unit
-        for bet in all_bets:
-            if bet.name == "Come" and 7 not in bet.winning_numbers:
-                current_total += bet.bet_amount
-                player.bet(Odds(bet.bet_amount * 2, bet))
+    def on_any_bet_result(self, player, table, bet_info):
+        player.bet(Odds(bet_info["bet"].bet_amount * 2, bet))
         # if player.num_bet("Come") < 3:
         player.bet(Come(current_total))
         player.bet(Horn(current_total*.2))
@@ -114,10 +108,28 @@ class ComingEverywhereStrategy(Strategy):
         player.bet(Come(self._current_total(player)+self.unit))
 
 class DoNotPassGo(Strategy):
+    def __init__(self, unit=5, verbose=False):
+        self.bet_placed = False
+        super().__init__(unit, verbose)
+
+    def on_loss(self, player, table, losing_bet_info):
+        next_bet_amount = losing_bet_info["bet"].bet_amount + self.unit
+        if self.verbose:
+            print(f"Lost {losing_bet_info}. Raising bet to {next_bet_amount}")
+        if table.point.is_on():
+            self._add_bet(player, DontCome(next_bet_amount))
+        else:
+            self._add_bet(player, DontPass(next_bet_amount))
+
     def on_coming_out(self, player, table):
-        # passline(player, table, self.unit)
-        dontpass(player, table, self.unit)
+        self._add_bet(player, DontPass(self.unit))
+        self.bet_placed = False
     
     def on_active_point(self, player, table):
-        # TODO: Check loss and double
-        dontpass(player, table, self.unit)
+        self._add_bet(player, DontCome(self.unit))
+        self.bet_placed = False
+    
+    def _add_bet(self, player, bet):
+        if self.bet_placed == False:
+            player.bet(bet)
+            self.bet_placed = True
