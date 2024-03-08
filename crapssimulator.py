@@ -11,18 +11,18 @@ bankroll = 1000
 target_bankroll = 1500
 max_shooters = 2
 strategies = {
-    # "darkandlight strat": DarkAndLightStrategy().update_bets,
-    # "keep coming strat": KeepComingBackStrategy().update_bets,
+    "darkandlight strat": DarkAndLightStrategy().update_bets,
+    "keep coming strat": KeepComingBackStrategy().update_bets,
     "coming everywhere strat": ComingEverywhereStrategy(verbose=verbose).update_bets,
     "do not pass go strat": DoNotPassGo(verbose=verbose).update_bets,
-    # "nofield strat": NoFieldStrategy().update_bets,
-    # "hedged2come": customstrat.hedged2come,
-    # "knockout": craps.strategy.knockout,
-    # "pass2come": craps.strategy.pass2come,
-    # "risk12": craps.strategy.risk12,
-    # "allin": customstrat.all_in,
-    # "corey": customstrat.corey,
-    # "allin": customstrat.all_in,
+    "nofield strat": NoFieldStrategy().update_bets,
+    "hedged2come": customstrat.hedged2come,
+    "knockout": craps.strategy.knockout,
+    "pass2come": craps.strategy.pass2come,
+    "risk12": craps.strategy.risk12,
+    "allin": customstrat.all_in,
+    "corey": customstrat.corey,
+    "allin": customstrat.all_in,
 }
 
 with open('data.csv', 'w', newline='') as f:
