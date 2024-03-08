@@ -4,17 +4,17 @@ import csv
 from crapssim.strategy.custom import DarkAndLightStrategy, NoFieldStrategy, KeepComingBackStrategy, ComingEverywhereStrategy, DoNotPassGo
 
 
-verbose = True
-n_sim = 1
+verbose = False
+n_sim = 100
 # n_sim = 1
 bankroll = 1000
 target_bankroll = 1500
 max_shooters = 2
 strategies = {
+    "do not pass go strat": DoNotPassGo(verbose=verbose).update_bets,
     "darkandlight strat": DarkAndLightStrategy().update_bets,
     "keep coming strat": KeepComingBackStrategy().update_bets,
     "coming everywhere strat": ComingEverywhereStrategy(verbose=verbose).update_bets,
-    "do not pass go strat": DoNotPassGo(verbose=verbose).update_bets,
     "nofield strat": NoFieldStrategy().update_bets,
     "hedged2come": customstrat.hedged2come,
     "knockout": craps.strategy.knockout,
@@ -32,8 +32,12 @@ with open('data.csv', 'w', newline='') as f:
 
     result_summary = {}
     total_rolls = 0
+    min_bankroll = {}
+    max_bankroll = {}
     for s in strategies:
         result_summary[s] = 0
+        min_bankroll[s] = bankroll
+        max_bankroll[s] = bankroll
     for i in range(n_sim):
         print("\nNew Shooter!")
         table = craps.Table(verbose=verbose)
@@ -44,21 +48,23 @@ with open('data.csv', 'w', newline='') as f:
         total_rolls += table.dice.n_rolls
         print(f"Rolls: {table.dice.n_rolls}")
         for s in strategies:
+            strategy_player = table._get_player(s)
+            strategy_player_bankroll = strategy_player.bankroll
             current_result = result_summary[s]
-            row = [i, s, table._get_player(s).bankroll, bankroll, table.dice.n_rolls, table._get_player(s).bankroll-bankroll, (table._get_player(s).bankroll-bankroll)/table.dice.n_rolls]
-            result_summary[s] = current_result + table._get_player(s).bankroll
-            print(f"{s}: {table._get_player(s).bankroll}")
+            min_bankroll[s] = min(strategy_player_bankroll, min_bankroll[s])
+            max_bankroll[s] = max(strategy_player_bankroll, max_bankroll[s])
+
+            row = [i, s, strategy_player_bankroll, bankroll, table.dice.n_rolls, strategy_player_bankroll-bankroll, (strategy_player_bankroll-bankroll)/table.dice.n_rolls]
+            result_summary[s] = current_result + strategy_player_bankroll
+            print(f"{s}: {strategy_player_bankroll}")
 
             writer.writerow(row)
     print("\nSummary")
     print(f"Number of rolls: {total_rolls}")
-    sorted_summary = []
-
-    for player in table.players:
-        print(f"{player.name} - biggest win: {player.biggest_win} biggest loss: {player.biggest_loss} biggest best: {player.biggest_bet}")
-        if player.reached_target:
-            print(f"***{player.name} reached target of {player.target_bankroll}***")
 
     for strategy, result in sorted(result_summary.items(), key=lambda item: item[1]):
-        sorted_summary.append(f"{result}: {strategy}")
-        print(f"{strategy} = {result}")
+        player = table._get_player(strategy)
+        print(f"\n{strategy} = {result}")
+        if player.reached_target:
+            print(f"***{player.name} reached target of {player.target_bankroll}***")
+        print(f"biggest win: {player.biggest_win} biggest loss: {player.biggest_loss} biggest best: {player.biggest_bet} biggest bankroll: {max_bankroll[strategy]} smallest: {min_bankroll[strategy]}")

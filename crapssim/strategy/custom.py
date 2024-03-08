@@ -113,8 +113,7 @@ class DoNotPassGo(Strategy):
 
     def on_loss(self, player, table, losing_bet_info):
         next_bet_amount = losing_bet_info.bet_amount + self.unit
-        if self.verbose:
-            print(f"Lost {losing_bet_info}. Raising bet to {next_bet_amount}")
+        ic(f"Lost {losing_bet_info}. Raising bet to {next_bet_amount}")
         if table.point.is_on():
             self._add_bet(player, DontCome(next_bet_amount))
         else:

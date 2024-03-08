@@ -53,6 +53,7 @@ class Player(object):
                     self.biggest_bet = bet_object.bet_amount
                 self.bankroll = round(self.bankroll - bet_object.bet_amount, 2)
                 self.bets_on_table.append(bet_object)
+                # TODO: This isn't correct!!
                 self.total_bet_amount += bet_object.bet_amount
 
     def remove(self, bet_object):
@@ -138,5 +139,6 @@ class Player(object):
         response = f"{self.name} :"
         for name, result in info.items():
             response += f"{result.status.value} ${result.bet_amount if result.win_amount == 0 else result.win_amount} on {name} |"
-        print(response)
+        if self.verbose:
+            print(response)
         return info
