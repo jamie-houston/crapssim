@@ -63,8 +63,8 @@ class Bet(object):
     def __init__(self, bet_amount):
         self.bet_amount = round(bet_amount, 2)
 
-    # def __eq__(self, other):
-    #     return self.name == other.name
+    def is_bet_type(self, bet_type):
+        return self.name == bet_type.__name__ 
 
     def _update_bet(self, table_object, dice_object: Dice):
         result = BetResult(status = BetStatus.PUSH)
@@ -105,10 +105,10 @@ class PassLine(Bet):
         result = BetResult(status = BetStatus.PUSH)
 
         if dice_object.total in self.winning_numbers:
-            result.status = BetResult.WIN
+            result.status = BetStatus.WIN
             result.win_amount = self.payoutratio * self.bet_amount
         elif dice_object.total in self.losing_numbers:
-            result.status = BetResult.LOSE
+            result.status = BetStatus.LOSE
         elif self.prepoint:
             self.winning_numbers = [dice_object.total]
             self.losing_numbers = [7]
@@ -253,16 +253,16 @@ class Field(Bet):
         result = BetResult(status = BetStatus.PUSH)
 
         if dice_object.total in self.triple_winning_numbers:
-            result.status = BetResult.WIN
+            result.status = BetStatus.WIN
             result.win_amount = 3 * self.bet_amount
         elif dice_object.total in self.double_winning_numbers:
-            result.status = BetResult.WIN
+            result.status = BetStatus.WIN
             result.win_amount = 2 * self.bet_amount
         elif dice_object.total in self.winning_numbers:
-            result.status = BetResult.WIN
+            result.status = BetStatus.WIN
             result.win_amount = 1 * self.bet_amount
         elif dice_object.total in self.losing_numbers:
-            result.status = BetResult.LOSE
+            result.status = BetStatus.LOSE
 
         return result
 
@@ -288,10 +288,10 @@ class DontPass(Bet):
         result = BetResult(status = BetStatus.PUSH)
 
         if dice_object.total in self.winning_numbers:
-            result.status = BetResult.WIN
+            result.status = BetStatus.WIN
             result.win_amount = self.payoutratio * self.bet_amount
         elif dice_object.total in self.losing_numbers:
-            result.status = BetResult.LOSE
+            result.status = BetStatus.LOSE
         elif dice_object.total in self.push_numbers:
             # status = "push"
             pass
@@ -405,9 +405,9 @@ class SingleRoll(Bet):
         return result
 
 class BetStatus(Enum):
-    WIN = 1,
-    LOSE = 2,
-    PUSH = 3
+    WIN = "win",
+    LOSE = "lose",
+    PUSH = "push"
 
 @dataclass
 class BetResult(Bet):

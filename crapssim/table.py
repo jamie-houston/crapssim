@@ -1,5 +1,6 @@
 from crapssim.dice import Dice
 from crapssim.player import Player
+from icecream import ic
 
 
 class Table(object):
@@ -35,6 +36,8 @@ class Table(object):
     verbose : bool
         If true, print results from table during each roll
     """
+
+    ic.enable()
 
     def __init__(self, verbose=False):
         self.players = []

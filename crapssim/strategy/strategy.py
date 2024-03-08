@@ -21,41 +21,40 @@ class Strategy(object):
     Do NOT overwrite update bets unless you don't want the other methods to work
 
     Status of roll in chronological order:
-    1. New Shooter - first roll of shooter
-    2. Coming Out - point not set
-    3. Point Set - first roll after point is set
-    4. Point Hit - first roll after point is hit
-    5. Seven Out - seven out
-    6. Active Point - point is set
-    7. Any status - Any time in roll
+    1. on_new_shooter - first roll of shooter
+    2. on_coming_out - point not set
+    3. on_point_set - first roll after point is set
+    4. on_point_hit - first roll after point is hit
+    5. on_seven_out - seven out
+    6. on_active_point - point is set
+    7. on_any_status - Any time in roll
 
-    Bet results:
+    Bet results - Called for each existing bet on the table
+    1. before_bet_result
     1. on_win - win
     2. on_loss - loss
-    3. on_push
-    4. on_any_bet_result
+    3. on_push - no change
+    4. after_bet_result
     
 
    
     """
+
+    ic.disable()
+    ic.configureOutput(includeContext=True)
+
     def __init__(self, unit=5, verbose=False):
         self.unit = unit
         self.verbose = verbose
 
     def update_bets(self, player, table, unit, strat_info = None):
         last_bets = table.bet_update_info and table.bet_update_info.get(player) 
-        if last_bets is not None:
-            for bet, bet_info in last_bets.items():
-                match bet_info.status:
-                    case BetStatus.PUSH:
-                        if self.verbose:
-                            print(f"STRAT::Bet {bet} was a push")
-                    case BetStatus.WIN:
-                        self.on_win(player, table, bet_info)
-                    case BetStatus.LOSE:
-                        self.on_loss(player, table, bet_info)
-                self.on_any_bet_result(player, table, bet_info)
+        self.__handle_bet_callbacks(player, table, last_bets)
 
+        self.__handle_roll_callbacks(player, table)
+
+    def __handle_roll_callbacks(self, player, table):
+        self.before_roll_callback(player, table, table.last_roll)
         if table.point.is_on():
             if table.last_roll == table.point.number:
                 self.on_point_set(player, table, table.last_roll)
@@ -67,49 +66,66 @@ class Strategy(object):
                 self.on_point_hit(player, table, table.last_roll)
             self.on_coming_out(player, table)
         self.on_any_status(player, table)
+
+    def __handle_bet_callbacks(self, player, table, last_bets):
+        if last_bets is not None:
+            for bet, bet_info in last_bets.items():
+                self.before_bet_result(player, table, bet_info)
+                match bet_info.status:
+                    case BetStatus.PUSH:
+                        self.on_push(player, table, bet_info)
+                    case BetStatus.WIN:
+                        self.on_win(player, table, bet_info)
+                    case BetStatus.LOSE:
+                        self.on_loss(player, table, bet_info)
+                self.after_bet_result(player, table, bet_info)
     
-    def on_any_bet_result(self, player, table, bet_info):
+    def before_bet_result(self, player, table, bet_info):
+        # Called before any bet result
+        ic(bet_info)
+
+
+    def after_bet_result(self, player, table, bet_info):
         # Called with any bet result
-        if self.verbose:
-            print(f"On any bet result : {bet_info}")
+        ic(bet_info)
 
     def on_win(self, player, table, winning_bet):
         # Called with any winning bet
-        if self.verbose:
-            print(f"STRAT::Winning Bet : {winning_bet}")
+        ic(winning_bet)
 
     def on_loss(self, player, table, losing_bet_info):
         # Called with any losing bet
-        if self.verbose:
-            print(f"STRAT::Losing Bet: {losing_bet_info}")
+        ic(losing_bet_info)
 
+    def on_push(self, player, table, bet_info):
+        # Called with any push bet
+        ic(player, table)
+           
 
+    def before_roll_callback(self, player, table, last_roll):
+        # Called before any roll
+        ic(player, last_roll)
+    
     def on_point_set(self,player, table, last_roll):
         # When the point starts
-        if self.verbose:
-            print(f"STRAT::Point established {last_roll}")
+        ic("Point established", last_roll)
     
     def on_point_hit(self, player, table, last_roll):
-        if self.verbose:
-            print(f"STRAT::Point hit {last_roll}")
+        ic(f"STRAT::Point hit {last_roll}")
     
     def on_new_shooter(self, player, table):
         # New shooter coming out
-        if self.verbose:
-            print("\nSTRAT::New Shooter!")
+        ic("\nSTRAT::New Shooter!")
 
     def on_any_status(self, player, table):
-        if self.verbose:
-            print(f"STRAT::Any Status")
+            ic(player, table)
 
     def on_active_point(self, player, table):
-        if self.verbose:
-            print(f"STRAT::Active Point")
+            ic(player, table)
 
     def on_coming_out(self, player, table):
         # When the point is off
-        if self.verbose:
-            print(f"STRAT::Coming Out")
+        ic(player, table)
     
 
 def passline(player, table, unit=5, strat_info=None):
@@ -474,10 +490,10 @@ def place68_cpr(player, table, unit=5, strat_info=None):
             if (
                 table.bet_update_info[player].get(bet.name) is not None
             ):  # bet has not yet been updated; skip
-                # print("level3")
-                # print(table.bet_update_info[player][bet.name])
+                # ic("level3")
+                # ic(table.bet_update_info[player][bet.name])
                 if table.bet_update_info[player][bet.name]["status"] == "win":
-                    # print("place6 mode: {}".format(strat_info["mode6"]))
+                    # ic("place6 mode: {}".format(strat_info["mode6"]))
                     if strat_info["mode6"] == "press":
                         player.remove(bet)
                         player.bet(Place6(2 * bet.bet_amount))
@@ -488,17 +504,17 @@ def place68_cpr(player, table, unit=5, strat_info=None):
                         strat_info["mode6"] = "collect"
                     elif strat_info["mode6"] == "collect":
                         strat_info["mode6"] = "press"
-                    # print("updated place6 mode: {}".format(strat_info["mode6"]))
+                    # ic("updated place6 mode: {}".format(strat_info["mode6"]))
         # place8
         if player.has_bet("Place8"):
             bet = player.get_bet("Place8")
             if (
                 table.bet_update_info[player].get(bet.name) is not None
             ):  # bet has not yet been updated; skip
-                # print("level3")
-                # print(table.bet_update_info[player][bet.name])
+                # ic("level3")
+                # ic(table.bet_update_info[player][bet.name])
                 if table.bet_update_info[player][bet.name]["status"] == "win":
-                    # print("place8 mode: {}".format(strat_info["mode8"]))
+                    # ic("place8 mode: {}".format(strat_info["mode8"]))
                     if strat_info["mode8"] == "press":
                         player.remove(bet)
                         player.bet(Place8(2 * bet.bet_amount))
@@ -510,7 +526,7 @@ def place68_cpr(player, table, unit=5, strat_info=None):
                     elif strat_info["mode8"] == "collect":
                         strat_info["mode8"] = "press"
 
-    print(strat_info)
+    ic(strat_info)
     return strat_info
 
 
@@ -528,6 +544,6 @@ if __name__ == "__main__":
     p = Player(500, place68_2come)
     p.bet(PassLine(5))
     p.bet(Place6(6))
-    print(p.bets_on_table)
-    print(p.bankroll)
-    print(p.total_bet_amount)
+    ic(p.bets_on_table)
+    ic(p.bankroll)
+    ic(p.total_bet_amount)

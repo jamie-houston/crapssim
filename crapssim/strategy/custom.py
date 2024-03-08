@@ -32,21 +32,20 @@ class DarkAndLightStrategy(Strategy):
 
     def on_active_point(self, player, table):
         player.bet(Come(self.unit))
-        if self.verbose:
-            print("DARK::On Active Point")
 
     def on_any_bet_result(self, player, table, bet_info):
-        player.bet(Odds(bet_info["bet"].bet_amount * 2, bet))
-        # if player.num_bet("Come") < 3:
-        player.bet(Come(current_total))
-        player.bet(Horn(current_total*.2))
-        # if table.point.number in [4,6,8,10]:
-        #     player.bet(Hard(unit, table.point.number))
+        # if it's a come or pass bet, bet odds
+        if bet_info.is_bet_type(DontPass) or bet_info.is_bet_type(Come):
+            player.bet(Odds(bet_info.bet_amount * 2, bet_info))
 
-        # else:
-        #     if player.num_bet("Come") < 3:
-        #     if player.num_bet("Come") < 3:
-        #         player.bet(Come(unit))
+    def on_any_status(self, player, table):
+        player.bet(Come(self.unit))
+        player.bet(Horn(self.unit*.2))
+        player.bet(SingleRoll(self.unit * .1, 2))
+        player.bet(SingleRoll(self.unit * .1, 12))
+        player.bet(SingleRoll(self.unit * .1, 3))
+        if table.point.number in [4,6,8,10]:
+            player.bet(Hard(self.unit * .25, table.point.number))
 
 
 class KeepComingBackStrategy(Strategy):
@@ -108,12 +107,12 @@ class ComingEverywhereStrategy(Strategy):
         player.bet(Come(self._current_total(player)+self.unit))
 
 class DoNotPassGo(Strategy):
-    def __init__(self, unit=5, verbose=False):
+    def __init__(self, unit=25, verbose=False):
         self.bet_placed = False
         super().__init__(unit, verbose)
 
     def on_loss(self, player, table, losing_bet_info):
-        next_bet_amount = losing_bet_info["bet"].bet_amount + self.unit
+        next_bet_amount = losing_bet_info.bet_amount + self.unit
         if self.verbose:
             print(f"Lost {losing_bet_info}. Raising bet to {next_bet_amount}")
         if table.point.is_on():

@@ -1,4 +1,5 @@
 from crapssim.bet import BetStatus
+from icecream import ic
 
 
 class Player(object):
@@ -23,6 +24,7 @@ class Player(object):
         Sum of bet value for the player
     """
 
+    ic.disable()
     def __init__(self, bankroll, bet_strategy=None, name="Player", target_bankroll=None, verbose=False):
         self.bankroll = bankroll
         self.starting_bankroll = bankroll
@@ -73,7 +75,7 @@ class Player(object):
 
     def has_bet_type(self, bet_type):
         for bet in self.bets_on_table:
-            if isinstance(bet, bet_type):
+            if bet.is_bet_type(bet_type):
                 return True
         return False
 
@@ -119,23 +121,22 @@ class Player(object):
                     self.bankroll += bet_result.win_amount + b.bet_amount
                     self.total_bet_amount -= b.bet_amount
                     self.bets_on_table.remove(b)
-                    if self.verbose:
-                        print(f"{self.name} won ${bet_result.win_amount} on {b} bet!")
                 case BetStatus.LOSE:
                     if b.bet_amount > self.biggest_loss:
                         self.biggest_loss = b.bet_amount
                     self.total_bet_amount -= b.bet_amount
                     self.bets_on_table.remove(b)
-                    if self.verbose:
-                        print(f"{self.name} lost ${b.bet_amount} on {b} bet.")
                 case BetStatus.PUSH:
                     self.bankroll += b.bet_amount
                     self.total_bet_amount -= b.bet_amount
-                    if self.verbose:
-                        print(f"{self.name} pushed ${b.bet_amount} on {b} bet.")
-
+            
             bet_result.__dict__.update(b.__dict__)
 
 
             info[b.name] = bet_result
+        
+        response = f"{self.name} :"
+        for name, result in info.items():
+            response += f"{result.status.value} ${result.bet_amount if result.win_amount == 0 else result.win_amount} on {name} |"
+        print(response)
         return info
