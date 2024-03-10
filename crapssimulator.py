@@ -9,11 +9,11 @@ from prettytable import PrettyTable
 
 verbose = False
 ic.disable()
-n_sim = 1
+n_sim = 100
 # n_sim = 1
 bankroll = 1000
 target_bankroll = 1500
-max_shooters = 5
+max_shooters = 3
 strategies = {
     "do not pass go strat": DoNotPassGo(verbose=verbose).update_bets,
     "darkandlight strat": DarkAndLightStrategy().update_bets,
@@ -43,26 +43,28 @@ with open('data.csv', 'w', newline='') as f:
         min_bankroll[s] = bankroll, 0
         max_bankroll[s] = bankroll, 0
     for i in range(n_sim):
-        print("\nNew Shooter!")
+        if verbose:
+            print("\nNew Shooter!")
         table = craps.Table(verbose=verbose)
         for s in strategies:
             table.add_player(craps.Player(bankroll, strategies[s], s, target_bankroll=target_bankroll, verbose=verbose))
 
         table.run(max_rolls=float("inf"), max_shooter=max_shooters)
         total_rolls += table.dice.n_rolls
-        print(f"Rolls: {table.dice.n_rolls}")
+        if verbose:
+            print(f"Rolls: {table.dice.n_rolls}")
         for s in strategies:
             strategy_player = table._get_player(s)
             strategy_player_bankroll = strategy_player.bankroll_finance
             current_result = result_summary[s]
             if strategy_player_bankroll.smallest < min_bankroll[s][0]:
-                min_bankroll[s] = strategy_player_bankroll.smallest, total_rolls
+                min_bankroll[s] = strategy_player_bankroll.smallest, table.dice.n_rolls
             if strategy_player_bankroll.largest > max_bankroll[s][0]:
-                max_bankroll[s] = strategy_player_bankroll.largest, total_rolls
+                max_bankroll[s] = strategy_player_bankroll.largest, table.dice.n_rolls
 
             row = [i, s, strategy_player_bankroll.current, bankroll, table.dice.n_rolls, strategy_player_bankroll.current-bankroll, (strategy_player_bankroll.current-bankroll)/table.dice.n_rolls]
             result_summary[s] = current_result + strategy_player_bankroll.current
-            print(f"{s}: {strategy_player_bankroll}")
+            # print(f"{s}: {strategy_player_bankroll}")
 
             writer.writerow(row)
     print("\nSummary")
