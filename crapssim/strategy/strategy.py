@@ -40,7 +40,7 @@ class Strategy(object):
    
     """
 
-    ic.disable()
+    # ic.disable()
     ic.configureOutput(includeContext=True)
 
     def __init__(self, unit=5, verbose=False):

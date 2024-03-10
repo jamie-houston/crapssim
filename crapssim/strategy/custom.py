@@ -79,7 +79,7 @@ class KeepComingBackStrategy(Strategy):
 class ComingEverywhereStrategy(Strategy):
     def _current_total(self, player):
         all_bets = player.bets_on_table
-        profit = player.bankroll - player.starting_bankroll
+        profit = player.bankroll_finance.current - player.bankroll_finance.starting
         current_total = 0
 
         for bet in all_bets:
@@ -89,7 +89,7 @@ class ComingEverywhereStrategy(Strategy):
             current_total = int(max(current_total / 2, current_total - (profit / 2)))
         # ic(current_total, profit, player.bankroll)
 
-        current_total -= max(self.unit, player.bankroll - 1000)
+        current_total -= max(self.unit, player.bankroll_finance.current - 1000)
         current_total = max(self.unit, current_total)
         return current_total
     

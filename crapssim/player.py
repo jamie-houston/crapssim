@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from crapssim.bet import BetStatus
 from icecream import ic
 
@@ -24,42 +25,41 @@ class Player(object):
         Sum of bet value for the player
     """
 
-    ic.disable()
+    # ic.disable()
     def __init__(self, bankroll, bet_strategy=None, name="Player", target_bankroll=None, verbose=False):
-        self.bankroll = bankroll
-        self.starting_bankroll = bankroll
-        self.target_bankroll = target_bankroll
+        self.bankroll_finance = BankRoll()
+        self.bankroll_finance.starting = bankroll
+        self.bankroll_finance.target = target_bankroll
+        self.bankroll_finance.current = bankroll
+        self.bankroll_finance.smallest = bankroll
+        self.bankroll_finance.largest = bankroll
+
+        self.bet_stats = BetStats()
+
         self.bet_strategy = bet_strategy
         self.name = name
         self.bets_on_table = []
         self.total_bet_amount = 0
         self.verbose = verbose
-        self.biggest_win = 0
-        self.biggest_loss = 0
-        self.biggest_bet = 0
-        self.reached_target = False
     
     def __repr__(self) -> str:
-        return f"{self.name}: bank: ${self.bankroll} bets:${self.total_bet_amount}"
+        return f"{self.name}: bank: ${self.bankroll_finance.current} bets:${self.total_bet_amount}"
 
     def __str__(self) -> str:
         return f"{self.name} - bets:{self.total_bet_amount}"
 
     def bet(self, bet_object):
         if not self.has_matching_bet(bet_object):
-            # don't add duplicate bet
-            if self.bankroll >= bet_object.bet_amount:
-                if self.biggest_bet < bet_object.bet_amount:
-                    self.biggest_bet = bet_object.bet_amount
-                self.bankroll = round(self.bankroll - bet_object.bet_amount, 2)
+            if self.bankroll_finance.current >= bet_object.bet_amount:
+                self.bet_stats.biggest_bet = max(self.bet_stats.biggest_bet, bet_object.bet_amount)
+                self.bankroll_finance.current = round(self.bankroll_finance.current - bet_object.bet_amount, 2)
                 self.bets_on_table.append(bet_object)
                 # TODO: This isn't correct!!
                 self.total_bet_amount += bet_object.bet_amount
 
     def remove(self, bet_object):
-        # TODO: add bet attribute for whether a bet can be removed and put condition in here
         if bet_object in self.bets_on_table:
-            self.bankroll += bet_object.bet_amount
+            self.bankroll_finance.current += bet_object.bet_amount
             self.bets_on_table.remove(bet_object)
             self.total_bet_amount -= bet_object.bet_amount
     
@@ -117,28 +117,41 @@ class Player(object):
 
             match bet_result.status:
                 case BetStatus.WIN:
-                    if bet_result.win_amount > self.biggest_win:
-                        self.biggest_win = bet_result.win_amount
-                    self.bankroll += bet_result.win_amount + b.bet_amount
+                    self.bet_stats.biggest_win = max(bet_result.win_amount, self.bet_stats.biggest_win)
+                    self.bankroll_finance.current += bet_result.win_amount + b.bet_amount
                     self.total_bet_amount -= b.bet_amount
                     self.bets_on_table.remove(b)
                 case BetStatus.LOSE:
-                    if b.bet_amount > self.biggest_loss:
-                        self.biggest_loss = b.bet_amount
+                    self.bet_stats.biggest_loss = max(b.bet_amount, self.bet_stats.biggest_loss)
                     self.total_bet_amount -= b.bet_amount
                     self.bets_on_table.remove(b)
                 case BetStatus.PUSH:
-                    self.bankroll += b.bet_amount
-                    self.total_bet_amount -= b.bet_amount
+                    pass
             
             bet_result.__dict__.update(b.__dict__)
 
 
             info[b.name] = bet_result
         
+        self.bankroll_finance.largest = max(self.bankroll_finance.largest, self.bankroll_finance.current)
+        self.bankroll_finance.smallest = min(self.bankroll_finance.smallest, self.bankroll_finance.current)
         response = f"{self.name} :"
         for name, result in info.items():
             response += f"{result.status.value} ${result.bet_amount if result.win_amount == 0 else result.win_amount} on {name} |"
         if self.verbose:
             print(response)
         return info
+
+@dataclass
+class BankRoll():
+    starting = 0
+    largest = 0
+    current = 0
+    smallest = 0
+    target = 0
+
+@dataclass
+class BetStats():
+    biggest_win = 0
+    biggest_loss = 0
+    biggest_bet = 0

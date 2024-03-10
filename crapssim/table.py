@@ -98,11 +98,6 @@ class Table(object):
 
         continue_rolling = True
         while continue_rolling:
-            for p in self.players:
-                if p.target_bankroll is not None and p.bankroll > p.target_bankroll:
-                    if self.verbose:
-                        print(f"{p.name} has reached their goal of {p.target_bankroll}") 
-                    p.reached_target = True
             # players make their bets
             self._add_player_bets()
             for p in self.players:
@@ -110,7 +105,7 @@ class Table(object):
                     f"{b}, ${b.bet_amount}" for b in p.bets_on_table
                 ]
                 if self.verbose:
-                    print(f"{p.name}: bankroll: {p.bankroll}. current bets: {bets}")
+                    print(f"{p.name}: bankroll: {p.bankroll_finance.current}. current bets: {bets}")
 
             self.dice.roll()
             if self.verbose:
@@ -161,7 +156,7 @@ class Table(object):
 
     def total_player_cash(self):
         return round(sum(
-            [p.total_bet_amount + p.bankroll for p in self.players]
+            [p.total_bet_amount + p.bankroll_finance.current for p in self.players]
         ),2)
 
     def _update_table(self, dice):

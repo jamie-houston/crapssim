@@ -76,7 +76,7 @@ def verify_bet_on_table(player, bet):
 def verify_roll_wins(table, player, bet, roll):
     dice = Dice()
     # create hardway bet
-    current_bankroll = player.bankroll
+    current_bankroll = player.bankroll_finance.current
     player.bet(bet)
 
     # roll hard way
@@ -84,7 +84,7 @@ def verify_roll_wins(table, player, bet, roll):
     info = player._update_bet(table, dice)[bet.name]
     assert info.status == BetStatus.WIN
     # validate win and payout
-    assert player.bankroll == current_bankroll + (bet.bet_amount * bet.payoutratio)
+    assert player.bankroll_finance.current == current_bankroll + (bet.bet_amount * bet.payoutratio)
 
 def verify_roll_loses(table, player, bet, roll):
     dice = Dice()
