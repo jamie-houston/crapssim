@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from crapssim.bet import BetStatus
 from icecream import ic
 
+from crapssim.logging import LogMixin
+
 
 class Player(object):
     """
@@ -40,6 +42,7 @@ class Player(object):
         self.name = name
         self.bets_on_table = []
         self.total_bet_amount = 0
+        self.logger = LogMixin(verbose)
         self.verbose = verbose
     
     def __repr__(self) -> str:
@@ -111,35 +114,41 @@ class Player(object):
 
     def _update_bet(self, table_object, dice_object):
         info = {}
-        for b in self.bets_on_table[:]:
-            bet_result = b._update_bet(table_object, dice_object)
+        for bet_on_table in self.bets_on_table[:]:
+            bet_result = bet_on_table._update_bet(table_object, dice_object)
             bet_result.win_amount = round(bet_result.win_amount, 2)
 
             match bet_result.status:
                 case BetStatus.WIN:
                     self.bet_stats.biggest_win = max(bet_result.win_amount, self.bet_stats.biggest_win)
-                    self.bankroll_finance.current += bet_result.win_amount + b.bet_amount
-                    self.total_bet_amount -= b.bet_amount
-                    self.bets_on_table.remove(b)
+                    self.bankroll_finance.current += bet_result.win_amount + bet_on_table.bet_amount
+                    self.total_bet_amount -= bet_on_table.bet_amount
+                    self.bets_on_table.remove(bet_on_table)
                 case BetStatus.LOSE:
-                    self.bet_stats.biggest_loss = max(b.bet_amount, self.bet_stats.biggest_loss)
-                    self.total_bet_amount -= b.bet_amount
-                    self.bets_on_table.remove(b)
+                    self.bet_stats.biggest_loss = max(bet_on_table.bet_amount, self.bet_stats.biggest_loss)
+                    self.total_bet_amount -= bet_on_table.bet_amount
+                    self.bets_on_table.remove(bet_on_table)
                 case BetStatus.PUSH:
                     pass
             
-            bet_result.__dict__.update(b.__dict__)
+            bet_result.__dict__.update(bet_on_table.__dict__)
 
 
-            info[b.name] = bet_result
+            info[bet_on_table] = bet_result
         
         self.bankroll_finance.largest = max(self.bankroll_finance.largest, self.bankroll_finance.current)
         self.bankroll_finance.smallest = min(self.bankroll_finance.smallest, self.bankroll_finance.current)
-        response = f"{self.name} :"
-        for name, result in info.items():
-            response += f"{result.status.value} ${result.bet_amount if result.win_amount == 0 else result.win_amount} on {name} |"
-        if self.verbose:
-            print(response)
+        winning_bets = []
+        losing_bets = []
+        for bet_on_table, result in info.items():
+            if result.status == BetStatus.WIN:
+                winning_bets.append(f"${result.win_amount} on {bet_on_table}")
+            elif result.status == BetStatus.LOSE:
+                losing_bets.append(f"${result.bet_amount} on {bet_on_table}")
+        if len(winning_bets):
+            self.logger.log_green(f"{self.name} WON " + ", ".join(winning_bets))
+        if len(losing_bets):
+            self.logger.log_red(f"{self.name} LOST " + ", ".join(losing_bets))
         return info
 
 @dataclass

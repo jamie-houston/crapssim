@@ -109,6 +109,7 @@ class ComingEverywhereStrategy(Strategy):
 class DoNotPassGo(Strategy):
     def __init__(self, unit=25, verbose=False):
         self.bet_placed = False
+        self.last_bet_amount = unit
         super().__init__(unit, verbose)
 
     def on_loss(self, player, table, losing_bet_info):
@@ -120,14 +121,40 @@ class DoNotPassGo(Strategy):
             self._add_bet(player, DontPass(next_bet_amount))
 
     def on_coming_out(self, player, table):
-        self._add_bet(player, DontPass(self.unit))
+        self._add_bet(player, DontPass(self.unit*3))
         self.bet_placed = False
     
     def on_active_point(self, player, table):
-        self._add_bet(player, DontCome(self.unit))
+        self._add_bet(player, DontCome(max(self.last_bet_amount - self.unit, self.unit)))
         self.bet_placed = False
     
     def _add_bet(self, player, bet):
         if self.bet_placed == False:
             player.bet(bet)
+            self.last_bet_amount = bet.bet_amount
             self.bet_placed = True
+
+
+class AllInStrat(Strategy):
+    def on_any_status(self, player, table):
+        player.bet(Horn(self.unit))
+        player.bet(Hard(self.unit, 4))
+        player.bet(Hard(self.unit, 6))
+        player.bet(Hard(self.unit, 8))
+        player.bet(Hard(self.unit, 10))
+
+class Hedged2Come(Strategy):
+    # When off, don't pass line
+    # When point is 6 or 8, put 3 times odds on pass line
+    # Add up to 2 come bets
+
+    def on_coming_out(self, player, table):
+        player.bet(PassLine(self.unit))
+    
+    def on_point_set(self,player, table, last_roll):
+        if last_roll in [6,8]:
+            player.bet(Odds(3 * self.unit, player.get_bet_type(PassLine)))
+    
+    def on_active_point(self, player, table):
+        if player.num_bet(Come) < 2:
+            player.bet(Come(self.unit))

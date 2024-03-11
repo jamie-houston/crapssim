@@ -1,4 +1,5 @@
 from crapssim.dice import Dice
+from crapssim.logging import LogMixin
 from crapssim.player import Player
 from icecream import ic
 
@@ -52,6 +53,7 @@ class Table(object):
         self.last_roll = None
         self.n_shooters = 1
         self.verbose = verbose
+        self.logger = LogMixin(verbose)
 
     def __repr__(self) -> str:
         return f"Point: {self.point} last roll: {self.last_roll}"
@@ -87,8 +89,7 @@ class Table(object):
             If true, continue past max_rolls until player has no more bets on the table
         """
         # self.dice = Dice()
-        if self.verbose:
-            print("Welcome to the Craps Table!")
+        self.logger.log("Welcome to the Craps Table!")
 
         # make sure at least one player is at table
         if not self.players:
@@ -108,15 +109,13 @@ class Table(object):
                     print(f"{p.name}: bankroll: {p.bankroll_finance.current}. current bets: {bets}")
 
             self.dice.roll()
-            if self.verbose:
-                print("\nDice out!")
-                print(f"Shooter rolled {self.dice}")
+            self.logger.log_green("\nDice out!")
+            self.logger.log(f"Shooter rolled {self.dice}")
             self._update_player_bets(self.dice)
             self._update_table(self.dice)
-            if self.verbose:
-                print(f"Point is {self.point.status} ({self.point.number})")
-                print(f"Total Player Cash is ${self.total_player_cash()}")
-                print(f"Total Player Bet Amount is ${self.total_player_bets()}")
+            self.logger.log(f"Point is {self.point.status} ({self.point.number})")
+            self.logger.log(f"Total Player Cash is ${self.total_player_cash()}")
+            self.logger.log(f"Total Player Bet Amount is ${self.total_player_bets()}")
 
             # evaluate the stopping condition
             if runout:

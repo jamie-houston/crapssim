@@ -32,15 +32,6 @@ def corey(player, table, unit=5, strat_info=None):
                 )
             )
 
-def all_in(player, table, unit=5, strat_info=None):
-    # bet horn and all hards
-    player.bet(Horn(unit))
-    player.bet(Hard(unit, 4))
-    player.bet(Hard(unit, 6))
-    player.bet(Hard(unit, 8))
-    player.bet(Hard(unit, 10))
-
-
 def hedged2come (player, table, unit=5, strat_info=None):
     # When off, don't pass line
     dontpass(player, table, unit)

@@ -1,7 +1,7 @@
 import crapssim as craps
 import customstrat
 import csv
-from crapssim.strategy.custom import DarkAndLightStrategy, NoFieldStrategy, KeepComingBackStrategy, ComingEverywhereStrategy, DoNotPassGo
+from crapssim.strategy.custom import AllInStrat, DarkAndLightStrategy, Hedged2Come, NoFieldStrategy, KeepComingBackStrategy, ComingEverywhereStrategy, DoNotPassGo
 from icecream import ic
 from prettytable import PrettyTable 
 
@@ -9,24 +9,24 @@ from prettytable import PrettyTable
 
 verbose = False
 ic.disable()
-n_sim = 100
+n_sim = 10
 # n_sim = 1
 bankroll = 1000
 target_bankroll = 1500
-max_shooters = 3
+max_shooters = 5
 strategies = {
     "do not pass go strat": DoNotPassGo(verbose=verbose).update_bets,
     "darkandlight strat": DarkAndLightStrategy().update_bets,
     "keep coming strat": KeepComingBackStrategy().update_bets,
     "coming everywhere strat": ComingEverywhereStrategy(verbose=verbose).update_bets,
-    "nofield strat": NoFieldStrategy().update_bets,
+    "all in strat": AllInStrat(verbose=verbose).update_bets,
+    "nofield strat": NoFieldStrategy(verbose=verbose).update_bets,
+    "hedged2come strat": Hedged2Come(verbose=verbose).update_bets,
     "hedged2come": customstrat.hedged2come,
     "knockout": craps.strategy.knockout,
     "pass2come": craps.strategy.pass2come,
     "risk12": craps.strategy.risk12,
-    "allin": customstrat.all_in,
     "corey": customstrat.corey,
-    "allin": customstrat.all_in,
 }
 
 with open('data.csv', 'w', newline='') as f:
@@ -77,7 +77,6 @@ with open('data.csv', 'w', newline='') as f:
         print(f"\n{strategy} = {result}")
         # if player.bankroll_finance.largest > player.bankroll_finance.target:
         #     print(f"***{player.name} reached target of {player.bankroll_finance.target}***")
-        print(f"biggest win: {player.bet_stats.biggest_win} biggest loss: {player.bet_stats.biggest_loss} biggest best: {player.bet_stats.biggest_bet} biggest bankroll: {max_bankroll[strategy]} smallest: {min_bankroll[strategy]}")
         result_table.add_row([player.name, (result/n_sim), player.bet_stats.biggest_win, player.bet_stats.biggest_loss, player.bet_stats.biggest_loss, max_bankroll[strategy], min_bankroll[strategy]])
         # ic(player.bet_stats, player.bankroll_finance)
     
