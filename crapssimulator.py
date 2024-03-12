@@ -9,10 +9,10 @@ from prettytable import PrettyTable
 
 verbose = False
 ic.disable()
-n_sim = 10000
+n_sim = 100
 # n_sim = 1
 bankroll = 1000
-target_bankroll = 1500
+target_bankroll = 1200
 max_shooters = 10
 strategies = {
     "do not pass go strat": DoNotPassGo(verbose=verbose).update_bets,
