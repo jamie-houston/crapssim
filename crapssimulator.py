@@ -1,7 +1,7 @@
 import crapssim as craps
 import customstrat
 import csv
-from crapssim.strategy.custom import AllInStrat, DarkAndLightStrategy, Hedged2Come, NoFieldStrategy, KeepComingBackStrategy, ComingEverywhereStrategy, DoNotPassGo
+from crapssim.strategy.custom import AllInStrat, DarkAndLightStrategy, NoFieldStrategy, KeepComingBackStrategy, ComingEverywhereStrategy, DoNotPassGo, Hedged2Come
 from icecream import ic
 from prettytable import PrettyTable 
 
@@ -9,11 +9,11 @@ from prettytable import PrettyTable
 
 verbose = False
 ic.disable()
-n_sim = 10
+n_sim = 10000
 # n_sim = 1
 bankroll = 1000
 target_bankroll = 1500
-max_shooters = 5
+max_shooters = 10
 strategies = {
     "do not pass go strat": DoNotPassGo(verbose=verbose).update_bets,
     "darkandlight strat": DarkAndLightStrategy().update_bets,
@@ -22,7 +22,6 @@ strategies = {
     "all in strat": AllInStrat(verbose=verbose).update_bets,
     "nofield strat": NoFieldStrategy(verbose=verbose).update_bets,
     "hedged2come strat": Hedged2Come(verbose=verbose).update_bets,
-    "hedged2come": customstrat.hedged2come,
     "knockout": craps.strategy.knockout,
     "pass2come": craps.strategy.pass2come,
     "risk12": craps.strategy.risk12,
@@ -38,10 +37,14 @@ with open('data.csv', 'w', newline='') as f:
     total_rolls = 0
     min_bankroll = {}
     max_bankroll = {}
+    target_reached_count = {}
+    bankrupt_count = {}
     for s in strategies:
         result_summary[s] = 0
         min_bankroll[s] = bankroll, 0
         max_bankroll[s] = bankroll, 0
+        target_reached_count[s] = 0
+        bankrupt_count[s] = 0
     for i in range(n_sim):
         if verbose:
             print("\nNew Shooter!")
@@ -61,24 +64,27 @@ with open('data.csv', 'w', newline='') as f:
                 min_bankroll[s] = strategy_player_bankroll.smallest, table.dice.n_rolls
             if strategy_player_bankroll.largest > max_bankroll[s][0]:
                 max_bankroll[s] = strategy_player_bankroll.largest, table.dice.n_rolls
+            if not strategy_player.continue_rolling:
+                target_reached_count[s] += 1
+            elif strategy_player_bankroll.current < 10:
+                bankrupt_count[s] += 1
+
+
 
             row = [i, s, strategy_player_bankroll.current, bankroll, table.dice.n_rolls, strategy_player_bankroll.current-bankroll, (strategy_player_bankroll.current-bankroll)/table.dice.n_rolls]
             result_summary[s] = current_result + strategy_player_bankroll.current
-            # print(f"{s}: {strategy_player_bankroll}")
+            if verbose:
+                print(f"{s}: {strategy_player_bankroll}")
 
             writer.writerow(row)
     print("\nSummary")
     print(f"Number of rolls: {total_rolls}")
 
-    result_table = PrettyTable(["strategy", "average bankroll", "biggest win", "biggest loss", "biggest bet", "biggest bankroll", "smallest bankroll"]) 
+    result_table = PrettyTable(["strategy", "target reached", "bankroll gone", "average bankroll", "biggest win", "biggest loss", "biggest bet", "biggest bankroll, rolls", "smallest bankroll, rolls"]) 
 
     for strategy, result in sorted(result_summary.items(), key=lambda item: item[1]):
         player = table._get_player(strategy)
-        print(f"\n{strategy} = {result}")
-        # if player.bankroll_finance.largest > player.bankroll_finance.target:
-        #     print(f"***{player.name} reached target of {player.bankroll_finance.target}***")
-        result_table.add_row([player.name, (result/n_sim), player.bet_stats.biggest_win, player.bet_stats.biggest_loss, player.bet_stats.biggest_loss, max_bankroll[strategy], min_bankroll[strategy]])
-        # ic(player.bet_stats, player.bankroll_finance)
+        result_table.add_row([player.name, target_reached_count[strategy], bankrupt_count[strategy], round(result/n_sim, 2), player.bet_stats.biggest_win, player.bet_stats.biggest_loss, player.bet_stats.biggest_loss, max_bankroll[strategy], min_bankroll[strategy]])
     
     print(f"{n_sim} runs. {total_rolls} rolls (avg {(total_rolls/n_sim)}. {max_shooters} max shooters)")
     print(result_table)

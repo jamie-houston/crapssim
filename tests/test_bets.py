@@ -10,7 +10,7 @@ def test_hard_way():
     player = craps.Player(bankroll=bankroll)
     table = craps.Table()
     verify_roll_wins(table, player, bet, (2,2))
-    verify_bet_on_table(player, bet)
+    verify_bet_not_on_table(player, bet)
     verify_roll_loses(table, player, bet, (1,3))
     verify_bet_not_on_table(player, bet)
 
@@ -81,7 +81,7 @@ def verify_roll_wins(table, player, bet, roll):
 
     # roll hard way
     dice.fixed_roll(roll)
-    info = player._update_bet(table, dice)[bet.name]
+    info = player._update_bet(table, dice)[bet]
     assert info.status == BetStatus.WIN
     # validate win and payout
     assert player.bankroll_finance.current == current_bankroll + (bet.bet_amount * bet.payoutratio)
@@ -91,7 +91,7 @@ def verify_roll_loses(table, player, bet, roll):
     # roll non-hardway
     player.bet(bet)
     dice.fixed_roll(roll)
-    info = player._update_bet(table, dice)
+    info = player._update_bet(table, dice)[bet]
 
     # validate loss
     assert info.status == BetStatus.LOSE
@@ -101,7 +101,7 @@ def verify_no_outcome(table, player, bet, roll):
     # roll non-hardway
     player.bet(bet)
     dice.fixed_roll(roll)
-    info = player._update_bet(table, dice)
+    info = player._update_bet(table, dice)[bet]
 
     # validate loss
     assert info.status == BetStatus.PUSH

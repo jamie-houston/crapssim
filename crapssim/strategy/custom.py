@@ -15,7 +15,7 @@ class NoFieldStrategy(Strategy):
     def on_active_point(self, player, table):
         if table.point.number in [6, 8] and not player.has_bet_type(Odds) and player.has_bet_type(PassLine):
             player.bet(Odds(3 * self.unit, player.get_bet_type(PassLine)))
-        if player.num_bet("Come") < 2:
+        if player.number_of_bets_by_type("Come") < 2:
             player.bet(Come(self.unit))
 
 
@@ -156,5 +156,5 @@ class Hedged2Come(Strategy):
             player.bet(Odds(3 * self.unit, player.get_bet_type(PassLine)))
     
     def on_active_point(self, player, table):
-        if player.num_bet(Come) < 2:
+        if player.number_of_bets_by_type(Come) < 2:
             player.bet(Come(self.unit))

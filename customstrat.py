@@ -21,9 +21,9 @@ def corey(player, table, unit=5, strat_info=None):
     if table.point.is_on():
         if table.point.number in [6, 8] and not player.has_bet("Odds") and player.has_bet("PassLine"):
             player.bet(Odds(3 * unit, player.get_bet("PassLine")))
-        if player.num_bet("Come") < 2:
+        if player.number_of_bets_by_type(Come) < 2:
             player.bet(Come(unit))
-        if not player.has_bet("Come4") and not player.has_bet("Come10") and player.num_bet("Come") > 0 and not player.has_bet("Field"):
+        if not player.has_bet("Come4") and not player.has_bet("Come10") and player.number_of_bets_by_type("Come") > 0 and not player.has_bet("Field"):
             player.bet(
                 Field(
                     unit,
@@ -31,16 +31,6 @@ def corey(player, table, unit=5, strat_info=None):
                     triple=table.payouts["fieldtriple"],
                 )
             )
-
-def hedged2come (player, table, unit=5, strat_info=None):
-    # When off, don't pass line
-    dontpass(player, table, unit)
-
-    if table.point.is_on():
-        if table.point.number in [6,8] and not player.has_bet("Odds") and player.has_bet("PassLine"):
-            player.bet(Odds(3 * unit, player.get_bet("PassLine")))
-        if player.num_bet("Come") < 2:
-            player.bet(Come(unit))
 
 """
 Fundamental Strategies

@@ -168,7 +168,7 @@ def pass2come(player, table, unit=5, strat_info=None):
     passline(player, table, unit)
 
     # Come bet (2)
-    if table.point.is_on() and player.num_bet("Come") < 2:
+    if table.point.is_on() and player.number_of_bets_by_type(Come) < 2:
         player.bet(Come(unit))
 
 
@@ -284,7 +284,7 @@ def place68_2come(player, table, unit=5, strat_info=None):
             player.bet(Place8(6 / 5 * unit))
 
     # add come of passline bets to get on 4 numbers
-    if player.num_bet("Come", "PassLine") < 2 and len(player.bets_on_table) < 4:
+    if player.number_of_bets_by_type(Come) == 0 and len(player.bets_on_table) < 4:
         if table.point.is_on():
             player.bet(Come(unit))
         if table.point.is_off() and (

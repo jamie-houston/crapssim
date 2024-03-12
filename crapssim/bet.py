@@ -58,7 +58,7 @@ class Bet(object):
     winning_numbers = []
     losing_numbers = []
     payoutratio = float(1)
-    # TODO: add whether bet can be removed
+    remove_on_win = True
 
     def __init__(self, bet_amount):
         self.bet_amount = round(bet_amount, 2)
@@ -164,6 +164,7 @@ Place Bets on 4,5,6,8,9,10
 
 
 class Place(Bet):
+    remove_on_win = False
     def _update_bet(self, table_object, dice_object):
         # place bets are inactive when point is "Off"
         if table_object.point.is_on():
@@ -374,6 +375,8 @@ class Hard(Bet):
             if dice_object.result[0] == dice_object.result[1]:
                 result.status = BetStatus.WIN
                 result.win_amount = self.payoutratio * self.bet_amount
+            else:
+                result.status = BetStatus.LOSE
         else: 
             return super()._update_bet(table_object, dice_object)
 

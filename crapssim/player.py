@@ -35,7 +35,7 @@ class Player(object):
         self.bankroll_finance.current = bankroll
         self.bankroll_finance.smallest = bankroll
         self.bankroll_finance.largest = bankroll
-
+        self.continue_rolling = True
         self.bet_stats = BetStats()
 
         self.bet_strategy = bet_strategy
@@ -99,10 +99,14 @@ class Player(object):
             if bet.__class__ == bet_type:
                 return bet
 
-    def num_bet(self, *bets_to_check):
-        """ returns the total number of bets in self.bets_on_table that match bets_to_check """
-        bet_names = [b.name for b in self.bets_on_table]
-        return sum([i in bets_to_check for i in bet_names])
+    def number_of_bets_by_type(self, bet_type):
+        """ returns the total number of bets in self.bets_on_table that match the bet_type """
+        number_of_bets = 0
+        for bet in self.bets_on_table:
+            if bet.__class__ == bet_type:
+                number_of_bets += 1
+
+        return number_of_bets
 
     def remove_if_present(self, bet_name, bet_subname=""):
         if self.has_bet(bet_name):
@@ -123,7 +127,8 @@ class Player(object):
                     self.bet_stats.biggest_win = max(bet_result.win_amount, self.bet_stats.biggest_win)
                     self.bankroll_finance.current += bet_result.win_amount + bet_on_table.bet_amount
                     self.total_bet_amount -= bet_on_table.bet_amount
-                    self.bets_on_table.remove(bet_on_table)
+                    if bet_on_table.remove_on_win:
+                        self.bets_on_table.remove(bet_on_table)
                 case BetStatus.LOSE:
                     self.bet_stats.biggest_loss = max(bet_on_table.bet_amount, self.bet_stats.biggest_loss)
                     self.total_bet_amount -= bet_on_table.bet_amount
@@ -149,6 +154,9 @@ class Player(object):
             self.logger.log_green(f"{self.name} WON " + ", ".join(winning_bets))
         if len(losing_bets):
             self.logger.log_red(f"{self.name} LOST " + ", ".join(losing_bets))
+
+        if self.bankroll_finance.target <= self.bankroll_finance.current:
+            self.continue_rolling = False
         return info
 
 @dataclass
