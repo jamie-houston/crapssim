@@ -13,3 +13,6 @@ class LogMixin(object):
 
     def log_green(self, msg):
         self.log(Fore.GREEN + msg + Style.RESET_ALL)
+
+    def log_yellow(self, msg):
+        self.log(Fore.YELLOW + msg + Style.RESET_ALL)

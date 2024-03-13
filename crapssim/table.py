@@ -50,7 +50,6 @@ class Table(object):
         self.bet_update_info = None
         self.payouts = {"fielddouble": [2, 12], "fieldtriple": []}
         self.pass_rolls = 0
-        self.last_roll = None
         self.n_shooters = 1
         self.verbose = verbose
         self.logger = LogMixin(verbose)
@@ -58,6 +57,9 @@ class Table(object):
     def __repr__(self) -> str:
         return f"Point: {self.point} last roll: {self.last_roll}"
         
+    @property
+    def last_roll(self):
+        return self.dice.total or None
         
     @classmethod
     def with_payouts(cls, **kwagrs):
@@ -109,13 +111,9 @@ class Table(object):
                     print(f"{p.name}: bankroll: {p.bankroll_finance.current}. current bets: {bets}")
 
             self.dice.roll()
-            self.logger.log_green("\nDice out!")
-            self.logger.log(f"Shooter rolled {self.dice}")
+            self.logger.log_yellow(f"\nLast roll {self.dice}. Point is {self.point.status} ({self.point.number}). Player cash ${self.total_player_cash()}. Player bets ${self.total_player_bets()} ")
             self._update_player_bets(self.dice)
             self._update_table(self.dice)
-            self.logger.log(f"Point is {self.point.status} ({self.point.number})")
-            self.logger.log(f"Total Player Cash is ${self.total_player_cash()}")
-            self.logger.log(f"Total Player Bet Amount is ${self.total_player_bets()}")
 
             # evaluate the stopping condition
             if runout:
@@ -169,7 +167,6 @@ class Table(object):
 
         self.point.update(dice)
         self.player_has_bets = sum([len(p.bets_on_table) for p in self.players]) >= 1
-        self.last_roll = dice.total
 
     def _get_player(self, player_name):
         [p for p in self.players if p.name == player_name]

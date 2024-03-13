@@ -22,6 +22,7 @@ class Dice(object):
 
     def __init__(self):
         self.n_rolls = 0
+        self.total = None
 
     def roll(self):
         self.n_rolls += 1

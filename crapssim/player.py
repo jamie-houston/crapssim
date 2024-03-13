@@ -41,7 +41,6 @@ class Player(object):
         self.bet_strategy = bet_strategy
         self.name = name
         self.bets_on_table = []
-        self.total_bet_amount = 0
         self.logger = LogMixin(verbose)
         self.verbose = verbose
     
@@ -51,20 +50,20 @@ class Player(object):
     def __str__(self) -> str:
         return f"{self.name} - bets:{self.total_bet_amount}"
 
+    total_bet_amount = property(
+        fget=lambda self: sum(b.bet_amount for b in self.bets_on_table),
+    )
     def bet(self, bet_object):
         if not self.has_matching_bet(bet_object):
             if self.bankroll_finance.current >= bet_object.bet_amount:
                 self.bet_stats.biggest_bet = max(self.bet_stats.biggest_bet, bet_object.bet_amount)
                 self.bankroll_finance.current = round(self.bankroll_finance.current - bet_object.bet_amount, 2)
                 self.bets_on_table.append(bet_object)
-                # TODO: This isn't correct!!
-                self.total_bet_amount += bet_object.bet_amount
 
     def remove(self, bet_object):
         if bet_object in self.bets_on_table:
             self.bankroll_finance.current += bet_object.bet_amount
             self.bets_on_table.remove(bet_object)
-            self.total_bet_amount -= bet_object.bet_amount
     
     def has_matching_bet(self, bet_object):
         for current_bet in self.bets_on_table:
@@ -126,12 +125,10 @@ class Player(object):
                 case BetStatus.WIN:
                     self.bet_stats.biggest_win = max(bet_result.win_amount, self.bet_stats.biggest_win)
                     self.bankroll_finance.current += bet_result.win_amount + bet_on_table.bet_amount
-                    self.total_bet_amount -= bet_on_table.bet_amount
                     if bet_on_table.remove_on_win:
                         self.bets_on_table.remove(bet_on_table)
                 case BetStatus.LOSE:
                     self.bet_stats.biggest_loss = max(bet_on_table.bet_amount, self.bet_stats.biggest_loss)
-                    self.total_bet_amount -= bet_on_table.bet_amount
                     self.bets_on_table.remove(bet_on_table)
                 case BetStatus.PUSH:
                     pass

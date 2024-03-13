@@ -145,6 +145,8 @@ class PassLine2ComeStrategy(Strategy):
             player.bet(Come(self.unit))
 
 class Risk12Strategy(Strategy):
+    # Passline and field on come out
+    # 
     def __init__(self, unit=5, verbose=False):
         super().__init__(unit, verbose)
         self.strat_info = {"winnings": 0}
@@ -171,10 +173,6 @@ class Risk12Strategy(Strategy):
 
     def on_new_shooter(self, player, table):
         self.strat_info = {"winnings": 0}
-    
-    def on_seven_out(self, player, table):
-        for bet_nm in ["Place6", "Place8"]:
-            player.remove_if_present(bet_nm)
     
     def on_active_point(self, player, table):
         if table.point.number in [4, 9, 10]:
