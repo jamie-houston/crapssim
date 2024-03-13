@@ -155,7 +155,7 @@ class Player(object):
         if len(losing_bets):
             self.logger.log_red(f"{self.name} LOST " + ", ".join(losing_bets))
 
-        if self.bankroll_finance.target <= self.bankroll_finance.current:
+        if self.bankroll_finance.target is not None and self.bankroll_finance.target <= self.bankroll_finance.current:
             self.continue_rolling = False
         return info
 

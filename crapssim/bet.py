@@ -2,7 +2,7 @@ import decimal
 from crapssim.dice import Dice
 from dataclasses import dataclass
 from enum import Enum
-
+from abc import ABCMeta, abstractmethod
 
 
 """

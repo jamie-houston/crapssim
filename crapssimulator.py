@@ -1,32 +1,36 @@
 import crapssim as craps
 import customstrat
 import csv
-from crapssim.strategy.custom import AllInStrat, DarkAndLightStrategy, NoFieldStrategy, KeepComingBackStrategy, ComingEverywhereStrategy, DoNotPassGo, Hedged2Come
+from crapssim.strategy.custom import AllInStrat, DarkAndLightStrategy, NoFieldStrategy, KeepComingBackStrategy, ComingEverywhereStrategy, DoNotPassGo, Hedged2Come, PassLine2ComeStrategy, Risk12Strategy, SafestWayStrategy
 from icecream import ic
 from prettytable import PrettyTable 
+from fractions import Fraction
 
 
-
-verbose = False
+verbose = True
 ic.disable()
-n_sim = 100
-# n_sim = 1
+# n_sim = 10000
+n_sim = 1
 bankroll = 1000
 target_bankroll = 1200
 max_shooters = 10
 strategies = {
-    "do not pass go strat": DoNotPassGo(verbose=verbose).update_bets,
-    "darkandlight strat": DarkAndLightStrategy().update_bets,
-    "keep coming strat": KeepComingBackStrategy().update_bets,
-    "coming everywhere strat": ComingEverywhereStrategy(verbose=verbose).update_bets,
-    "all in strat": AllInStrat(verbose=verbose).update_bets,
-    "nofield strat": NoFieldStrategy(verbose=verbose).update_bets,
-    "hedged2come strat": Hedged2Come(verbose=verbose).update_bets,
-    "knockout": craps.strategy.knockout,
-    "pass2come": craps.strategy.pass2come,
-    "risk12": craps.strategy.risk12,
-    "corey": customstrat.corey,
+    # "do not pass go strat": DoNotPassGo(verbose=verbose).update_bets,
+    # "darkandlight strat": DarkAndLightStrategy().update_bets,
+    # "keep coming strat": KeepComingBackStrategy().update_bets,
+    # "coming everywhere strat": ComingEverywhereStrategy(verbose=verbose).update_bets,
+    # "all in strat": AllInStrat(verbose=verbose).update_bets,
+    # "nofield strat": NoFieldStrategy(verbose=verbose).update_bets,
+    # "hedged2come strat": Hedged2Come(verbose=verbose).update_bets,
+    # "knockout": craps.strategy.knockout,
+    # "pass2come": PassLine2ComeStrategy(verbose=verbose).update_bets,
+    "risk12": Risk12Strategy(verbose=verbose).update_bets,
+    # "corey": customstrat.corey,
+    # "safest way": SafestWayStrategy(verbose=verbose).update_bets,
 }
+
+def get_count_percent(count, total):
+    return f"{count} ( {(count/total) * 100:.0f}%)"
 
 with open('data.csv', 'w', newline='') as f:
     writer = csv.writer(f)
@@ -84,7 +88,12 @@ with open('data.csv', 'w', newline='') as f:
 
     for strategy, result in sorted(result_summary.items(), key=lambda item: item[1]):
         player = table._get_player(strategy)
-        result_table.add_row([player.name, target_reached_count[strategy], bankrupt_count[strategy], round(result/n_sim, 2), player.bet_stats.biggest_win, player.bet_stats.biggest_loss, player.bet_stats.biggest_loss, max_bankroll[strategy], min_bankroll[strategy]])
+        result_table.add_row([
+            player.name,
+            get_count_percent(target_reached_count[strategy], n_sim),
+            get_count_percent(bankrupt_count[strategy], n_sim),
+            round(result/n_sim, 2), player.bet_stats.biggest_win, player.bet_stats.biggest_loss, player.bet_stats.biggest_loss, max_bankroll[strategy], min_bankroll[strategy]])
     
     print(f"{n_sim} runs. {total_rolls} rolls (avg {(total_rolls/n_sim)}. {max_shooters} max shooters)")
     print(result_table)
+

@@ -1,14 +1,16 @@
-import pytest
 import crapssim as craps 
-from crapssim.bet import BetStatus, Hard, Place6, Horn, SingleRoll
+from crapssim.bet import BetStatus, Hard, Odds, PassLine, Place6, Horn, SingleRoll
 from crapssim.dice import Dice
+from crapssim.player import Player
+from crapssim.table import Table
+from tests.test_utils import set_point, verify_bet_not_on_table, verify_bet_on_table, verify_no_outcome, verify_roll_loses, verify_roll_wins
 
 def test_hard_way():
     unit = 10
     bankroll = 100
     bet = Hard(unit, 4)
-    player = craps.Player(bankroll=bankroll)
-    table = craps.Table()
+    player = Player(bankroll=bankroll)
+    table = Table()
     verify_roll_wins(table, player, bet, (2,2))
     verify_bet_not_on_table(player, bet)
     verify_roll_loses(table, player, bet, (1,3))
@@ -19,9 +21,8 @@ def test_place_bet():
     bankroll = 100
     # create place bet
     bet = Place6(unit)
-    player = craps.Player(bankroll=bankroll)
-    table = craps.Table()
-
+    player = Player(bankroll=bankroll)
+    table = Table()
     set_point(table, (3,6))
 
     verify_roll_wins(table, player, bet, (3,3))
@@ -31,11 +32,11 @@ def test_place_bet():
     verify_roll_loses(table, player, bet, (1,6))
     verify_bet_not_on_table(player, bet)
 
-def test_single_roll():
+def test_single_roll_bet():
     unit = 10
     bankroll = 100
-    player = craps.Player(bankroll=bankroll)
-    table = craps.Table()
+    player = Player(bankroll=bankroll)
+    table = Table()
     bet = SingleRoll(unit, 2)
 
     verify_roll_wins(table, player, bet, (1,1))
@@ -44,7 +45,7 @@ def test_single_roll():
     verify_bet_not_on_table(player, bet)
 
 def test_payout_correct():
-    table = craps.Table()
+    table = Table()
     unit = 5
     dice = Dice()
     bet = SingleRoll(unit, 12)
@@ -59,50 +60,19 @@ def test_payout_correct():
     assert result.win_amount == unit * 30/4
     assert result.status == BetStatus.WIN
 
-def set_point(table, roll):
-    dice = Dice()
+def test_odds():
+    table = Table()
+    unit = 5
+    bankroll = 100
+    passline_bet = PassLine(unit)
+    player = Player(bankroll = bankroll)
+    verify_no_outcome(table, player, passline_bet, (3,6))
+    verify_bet_on_table(player, passline_bet)
+    odds_bet = Odds(unit, passline_bet)
+    verify_no_outcome(table, player, odds_bet, (1,4))
+    verify_no_outcome(table, player, passline_bet, (2,3))
+    verify_bet_on_table(player, passline_bet)
+    verify_bet_on_table(player, odds_bet)
 
-    dice.fixed_roll(roll)
-
-    # roll once to establish point
-    table._update_table(dice)
-
-def verify_bet_not_on_table(player, bet):
-    assert player.has_bet(bet) == False
-
-def verify_bet_on_table(player, bet):
-    assert player.has_matching_bet(bet)
-
-def verify_roll_wins(table, player, bet, roll):
-    dice = Dice()
-    # create hardway bet
-    current_bankroll = player.bankroll_finance.current
-    player.bet(bet)
-
-    # roll hard way
-    dice.fixed_roll(roll)
-    info = player._update_bet(table, dice)[bet]
-    assert info.status == BetStatus.WIN
-    # validate win and payout
-    assert player.bankroll_finance.current == current_bankroll + (bet.bet_amount * bet.payoutratio)
-
-def verify_roll_loses(table, player, bet, roll):
-    dice = Dice()
-    # roll non-hardway
-    player.bet(bet)
-    dice.fixed_roll(roll)
-    info = player._update_bet(table, dice)[bet]
-
-    # validate loss
-    assert info.status == BetStatus.LOSE
-    
-def verify_no_outcome(table, player, bet, roll):
-    dice = Dice()
-    # roll non-hardway
-    player.bet(bet)
-    dice.fixed_roll(roll)
-    info = player._update_bet(table, dice)[bet]
-
-    # validate loss
-    assert info.status == BetStatus.PUSH
-    
+    # TODO: Verify odds and passline bets
+    # verify_roll_wins(table, player, odds_bet, (4,5))
