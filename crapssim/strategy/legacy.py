@@ -1,11 +1,4 @@
 
-# def passline(player, table, unit=5, strat_info=None):
-#     # Pass line bet
-#     if table.point.is_off() and not player.has_bet_type(PassLine):
-#         player.bet(PassLine(unit))
-
-
-
 def passline_odds(player, table, unit=5, strat_info=None, mult=1):
     passline(player, table, unit)
     # Pass line odds
