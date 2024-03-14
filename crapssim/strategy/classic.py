@@ -38,15 +38,11 @@ def place(player, table, unit, strat_info=None):
                 case 10:
                     player.bet(Place10(unit))
 
-
 class IronCross(Strategy):
-    def on_come_out(self, player, table):
+    def on_coming_out(self, player, table):
         player.bet(PassLine(self.unit))
 
-    def on_active_point(self, player, table):
-        passline_odds(player, table, self.unit, strat_info=None, mult=2)
-        place(player, table, 2 * self.unit, strat_info={"numbers": {5, 6, 8}})
-
+    def on_any_status(self, player, table):
         if not player.has_bet_type(Field):
             player.bet(
                 Field(
@@ -55,6 +51,10 @@ class IronCross(Strategy):
                     triple=table.payouts["fieldtriple"],
                 )
             )
+
+    def on_point_set(self, player, table, last_roll):
+        passline_odds(player, table, self.unit, strat_info=None, mult=2)
+        place(player, table, 2 * self.unit, strat_info={"numbers": {5, 6, 8}})
 
 
 class Place68_2Come(Strategy):
@@ -119,7 +119,7 @@ class DiceDoctor(Strategy):
         self.strat_info = None
 
     def on_any_status(self, player, table):
-            
+
         if self.strat_info is None or table.last_roll in Field(0).losing_numbers:
             self.strat_info = {"progression": 0}
         else:
@@ -142,4 +142,3 @@ class DiceDoctor(Strategy):
                 triple=table.payouts["fieldtriple"],
             )
         )
-

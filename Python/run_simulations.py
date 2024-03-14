@@ -1,8 +1,8 @@
 from crapssim import Table
 from crapssim import Player
 from crapssim.strategy import strategy
-import sys 
-import os 
+import sys
+import os
 
 
 def run_printout(n_roll, n_shooter, bankroll, strategy, strategy_name, runout):
@@ -26,7 +26,7 @@ def run_simulation(n_sim, n_roll, bankroll, strategy, strategy_name, runout):
     print("Running simulations for {}_sim-{}_roll-{}_br-{}{}.txt".format(strategy_name, n_sim, n_roll, bankroll, runout_str))
     with open(outfile_name, 'w') as f_out:
         # Headers to match out
-        f_out.write("total_cash,bankroll,n_rolls") 
+        f_out.write("total_cash,bankroll,n_rolls")
         f_out.write(str('\n'))
         for _ in range(n_sim):
             table = Table()
@@ -44,7 +44,7 @@ def run_simulation_burnin(n_sim, n_roll, bankroll, strategy, strategy_name, burn
     print("Running simulations for {}_sim-{}_roll-{}_br-{}_burnin{}.txt".format(strategy_name, n_sim, n_roll, bankroll, runout_str))
     with open(outfile_name, 'w') as f_out:
         # Headers to match out
-        f_out.write("total_cash,bankroll,n_rolls") 
+        f_out.write("total_cash,bankroll,n_rolls")
         f_out.write(str('\n'))
         for _ in range(n_sim):
             table = Table()
@@ -65,12 +65,12 @@ def run_multi_simulation(n_sim, n_roll, n_shooter, bankroll, strategy, name, run
     print("Running simulations for {}_sim-{}_roll-{}_br-{}_burnin{}.txt".format(name, n_sim, n_roll, bankroll, runout_str))
     with open(outfile_name, 'w') as f_out:
         # Headers to match out
-        f_out.write("simid,strategy,total_cash,bankroll,n_rolls") 
+        f_out.write("simid,strategy,total_cash,bankroll,n_rolls")
         f_out.write(str('\n'))
         for i in range(n_sim):
             if i % 1000 == 0:
                 print(f"i: {i}")
-            table = Table() 
+            table = Table()
             table.set_payouts("fielddouble", [2])
             table.set_payouts("fieldtriple", [12])
             for bank, s in zip(bankroll, strategy):
@@ -80,9 +80,9 @@ def run_multi_simulation(n_sim, n_roll, n_shooter, bankroll, strategy, name, run
             # burn_in_bankroll = table.total_player_cash
             table.run(n_roll, n_shooter, verbose=False, runout=runout)
             # write data to file
-            # TODO: get actual player cash 
+            # TODO: get actual player cash
             for bank, s in zip(bankroll, strategy):
-                out = f"{i},{s},{table._get_player(s).bankroll},{bank},{table.dice.n_rolls}"
+                out = f"{i},{s},{table.get_player(s).bankroll},{bank},{table.dice.n_rolls}"
                 # out = "{},{},{},{}".format(s, table.total_player_cash, bank, table.dice.n_rolls_)
                 f_out.write(str(out))
                 f_out.write(str('\n'))
@@ -90,8 +90,8 @@ def run_multi_simulation(n_sim, n_roll, n_shooter, bankroll, strategy, name, run
 
 
 if __name__ == "__main__":
-    
-    sim = True 
+
+    sim = True
     printout = True
 
     n_sim = 10
@@ -106,16 +106,16 @@ if __name__ == "__main__":
     # runout_str = "-runout" if runout else ""
 
     """ Run one strategy  """
-    if printout: 
+    if printout:
         for bank, s in zip(bankrolls, strategies):
-            run_printout(n_roll, n_shooter, bank, strategies[s], s, runout)    
+            run_printout(n_roll, n_shooter, bank, strategies[s], s, runout)
         # run_printout(n_roll, bankroll, strategy, strategy_name, runout)
 
     if sim:
         run_multi_simulation(n_sim, n_roll, n_shooter, bankrolls, strategies, name, runout)
         # run_simulation_burnin(n_sim, n_roll, bankroll, strategy, strategy_name, burn_in=20, runout=runout)
 
-    
+
 
     """ Run multiple strategies """
     # strategies = [strat._strat_place68, strat._strat_place68_2come, strat._strat_pass2come, strat._strat_passline_odds2]

@@ -1,3 +1,5 @@
+from collections import Counter
+
 import crapssim as craps
 from crapssim.strategy.classic import *
 from crapssim.table import Table
@@ -8,15 +10,17 @@ from icecream import ic
 from prettytable import PrettyTable
 from fractions import Fraction
 
-
 verbose = True
 ic.disable()
 # n_sim = 10000
 n_sim = 1
 bankroll = 1000
 target_bankroll = 1200
-max_shooters = 10
+max_shooters = 3
+
 strategies = {
+    # "knockout": craps.strategy.knockout,
+    # "corey": customstrat.corey,
     # DoNotPassGo,
     # DarkAndLightStrategy,
     # KeepComingBackStrategy,
@@ -24,18 +28,18 @@ strategies = {
     # AllInStrat,
     # NoFieldStrategy,
     # Hedged2Come,
-    # "knockout": craps.strategy.knockout,
     # PassLine2ComeStrategy,
     # Risk12Strategy,
-    # "corey": customstrat.corey,
     # SafestWayStrategy,
-    IronCross,
-    # Place68_2Come,
     # DiceDoctor,
+    # Place68_2Come,
+    IronCross,
 }
 
+
 def get_count_percent(count, total):
-    return f"{count} ( {(count/total) * 100:.0f}%)"
+    return f"{count} ( {(count / total) * 100:.0f}%)"
+
 
 with open('data.csv', 'w', newline='') as f:
     writer = csv.writer(f)
@@ -56,19 +60,19 @@ with open('data.csv', 'w', newline='') as f:
         target_reached_count[s] = 0
         bankrupt_count[s] = 0
     for i in range(n_sim):
-        if verbose:
-            print("\nNew Shooter!")
         table = Table(verbose=verbose)
         for s in strategies:
-            table.add_player(craps.Player(bankroll, s(verbose=verbose).update_bets, s.__name__, target_bankroll=target_bankroll, verbose=verbose))
+            table.add_player(
+                craps.Player(bankroll, s(verbose=verbose).update_bets, s.__name__, target_bankroll=target_bankroll,
+                             verbose=verbose))
 
         table.run(max_rolls=float("inf"), max_shooter=max_shooters)
         total_rolls += table.dice.n_rolls
-        roll_history.append(table.dice_results.history)
+        roll_history += table.dice_results.dice_total_history
         if verbose:
             print(f"Rolls: {table.dice.n_rolls}")
         for s in strategies:
-            strategy_player = table._get_player(s.__name__)
+            strategy_player = table.get_player(s.__name__)
             strategy_player_bankroll = strategy_player.bankroll_finance
             current_result = result_summary[s]
             if strategy_player_bankroll.smallest < min_bankroll[s][0]:
@@ -80,22 +84,27 @@ with open('data.csv', 'w', newline='') as f:
             elif strategy_player_bankroll.current < 10:
                 bankrupt_count[s] += 1
 
-
-
-            row = [i, s, strategy_player_bankroll.current, bankroll, table.dice.n_rolls, strategy_player_bankroll.current-bankroll, (strategy_player_bankroll.current-bankroll)/table.dice.n_rolls]
+            row = [i, s, strategy_player_bankroll.current, bankroll, table.dice.n_rolls,
+                   strategy_player_bankroll.current - bankroll,
+                   (strategy_player_bankroll.current - bankroll) / table.dice.n_rolls]
             result_summary[s] = current_result + strategy_player_bankroll.current
 
             writer.writerow(row)
 
-    result_table = PrettyTable(["strategy", "target reached", "bankroll gone", "average bankroll", "biggest win", "biggest loss", "biggest bet", "biggest bankroll, rolls", "smallest bankroll, rolls"])
+    result_table = PrettyTable(
+        ["strategy", "target reached", "bankroll gone", "average bankroll", "biggest win", "biggest loss",
+         "biggest bet", "biggest bankroll, rolls", "smallest bankroll, rolls"])
 
     for strategy, result in sorted(result_summary.items(), key=lambda item: item[1]):
-        player = table._get_player(strategy.__name__)
+        player = table.get_player(strategy.__name__)
         result_table.add_row([
             player.name,
             get_count_percent(target_reached_count[strategy], n_sim),
             get_count_percent(bankrupt_count[strategy], n_sim),
-            round(result/n_sim, 2), player.bet_stats.biggest_win, player.bet_stats.biggest_loss, player.bet_stats.biggest_loss, max_bankroll[strategy], min_bankroll[strategy]])
+            round(result / n_sim, 2), player.bet_stats.biggest_win, player.bet_stats.biggest_loss,
+            player.bet_stats.biggest_loss, max_bankroll[strategy], min_bankroll[strategy]])
 
-    print(f"\n{n_sim} runs. {total_rolls} rolls (avg {(total_rolls/n_sim)}) {max_shooters} max shooters")
+    print(f"\n{n_sim} runs. {total_rolls} rolls (avg {(total_rolls / n_sim)}) {max_shooters} max shooters")
     print(result_table)
+    number_counts = Counter(roll_history)
+    print(f"Dice Stats: {number_counts}")

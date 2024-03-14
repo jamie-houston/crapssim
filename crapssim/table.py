@@ -9,8 +9,10 @@ from icecream import ic
 @dataclass
 class DiceResults():
     pass_rolls = 0
-    history = []
+    dice_result_history = []
+    dice_total_history = []
     number_of_shooters = 1
+    points_hit = 0
 
 
 class Table(object):
@@ -162,16 +164,21 @@ class Table(object):
 
     def _update_table(self, dice):
         """ update table attributes based on previous dice roll """
-        self.dice_results.history.append(dice.result)
+        self.dice_results.dice_result_history.append(dice.result)
+        self.dice_results.dice_total_history.append(dice.total)
         self.dice_results.pass_rolls += 1
         if self.point.is_on() and dice.total == 7:
+            self.logger.log_red("\nSeven Out!")
             self.dice_results.number_of_shooters += 1
         if self.point.is_on() and (dice.total == 7 or dice.total == self.point.number):
             self.pass_rolls = 0
 
+        if self.point.is_on() and dice.total == self.point.number:
+            self.logger.log_green("\nPoint Hit!")
+
         self.point.update(dice)
 
-    def _get_player(self, player_name):
+    def get_player(self, player_name):
         return ([p for p in self.players if p.name == player_name] or None)[0]
 
 
