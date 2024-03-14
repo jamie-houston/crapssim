@@ -1,8 +1,6 @@
-from crapssim.bet import BetStatus, DontCome, Horn, PassLine, Odds, Come
-from crapssim.bet import DontPass, LayOdds
-from crapssim.bet import Place, Place4, Place5, Place6, Place8, Place9, Place10
-from crapssim.bet import Field
 from icecream import ic
+
+from crapssim.bet import BetStatus
 
 """
 Various betting strategies that are based on conditions of the CrapsTable.
@@ -14,9 +12,10 @@ uses the methods from the player object.
 Fundamental Strategies
 """
 
-class Strategy(object):
+
+class Strategy():
     """
-    Bet based on status.  
+    Bet based on status.
     Overwrite any method you want to use
     Do NOT overwrite update bets unless you don't want the other methods to work
 
@@ -35,9 +34,9 @@ class Strategy(object):
     2. on_loss - loss
     3. on_push - no change
     4. after_bet_result
-    
 
-   
+
+
     """
 
     # ic.disable()
@@ -47,8 +46,8 @@ class Strategy(object):
         self.unit = unit
         self.verbose = verbose
 
-    def update_bets(self, player, table, unit, strat_info = None):
-        last_bets = table.bet_update_info and table.bet_update_info.get(player) 
+    def update_bets(self, player, table, unit, strat_info=None):
+        last_bets = table.bet_update_info and table.bet_update_info.get(player)
         self.__handle_bet_callbacks(player, table, last_bets)
 
         self.__handle_roll_callbacks(player, table)
@@ -60,11 +59,11 @@ class Strategy(object):
                 self.on_point_set(player, table, table.last_roll)
             self.on_active_point(player, table)
         else:
-            if table.last_roll == None:
+            if table.last_roll is None:
                 self.on_new_shooter(player, table)
             elif table.last_roll == 7:
                 self.on_seven_out(player, table)
-            elif table.last_roll not in [2,3,11,12]:
+            elif table.last_roll not in [2, 3, 11, 12]:
                 self.on_point_hit(player, table, table.last_roll)
             self.on_coming_out(player, table)
         self.on_any_status(player, table)
@@ -81,11 +80,10 @@ class Strategy(object):
                     case BetStatus.LOSE:
                         self.on_loss(player, table, bet_info)
                 self.after_bet_result(player, table, bet_info)
-    
+
     def before_bet_result(self, player, table, bet_info):
         # Called before any bet result
         ic(bet_info)
-
 
     def after_bet_result(self, player, table, bet_info):
         # Called with any bet result
@@ -102,7 +100,7 @@ class Strategy(object):
     def on_push(self, player, table, bet_info):
         # Called with any push bet
         ic(player, table)
-           
+
     def on_seven_out(self, player, table):
         # called after 7 out
         ic(player, table)
@@ -110,25 +108,24 @@ class Strategy(object):
     def before_roll_callback(self, player, table, last_roll):
         # Called before any roll
         ic(player, last_roll)
-    
-    def on_point_set(self,player, table, last_roll):
+
+    def on_point_set(self, player, table, last_roll):
         # When the point starts
         ic("Point established", last_roll)
-    
+
     def on_point_hit(self, player, table, last_roll):
         ic(f"STRAT::Point hit {last_roll}")
-    
+
     def on_new_shooter(self, player, table):
         # New shooter coming out
         ic("\nSTRAT::New Shooter!")
 
     def on_any_status(self, player, table):
-            ic(player, table)
+        ic(player, table)
 
     def on_active_point(self, player, table):
-            ic(player, table)
+        ic(player, table)
 
     def on_coming_out(self, player, table):
         # When the point is off
         ic(player, table)
-    

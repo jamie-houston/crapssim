@@ -1,26 +1,3 @@
-
-def passline_odds(player, table, unit=5, strat_info=None, mult=1):
-    passline(player, table, unit)
-    # Pass line odds
-    if mult == "345":
-        if table.point.is_on():
-            if table.point.number in [4, 10]:
-                mult = 3
-            elif table.point.number in [5, 9]:
-                mult = 4
-            elif table.point.number in [6, 8]:
-                mult = 5
-    else:
-        mult = float(mult)
-
-    if (
-        table.point.is_on()
-        and player.has_bet_type(PassLine)
-        and not player.has_bet_type(Odds)
-    ):
-        player.bet(Odds(mult * unit, player.get_bet_type(PassLine)))
-
-
 def passline_odds2(player, table, unit=5, strat_info=None):
     passline_odds(player, table, unit, strat_info=None, mult=2)
 
@@ -86,71 +63,6 @@ def layodds(player, table, unit=5, strat_info=None, win_mult=1):
 """
 Detailed Strategies
 """
-
-
-def place68_2come(player, table, unit=5, strat_info=None):
-    """
-    Once point is established, place 6 and 8, with 2 additional come bets.
-    The goal is to be on four distinct numbers, moving place bets if necessary
-    """
-    current_numbers = []
-    for bet in player.bets_on_table:
-        current_numbers += bet.winning_numbers
-    current_numbers = list(set(current_numbers))
-
-    if table.point.is_on() and len(player.bets_on_table) < 4:
-        # always place 6 and 8 when they aren't come bets or place bets already
-        if 6 not in current_numbers:
-            player.bet(Place6(6 / 5 * unit))
-        if 8 not in current_numbers:
-            player.bet(Place8(6 / 5 * unit))
-
-    # add come of passline bets to get on 4 numbers
-    if player.number_of_bets_by_type(Come) == 0 and len(player.bets_on_table) < 4:
-        if table.point.is_on():
-            player.bet(Come(unit))
-        if table.point.is_off() and (
-            player.has_bet("Place6") or player.has_bet("Place8")
-        ):
-            player.bet(PassLine(unit))
-
-    # if come bet or passline goes to 6 or 8, move place bets to 5 or 9
-    pass_come_winning_numbers = []
-    if player.has_bet("PassLine"):
-        pass_come_winning_numbers += player.get_bet("PassLine").winning_numbers
-    if player.has_bet("Come"):
-        pass_come_winning_numbers += player.get_bet("Come", "Any").winning_numbers
-
-    if 6 in pass_come_winning_numbers:
-        if player.has_bet("Place6"):
-            player.remove(player.get_bet("Place6"))
-        if 5 not in current_numbers:
-            player.bet(Place5(unit))
-        elif 9 not in current_numbers:
-            player.bet(Place9(unit))
-    elif 8 in pass_come_winning_numbers:
-        if player.has_bet("Place8"):
-            player.remove(player.get_bet("Place8"))
-        if 5 not in current_numbers:
-            player.bet(Place5(unit))
-        elif 9 not in current_numbers:
-            player.bet(Place9(unit))
-
-
-def ironcross(player, table, unit=5, strat_info=None):
-    passline(player, table, unit)
-    passline_odds(player, table, unit, strat_info=None, mult=2)
-    place(player, table, 2 * unit, strat_info={"numbers": {5, 6, 8}})
-
-    if table.point.is_on():
-        if not player.has_bet("Field"):
-            player.bet(
-                Field(
-                    unit,
-                    double=table.payouts["fielddouble"],
-                    triple=table.payouts["fieldtriple"],
-                )
-            )
 
 
 def hammerlock(player, table, unit=5, strat_info=None):
@@ -223,32 +135,6 @@ def knockout(player, table, unit=5, strat_info=None):
     passline_odds345(player, table, unit)
     dontpass(player, table, unit)
 
-
-def dicedoctor(player, table, unit=5, strat_info=None):
-    if strat_info is None or table.last_roll in Field(0).losing_numbers:
-        strat_info = {"progression": 0}
-    else:
-        strat_info["progression"] += 1
-
-    bet_progression = [10, 20, 15, 30, 25, 50, 35, 70, 50, 100, 75, 150]
-    prog = strat_info["progression"]
-    if prog < len(bet_progression):
-        amount = bet_progression[prog] * unit / 5
-    elif prog % 2 == 0:
-        # alternate between second to last and last
-        amount = bet_progression[len(bet_progression) - 2] * unit / 5
-    else:
-        amount = bet_progression[len(bet_progression) - 1] * unit / 5
-
-    player.bet(
-        Field(
-            amount,
-            double=table.payouts["fielddouble"],
-            triple=table.payouts["fieldtriple"],
-        )
-    )
-
-    return strat_info
 
 
 def place68_cpr(player, table, unit=5, strat_info=None):

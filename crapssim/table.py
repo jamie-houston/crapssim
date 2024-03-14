@@ -1,7 +1,16 @@
+from dataclasses import dataclass
+
 from crapssim.dice import Dice
 from crapssim.logging import LogMixin
 from crapssim.player import Player
 from icecream import ic
+
+
+@dataclass
+class DiceResults():
+    pass_rolls = 0
+    history = []
+    number_of_shooters = 1
 
 
 class Table(object):
@@ -26,8 +35,6 @@ class Table(object):
         when point is on.
     point_number : int
         The point number when point is "On" and None when point is "Off"
-    player_has_bets : bool
-        Boolean value for whether any player has a bet on the table.
     strat_info : dictionary
         Contains information stored from the strategy, usually mean for
         strategies that alter based on past information
@@ -42,25 +49,23 @@ class Table(object):
 
     def __init__(self, verbose=False):
         self.players = []
-        self.player_has_bets = False
         # TODO: I think strat_info should be attached to each player object
         self.strat_info = {}
         self.point = _Point()
         self.dice = Dice()
         self.bet_update_info = None
         self.payouts = {"fielddouble": [2, 12], "fieldtriple": []}
-        self.pass_rolls = 0
-        self.n_shooters = 1
         self.verbose = verbose
         self.logger = LogMixin(verbose)
+        self.dice_results = DiceResults()
 
     def __repr__(self) -> str:
         return f"Point: {self.point} last roll: {self.last_roll}"
-        
+
     @property
     def last_roll(self):
         return self.dice.total or None
-        
+
     @classmethod
     def with_payouts(cls, **kwagrs):
         table = cls()
@@ -111,23 +116,21 @@ class Table(object):
                     print(f"{p.name}: bankroll: {p.bankroll_finance.current}. current bets: {bets}")
 
             self.dice.roll()
-            self.logger.log_yellow(f"\nLast roll {self.dice}. Point is {self.point.status} ({self.point.number}). Player cash ${self.total_player_cash()}. Player bets ${self.total_player_bets()} ")
+            self.logger.log_yellow(
+                f"\nLast roll {self.dice}. Point is {self.point.status} ({self.point.number}). Player cash ${self.total_player_cash()}. Player bets ${self.total_player_bets()} ")
             self._update_player_bets(self.dice)
             self._update_table(self.dice)
 
             # evaluate the stopping condition
+            continue_rolling = (
+                    self.dice.n_rolls < max_rolls
+                    and self.dice_results.number_of_shooters <= max_shooter
+                    and self.total_player_cash() > 0
+            )
+
             if runout:
-                continue_rolling = (
-                    self.dice.n_rolls < max_rolls
-                    and self.n_shooters <= max_shooter
-                    and self.total_player_cash() > 0
-                ) or self.player_has_bets
-            else:
-                continue_rolling = (
-                    self.dice.n_rolls < max_rolls
-                    and self.n_shooters <= max_shooter
-                    and self.total_player_cash() > 0
-                )
+                continue_rolling = continue_rolling or sum(
+                    [len(p.bets_on_table) for p in self.players]) >= 1  # any bets on the table
 
     def _add_player_bets(self):
         """ Implement each player's betting strategy """
@@ -150,30 +153,26 @@ class Table(object):
     def total_player_bets(self):
         return round(sum(
             [p.total_bet_amount for p in self.players]
-        ),2)
+        ), 2)
 
     def total_player_cash(self):
         return round(sum(
             [p.total_bet_amount + p.bankroll_finance.current for p in self.players]
-        ),2)
+        ), 2)
 
     def _update_table(self, dice):
         """ update table attributes based on previous dice roll """
-        self.pass_rolls += 1
+        self.dice_results.history.append(dice.result)
+        self.dice_results.pass_rolls += 1
         if self.point.is_on() and dice.total == 7:
-            self.n_shooters += 1
+            self.dice_results.number_of_shooters += 1
         if self.point.is_on() and (dice.total == 7 or dice.total == self.point.number):
             self.pass_rolls = 0
 
         self.point.update(dice)
-        self.player_has_bets = sum([len(p.bets_on_table) for p in self.players]) >= 1
 
     def _get_player(self, player_name):
-        [p for p in self.players if p.name == player_name]
-        for p in self.players:
-            if p.name == player_name:
-                return p
-        return False
+        return ([p for p in self.players if p.name == player_name] or None)[0]
 
 
 class _Point(object):

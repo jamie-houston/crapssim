@@ -1,32 +1,37 @@
 import crapssim as craps
+from crapssim.strategy.classic import *
+from crapssim.table import Table
 import customstrat
 import csv
-from crapssim.strategy.custom import AllInStrat, DarkAndLightStrategy, NoFieldStrategy, KeepComingBackStrategy, ComingEverywhereStrategy, DoNotPassGo, Hedged2Come, PassLine2ComeStrategy, Risk12Strategy, SafestWayStrategy
+from crapssim.strategy.custom import *
 from icecream import ic
-from prettytable import PrettyTable 
+from prettytable import PrettyTable
 from fractions import Fraction
 
 
 verbose = True
 ic.disable()
 # n_sim = 10000
-n_sim = 10
+n_sim = 1
 bankroll = 1000
 target_bankroll = 1200
 max_shooters = 10
 strategies = {
-    DoNotPassGo,
-    DarkAndLightStrategy,
-    KeepComingBackStrategy,
-    ComingEverywhereStrategy,
-    AllInStrat,
-    NoFieldStrategy,
-    Hedged2Come,
+    # DoNotPassGo,
+    # DarkAndLightStrategy,
+    # KeepComingBackStrategy,
+    # ComingEverywhereStrategy,
+    # AllInStrat,
+    # NoFieldStrategy,
+    # Hedged2Come,
     # "knockout": craps.strategy.knockout,
-    PassLine2ComeStrategy,
-    Risk12Strategy,
+    # PassLine2ComeStrategy,
+    # Risk12Strategy,
     # "corey": customstrat.corey,
-    SafestWayStrategy,
+    # SafestWayStrategy,
+    IronCross,
+    # Place68_2Come,
+    # DiceDoctor,
 }
 
 def get_count_percent(count, total):
@@ -43,6 +48,7 @@ with open('data.csv', 'w', newline='') as f:
     max_bankroll = {}
     target_reached_count = {}
     bankrupt_count = {}
+    roll_history = []
     for s in strategies:
         result_summary[s] = 0
         min_bankroll[s] = bankroll, 0
@@ -52,12 +58,13 @@ with open('data.csv', 'w', newline='') as f:
     for i in range(n_sim):
         if verbose:
             print("\nNew Shooter!")
-        table = craps.Table(verbose=verbose)
+        table = Table(verbose=verbose)
         for s in strategies:
             table.add_player(craps.Player(bankroll, s(verbose=verbose).update_bets, s.__name__, target_bankroll=target_bankroll, verbose=verbose))
 
         table.run(max_rolls=float("inf"), max_shooter=max_shooters)
         total_rolls += table.dice.n_rolls
+        roll_history.append(table.dice_results.history)
         if verbose:
             print(f"Rolls: {table.dice.n_rolls}")
         for s in strategies:
@@ -80,7 +87,7 @@ with open('data.csv', 'w', newline='') as f:
 
             writer.writerow(row)
 
-    result_table = PrettyTable(["strategy", "target reached", "bankroll gone", "average bankroll", "biggest win", "biggest loss", "biggest bet", "biggest bankroll, rolls", "smallest bankroll, rolls"]) 
+    result_table = PrettyTable(["strategy", "target reached", "bankroll gone", "average bankroll", "biggest win", "biggest loss", "biggest bet", "biggest bankroll, rolls", "smallest bankroll, rolls"])
 
     for strategy, result in sorted(result_summary.items(), key=lambda item: item[1]):
         player = table._get_player(strategy.__name__)
@@ -89,7 +96,6 @@ with open('data.csv', 'w', newline='') as f:
             get_count_percent(target_reached_count[strategy], n_sim),
             get_count_percent(bankrupt_count[strategy], n_sim),
             round(result/n_sim, 2), player.bet_stats.biggest_win, player.bet_stats.biggest_loss, player.bet_stats.biggest_loss, max_bankroll[strategy], min_bankroll[strategy]])
-    
+
     print(f"\n{n_sim} runs. {total_rolls} rolls (avg {(total_rolls/n_sim)}) {max_shooters} max shooters")
     print(result_table)
-

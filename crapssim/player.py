@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from crapssim.bet import BetStatus
+from crapssim.bet import Bet, BetStatus
 from icecream import ic
 
 from crapssim.logging import LogMixin
@@ -76,7 +76,7 @@ class Player(object):
         bet_names = {b.name for b in self.bets_on_table}
         return bool(bet_names.intersection(bets_to_check))
 
-    def has_bet_type(self, bet_type):
+    def has_bet_type(self, bet_type: Bet):
         for bet in self.bets_on_table:
             if bet.is_bet_type(bet_type):
                 return True
@@ -99,6 +99,8 @@ class Player(object):
                 return bet
 
     def number_of_bets_by_type(self, bet_type):
+        # TODO: This probably don't check hierarchical class
+        # Place6 should be true for Place, Come9 for Come, etc
         """ returns the total number of bets in self.bets_on_table that match the bet_type """
         number_of_bets = 0
         for bet in self.bets_on_table:

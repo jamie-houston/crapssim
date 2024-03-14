@@ -4,6 +4,7 @@
 .Ruserdata
 *.csv
 __pycache__
+.idea
 
 .vscode
 Articles/
