@@ -1,8 +1,7 @@
-import pytest
-import crapssim as craps 
-from crapssim.bet import Hard, Place6, Horn, SingleRoll
+import crapssim as craps
 from crapssim.dice import Dice
 from crapssim.strategy.strategy import Strategy
+
 
 class TestStrategy(Strategy):
     def __init__(self):
@@ -11,6 +10,7 @@ class TestStrategy(Strategy):
 
     def on_new_shooter(self, player, table):
         self.is_set = True
+
 
 def test_new_shooter():
     strategy = TestStrategy()

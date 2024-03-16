@@ -8,32 +8,32 @@ import csv
 from crapssim.strategy.custom import *
 from icecream import ic
 from prettytable import PrettyTable
-from fractions import Fraction
 
-verbose = True
+verbose = False
 ic.disable()
 # n_sim = 10000
 n_sim = 1
 bankroll = 1000
-target_bankroll = 1200
-max_shooters = 3
+target_bankroll = 1500
+max_shooters = 10
 
 strategies = {
     # "knockout": craps.strategy.knockout,
-    # "corey": customstrat.corey,
-    # DoNotPassGo,
-    # DarkAndLightStrategy,
-    # KeepComingBackStrategy,
-    # ComingEverywhereStrategy,
-    # AllInStrat,
-    # NoFieldStrategy,
-    # Hedged2Come,
-    # PassLine2ComeStrategy,
-    # Risk12Strategy,
-    # SafestWayStrategy,
-    # DiceDoctor,
-    # Place68_2Come,
+    DoNotPassGo,
+    DarkAndLight,
+    KeepComingBack,
+    ComingEverywhere,
+    AllIn,
+    NoField,
+    Hedged2Come,
+    PassLine2Come,
+    Risk12,
+    SafestWay,
+    DiceDoctor,
+    Place68_2Come,
     IronCross,
+    IronCrossOriginal,
+    Corey,
 }
 
 

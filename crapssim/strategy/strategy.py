@@ -1,6 +1,6 @@
-from icecream import ic
-
+from enum import Enum
 from crapssim.bet import BetStatus
+from crapssim.strategy.alternative import AlternativeStrategy
 
 """
 Various betting strategies that are based on conditions of the CrapsTable.
@@ -13,7 +13,17 @@ Fundamental Strategies
 """
 
 
-class Strategy():
+class RollStatus(Enum):
+    NEW_SHOOTER = "on_new_shooter",
+    COMING_OUT = "on_coming_out",
+    POINT_SET = "on_point_set",
+    POINT_HIT = "on_point_hit",
+    SEVEN_OUT = "on_seven_out",
+    ACTIVE_POINT = "on_active_point",
+    ANY_STATUS = "on_any_status",
+
+
+class Strategy:
     """
     Bet based on status.
     Overwrite any method you want to use
@@ -39,12 +49,10 @@ class Strategy():
 
     """
 
-    # ic.disable()
-    ic.configureOutput(includeContext=True)
-
-    def __init__(self, unit=5, verbose=False):
+    def __init__(self, unit=5, verbose=False, alternatives = None):
         self.unit = unit
         self.verbose = verbose
+        self.alternatives = alternatives
 
     def update_bets(self, player, table, unit, strat_info=None):
         last_bets = table.bet_update_info and table.bet_update_info.get(player)
@@ -83,49 +91,49 @@ class Strategy():
 
     def before_bet_result(self, player, table, bet_info):
         # Called before any bet result
-        ic(bet_info)
+        pass
 
     def after_bet_result(self, player, table, bet_info):
         # Called with any bet result
-        ic(bet_info)
+        pass
 
     def on_win(self, player, table, winning_bet):
         # Called with any winning bet
-        ic(winning_bet)
+        pass
 
     def on_loss(self, player, table, losing_bet_info):
         # Called with any losing bet
-        ic(losing_bet_info)
+        pass
 
     def on_push(self, player, table, bet_info):
         # Called with any push bet
-        ic(player, table)
+        pass
 
     def on_seven_out(self, player, table):
         # called after 7 out
-        ic(player, table)
+        pass
 
     def before_roll_callback(self, player, table, last_roll):
         # Called before any roll
-        ic(player, last_roll)
+        pass
 
     def on_point_set(self, player, table, last_roll):
         # When the point starts
-        ic("Point established", last_roll)
+        pass
 
     def on_point_hit(self, player, table, last_roll):
-        ic(f"STRAT::Point hit {last_roll}")
+        pass
 
     def on_new_shooter(self, player, table):
         # New shooter coming out
-        ic("\nSTRAT::New Shooter!")
+        pass
 
     def on_any_status(self, player, table):
-        ic(player, table)
+        pass
 
     def on_active_point(self, player, table):
-        ic(player, table)
+        pass
 
     def on_coming_out(self, player, table):
         # When the point is off
-        ic(player, table)
+        pass

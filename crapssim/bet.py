@@ -96,7 +96,6 @@ class PassLine(Bet):
         self.name = "PassLine"
         self.winning_numbers = [7, 11]
         self.losing_numbers = [2, 3, 12]
-        self.payoutratio = 1.0
         self.prepoint = True
         super().__init__(bet_amount)
 
@@ -281,7 +280,6 @@ class DontPass(Bet):
         self.winning_numbers = [2, 3]
         self.losing_numbers = [7, 11]
         self.push_numbers = [12]
-        self.payoutratio = 1.0
         self.prepoint = True
         super().__init__(bet_amount)
 

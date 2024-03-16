@@ -9,11 +9,14 @@ def set_point(table, roll):
     dice.fixed_roll(roll)
     table._update_table(dice)
 
+
 def verify_bet_not_on_table(player, bet):
     assert player.has_bet(bet) == False
 
+
 def verify_bet_on_table(player, bet):
     assert player.has_matching_bet(bet)
+
 
 def verify_roll_wins(table, player, bet, roll):
     dice = Dice()
@@ -26,6 +29,7 @@ def verify_roll_wins(table, player, bet, roll):
     # validate win and payout
     assert player.bankroll_finance.current == current_bankroll + (bet.bet_amount * bet.payoutratio)
 
+
 def verify_roll_loses(table, player, bet, roll):
     dice = Dice()
     player.bet(bet)
@@ -34,13 +38,12 @@ def verify_roll_loses(table, player, bet, roll):
 
     # validate loss
     assert info.status == BetStatus.LOSE
-    
-def verify_no_outcome(table, player, bet, roll):
+
+
+def verify_no_outcome(table, player, roll):
     dice = Dice()
-    player.bet(bet)
     dice.fixed_roll(roll)
-    info = player._update_bet(table, dice)[bet]
+    bet_results = player._update_bet(table, dice)
 
     # validate loss
-    assert info.status == BetStatus.PUSH
-    
+    assert [info.status == BetStatus.PUSH for (name, info) in bet_results.items()]

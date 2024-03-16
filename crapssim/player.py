@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from crapssim.bet import Bet, BetStatus
+from crapssim.bet import Bet, BetStatus, Odds
 from icecream import ic
 
 from crapssim.logging import LogMixin
@@ -43,7 +43,7 @@ class Player(object):
         self.bets_on_table = []
         self.logger = LogMixin(verbose)
         self.verbose = verbose
-    
+
     def __repr__(self) -> str:
         return f"{self.name}: bank: ${self.bankroll_finance.current} bets:${self.total_bet_amount}"
 
@@ -60,11 +60,19 @@ class Player(object):
                 self.bankroll_finance.current = round(self.bankroll_finance.current - bet_object.bet_amount, 2)
                 self.bets_on_table.append(bet_object)
 
+    def add_odds(self, bet_type: Bet, amount, number = None):
+        # if bet_type not in self.bets_on_table:
+        #     self.logger.log(f"Cannot put odds on {bet_type}.  No bets found.")
+        # else:
+        #     current_bet = [bet for bet in self.bets_on_table if bet.is_bet_type(bet_type)][0]
+        #     if len(current_bet) == 1:
+        self.bet(Odds(amount, bet_type))
+
     def remove(self, bet_object):
         if bet_object in self.bets_on_table:
             self.bankroll_finance.current += bet_object.bet_amount
             self.bets_on_table.remove(bet_object)
-    
+
     def has_matching_bet(self, bet_object):
         for current_bet in self.bets_on_table:
             if bet_object.name == current_bet.name and bet_object.subname == current_bet.subname:
@@ -92,7 +100,7 @@ class Player(object):
             bet_name_list = [[b.name, b.subname] for b in self.bets_on_table]
             ind = bet_name_list.index([bet_name, bet_subname])
         return self.bets_on_table[ind]
-    
+
     def get_bet_type(self, bet_type):
         for bet in self.bets_on_table:
             if bet.__class__ == bet_type:
@@ -134,12 +142,12 @@ class Player(object):
                     self.bets_on_table.remove(bet_on_table)
                 case BetStatus.PUSH:
                     pass
-            
+
             bet_result.__dict__.update(bet_on_table.__dict__)
 
 
             info[bet_on_table] = bet_result
-        
+
         self.bankroll_finance.largest = max(self.bankroll_finance.largest, self.bankroll_finance.current)
         self.bankroll_finance.smallest = min(self.bankroll_finance.smallest, self.bankroll_finance.current)
         winning_bets = []

@@ -65,73 +65,14 @@ Detailed Strategies
 """
 
 
-def hammerlock(player, table, unit=5, strat_info=None):
-    passline(player, table, unit)
-    layodds(player, table, unit, win_mult="345")
-
-    place_nums = set()
-    for bet in player.bets_on_table:
-        if isinstance(bet, Place):
-            place_nums.add(bet.winning_numbers[0])
-    place_point_nums = place_nums.copy()
-    place_point_nums.add(table.point.number)
-
-    has_place68 = (6 in place_nums) or (8 in place_nums)
-    has_place5689 = (
-        (5 in place_nums) or (6 in place_nums) or (8 in place_nums) or (9 in place_nums)
-    )
-
-    # 3 phases, place68, place_inside, takedown
-    if strat_info is None or table.point.is_off():
-        strat_info = {"mode": "place68"}
-        for bet_nm in ["Place5", "Place6", "Place8", "Place9"]:
-            player.remove_if_present(bet_nm)
-
-    if strat_info["mode"] == "place68":
-        if table.point.is_on() and has_place68 and place_nums != {6, 8}:
-            # assume that a place 6/8 has won
-            if player.has_bet("Place6"):
-                player.remove(player.get_bet("Place6"))
-            if player.has_bet("Place8"):
-                player.remove(player.get_bet("Place8"))
-            strat_info["mode"] = "place_inside"
-            place(
-                player,
-                table,
-                unit,
-                strat_info={"numbers": {5, 6, 8, 9}},
-                skip_point=False,
-            )
-        else:
-            place(
-                player,
-                table,
-                2 * unit,
-                strat_info={"numbers": {6, 8}},
-                skip_point=False,
-            )
-    elif strat_info["mode"] == "place_inside":
-        if table.point.is_on() and has_place5689 and place_nums != {5, 6, 8, 9}:
-            # assume that a place 5/6/8/9 has won
-            for bet_nm in ["Place5", "Place6", "Place8", "Place9"]:
-                player.remove_if_present(bet_nm)
-            strat_info["mode"] = "takedown"
-        else:
-            place(
-                player,
-                table,
-                unit,
-                strat_info={"numbers": {5, 6, 8, 9}},
-                skip_point=False,
-            )
-    elif strat_info["mode"] == "takedown" and table.point.is_off():
-        strat_info = None
-
-    return strat_info
-
 
 
 def knockout(player, table, unit=5, strat_info=None):
+    """
+    1 unit pass line
+    1 unit don’t pass
+    3-4-5x odds behind the pass line bet
+    """
     passline_odds345(player, table, unit)
     dontpass(player, table, unit)
 
