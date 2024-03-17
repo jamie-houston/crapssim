@@ -1,3 +1,4 @@
+import decimal
 from dataclasses import dataclass
 from crapssim.bet import Bet, BetStatus, Odds
 from icecream import ic
@@ -53,6 +54,7 @@ class Player(object):
     total_bet_amount = property(
         fget=lambda self: sum(b.bet_amount for b in self.bets_on_table),
     )
+
     def bet(self, bet_object):
         if not self.has_matching_bet(bet_object):
             if self.bankroll_finance.current >= bet_object.bet_amount:
@@ -60,7 +62,7 @@ class Player(object):
                 self.bankroll_finance.current = round(self.bankroll_finance.current - bet_object.bet_amount, 2)
                 self.bets_on_table.append(bet_object)
 
-    def add_odds(self, bet_type: Bet, amount, number = None):
+    def add_odds(self, bet_type: Bet, amount, number=None):
         # if bet_type not in self.bets_on_table:
         #     self.logger.log(f"Cannot put odds on {bet_type}.  No bets found.")
         # else:
@@ -145,7 +147,6 @@ class Player(object):
 
             bet_result.__dict__.update(bet_on_table.__dict__)
 
-
             info[bet_on_table] = bet_result
 
         self.bankroll_finance.largest = max(self.bankroll_finance.largest, self.bankroll_finance.current)
@@ -166,16 +167,33 @@ class Player(object):
             self.continue_rolling = False
         return info
 
-@dataclass
-class BankRoll():
-    starting = 0
-    largest = 0
-    current = 0
-    smallest = 0
-    target = 0
+class MoneyField:
+    def __init__(self, *, default):
+        self._default = default
+
+    def __set_name__(self, owner, name):
+        self._name = "_" + name
+
+    def __get__(self, obj, type):
+        if obj is None:
+            return self._default
+
+        return getattr(obj, self._name, self._default)
+
+    def __set__(self, obj, value):
+        setattr(obj, self._name, round(value, 2))
 
 @dataclass
-class BetStats():
+class BankRoll:
+    starting = MoneyField(default=0)
+    largest = MoneyField(default=0)
+    current = MoneyField(default=0)
+    smallest = MoneyField(default=0)
+    target = MoneyField(default=0)
+
+
+@dataclass
+class BetStats:
     biggest_win = 0
     biggest_loss = 0
     biggest_bet = 0

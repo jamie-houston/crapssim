@@ -8,6 +8,8 @@ import csv
 from crapssim.strategy.custom import *
 from icecream import ic
 from prettytable import PrettyTable
+from prettytable import PLAIN_COLUMNS
+
 
 verbose = False
 ic.disable()
@@ -92,8 +94,8 @@ with open('data.csv', 'w', newline='') as f:
             writer.writerow(row)
 
     result_table = PrettyTable(
-        ["strategy", "target reached", "bankroll gone", "average bankroll", "biggest win", "biggest loss",
-         "biggest bet", "biggest bankroll, rolls", "smallest bankroll, rolls"])
+        ["strategy", "hit target", "$<Unit", "Avg $", "biggest win", "biggest loss",
+         "biggest bet", "highest $, rolls", "lowest $, rolls"])
 
     for strategy, result in sorted(result_summary.items(), key=lambda item: item[1]):
         player = table.get_player(strategy.__name__)
@@ -105,6 +107,9 @@ with open('data.csv', 'w', newline='') as f:
             player.bet_stats.biggest_loss, max_bankroll[strategy], min_bankroll[strategy]])
 
     print(f"\n{n_sim} runs. {total_rolls} rolls (avg {(total_rolls / n_sim)}) {max_shooters} max shooters")
+    # result_table.set_style(PLAIN_COLUMNS)
+    result_table.padding_width = 0
+
     print(result_table)
     number_counts = Counter(roll_history)
     print(f"Dice Stats: {number_counts}")
