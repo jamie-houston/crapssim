@@ -1,18 +1,14 @@
+import csv
 from collections import Counter
+
+from prettytable import PrettyTable
 
 import crapssim as craps
 from crapssim.strategy.classic import *
-from crapssim.table import Table
-import customstrat
-import csv
 from crapssim.strategy.custom import *
-from icecream import ic
-from prettytable import PrettyTable
-from prettytable import PLAIN_COLUMNS
+from crapssim.table import Table
 
-
-verbose = False
-ic.disable()
+verbose = True
 # n_sim = 10000
 n_sim = 1
 bankroll = 1000
@@ -21,21 +17,24 @@ max_shooters = 10
 
 strategies = {
     # "knockout": craps.strategy.knockout,
-    DoNotPassGo,
-    DarkAndLight,
-    KeepComingBack,
+    # DoNotPassGo,
+    # DarkAndLight,
+    # KeepComingBack,
     ComingEverywhere,
-    AllIn,
-    NoField,
-    Hedged2Come,
-    PassLine2Come,
-    Risk12,
-    SafestWay,
-    DiceDoctor,
-    Place68_2Come,
+    # AllIn,
+    # NoField,
+    # Hedged2Come,
+    # PassLine2Come,
+    # Risk12,
+    # SafestWay,
+    # DiceDoctor,
+    # Place68_2Come,
+    # Corey,
+    Frankenstein,
     IronCross,
-    IronCrossOriginal,
-    Corey,
+    IronCrossLadder,
+    IronCrossNoField,
+    IronCrossNoFieldOnComeOut,
 }
 
 

@@ -1,4 +1,5 @@
 from crapssim.strategy.bets import place
+from crapssim.strategy.classic import IronCrossLadder, DiceDoctor
 from crapssim.strategy.strategy import Strategy
 from crapssim.bet import *
 from icecream import ic
@@ -110,7 +111,7 @@ class DoNotPassGo(Strategy):
         self.bet_placed = False
 
     def _add_bet(self, player, bet):
-        if self.bet_placed == False:
+        if not self.bet_placed:
             player.bet(bet)
             self.last_bet_amount = bet.bet_amount
             self.bet_placed = True
@@ -251,3 +252,9 @@ class Corey(Strategy):
                     triple=table.payouts["fieldtriple"],
                 )
             )
+
+class Frankenstein(Strategy):
+
+    def __init__(self, unit=5, verbose=False):
+        super().__init__(unit, verbose)
+        self.strategies = (IronCrossLadder(unit, verbose), DiceDoctor(unit, verbose))

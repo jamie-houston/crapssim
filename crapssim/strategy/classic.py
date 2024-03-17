@@ -11,43 +11,17 @@ class IronCross(Strategy):
     2 unit (plus cap) place bet on 6 and 8
     If the point is a 5, 6, or 8, skip the place bet on that number
     """
-    def __amount_to_bet(self):
-        multiplier = self.strat_info["multiplier"]
-        return self.unit * multiplier
 
-    def __init__(self, unit=5, verbose=False, alternatives = None):
-        super().__init__(unit, verbose, alternatives)
-        self.strat_info = {"multiplier": 1}
-
-    def on_coming_out(self, player, table):
-        player.bet(PassLine(self.__amount_to_bet()))
-
-    def on_seven_out(self, player, table):
-        multiplier = self.strat_info["multiplier"]
-        if player.bankroll_finance.current < player.bankroll_finance.starting:
-            multiplier += 1
-        else:
-            multiplier = max(multiplier - 1, 1)
-        self.strat_info["multiplier"] = multiplier
-
-    def on_any_status(self, player, table):
-        field_bet(player, table, self.__amount_to_bet())
-
-    def on_point_set(self, player, table, last_roll):
-        passline_odds(player, table, self.__amount_to_bet(), strat_info=None, mult=2)
-        place(player, table, 2 * self.__amount_to_bet(), strat_info={"numbers": {5, 6, 8}})
-
-
-class IronCrossOriginal(IronCross):
-    def __amount_to_bet(self):
-        return self.unit
+    @property
+    def unit(self):
+        return self.base_unit
 
     def __init__(self, unit=5, verbose=False):
         super().__init__(unit, verbose)
         self.strat_info = {"multiplier": 1}
 
     def on_coming_out(self, player, table):
-        player.bet(PassLine(self.__amount_to_bet()))
+        player.bet(PassLine(self.unit))
 
     def on_seven_out(self, player, table):
         multiplier = self.strat_info["multiplier"]
@@ -58,11 +32,18 @@ class IronCrossOriginal(IronCross):
         self.strat_info["multiplier"] = multiplier
 
     def on_any_status(self, player, table):
-        field_bet(player, table, self.__amount_to_bet())
+        field_bet(player, table, self.unit)
 
     def on_point_set(self, player, table, last_roll):
-        passline_odds(player, table, self.__amount_to_bet(), strat_info=None, mult=2)
-        place(player, table, 2 * self.__amount_to_bet(), strat_info={"numbers": {5, 6, 8}})
+        passline_odds(player, table, self.unit, strat_info=None, mult=2)
+        place(player, table, 2 * self.unit, strat_info={"numbers": {5, 6, 8}})
+
+
+class IronCrossLadder(IronCross):
+    @property
+    def unit(self):
+        multiplier = self.strat_info["multiplier"]
+        return self.base_unit * multiplier
 
 
 class Place68_2Come(Strategy):
@@ -126,6 +107,7 @@ class DiceDoctor(Strategy):
     """
     2 unit field bet, with a bet progression if you win.
     """
+
     def __init__(self, unit=5, verbose=False):
         super().__init__(unit, verbose)
         self.strat_info = None
@@ -149,8 +131,28 @@ class DiceDoctor(Strategy):
 
         field_bet(player, table, amount)
 
+class NoFieldOnComeOut(Strategy):
+    def after_roll_callback(self, player, table):
+        if table.point.is_off():
+            player.remove_if_present("Field")
 
-# class HammerLock(Strategy):
+class NoField(Strategy):
+    def after_roll_callback(self, player, table):
+        player.remove_if_present("Field")
+
+class IronCrossNoFieldOnComeOut(Strategy):
+
+    def __init__(self, unit=5, verbose=False):
+        super().__init__(unit, verbose)
+        self.strategies = (IronCrossLadder(unit, verbose), NoFieldOnComeOut(unit, verbose))
+
+class IronCrossNoField(Strategy):
+
+    def __init__(self, unit=5, verbose=False):
+        super().__init__(unit, verbose)
+        self.strategies = (IronCrossLadder(unit, verbose), NoField(unit, verbose))
+
+    # class HammerLock(Strategy):
     """
     1 unit pass line bet
     1 unit don’t pass bet, with a lay of 6 units in odds

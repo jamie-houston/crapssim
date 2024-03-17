@@ -1,4 +1,6 @@
 from enum import Enum
+from typing import final
+
 from crapssim.bet import BetStatus
 from crapssim.strategy.alternative import AlternativeStrategy
 
@@ -22,6 +24,8 @@ class RollEvent(Enum):
     SEVEN_OUT = "on_seven_out"
     ACTIVE_POINT = "on_active_point"
     ANY_STATUS = "on_any_status"
+    AFTER_ROLL_CALLBACK = "after_roll_callback"
+
 
 class BetEvent(Enum):
     BEFORE_BET_RESULT = "before_bet_result"
@@ -34,9 +38,6 @@ class BetEvent(Enum):
 class Strategy:
     """
     Bet based on status.
-    Overwrite any method you want to use
-    Do NOT overwrite update_bets unless you don't want the other methods to work
-    That's the callback from the consumer
 
     You can either implement handle_roll_events and use whichever even you want
     Or implement one of the below methods
@@ -50,6 +51,7 @@ class Strategy:
     5. on_seven_out - seven out
     6. on_active_point - point is set
     7. on_any_status - Any time in roll
+    8. after_roll_callback - after all callbacks
 
     Bet results - Called for each existing bet on the table
     0. before_bet_result
@@ -62,21 +64,39 @@ class Strategy:
 
     """
 
-    def __init__(self, unit=5, verbose=False, alternatives = None):
-        self.unit = unit
+    def __init__(self, unit=5, verbose=False):
+        self.base_unit = unit
         self.verbose = verbose
-        self.alternatives = alternatives
+        self.strategies = ()
 
+    @final
     def update_bets(self, player, table, unit, strat_info=None):
+        """
+        This is called before every roll to determine bets to place
+        """
         last_bets = table.bet_update_info and table.bet_update_info.get(player)
         self.__handle_bet_callbacks(player, table, last_bets)
 
         self.__handle_roll_callbacks(player, table)
 
+    @property
+    def unit(self):
+        """
+        To change the base unit, override this method
+        :return:
+        """
+        return self.base_unit
+
     def handle_roll_event(self, roll_event, *args):
-        method = getattr(self, roll_event.value, None)
-        if method:
-            method(*args)  # Call the method directly if it exists
+        def run_method(s):
+            method = getattr(s, roll_event.value, None)
+            if method:
+                method(*args)  # Call the method directly if it exists
+
+        if len(self.strategies):
+            [run_method(s) for s in self.strategies]
+        else:
+            run_method(self)
 
     def __handle_roll_callbacks(self, player, table):
         self.handle_roll_event(RollEvent.BEFORE_ROLL_CALLBACK, player, table)
@@ -93,6 +113,7 @@ class Strategy:
                 self.handle_roll_event(RollEvent.POINT_HIT, player, table, table.last_roll)
             self.handle_roll_event(RollEvent.COMING_OUT, player, table)
         self.handle_roll_event(RollEvent.ANY_STATUS, player, table)
+        self.handle_roll_event(RollEvent.AFTER_ROLL_CALLBACK, player, table)
 
     def __handle_bet_callbacks(self, player, table, last_bets):
         if last_bets is not None:
