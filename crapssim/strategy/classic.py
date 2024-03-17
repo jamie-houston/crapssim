@@ -1,44 +1,6 @@
 from crapssim.bet import Come, Odds, PassLine, Place, Place10, Place4, Place5, Place6, Place8, Place9, Field
+from crapssim.strategy.bets import field_bet, passline_odds, place
 from crapssim.strategy.strategy import Strategy
-
-
-def passline_odds(player, table, unit=5, strat_info=None, mult=1):
-    # Pass line odds
-    if mult == "345":
-        if table.point.is_on():
-            if table.point.number in [4, 10]:
-                mult = 3
-            elif table.point.number in [5, 9]:
-                mult = 4
-            elif table.point.number in [6, 8]:
-                mult = 5
-    else:
-        mult = float(mult)
-
-    if (
-            table.point.is_on()
-            and player.has_bet_type(PassLine)
-            and not player.has_bet_type(Odds)
-    ):
-        player.bet(Odds(mult * unit, player.get_bet_type(PassLine)))
-
-
-def place(player, table, unit, strat_info=None):
-    if strat_info is not None:
-        for point in strat_info["numbers"]:
-            match point:
-                case 4:
-                    player.bet(Place4(unit))
-                case 5:
-                    player.bet(Place5(unit))
-                case 6:
-                    player.bet(Place6(unit))
-                case 8:
-                    player.bet(Place8(unit))
-                case 9:
-                    player.bet(Place9(unit))
-                case 10:
-                    player.bet(Place10(unit))
 
 
 class IronCross(Strategy):
@@ -69,14 +31,7 @@ class IronCross(Strategy):
         self.strat_info["multiplier"] = multiplier
 
     def on_any_status(self, player, table):
-        if not player.has_bet_type(Field):
-            player.bet(
-                Field(
-                    self.__amount_to_bet(),
-                    double=table.payouts["fielddouble"],
-                    triple=table.payouts["fieldtriple"],
-                )
-            )
+        field_bet(player, table, self.__amount_to_bet())
 
     def on_point_set(self, player, table, last_roll):
         passline_odds(player, table, self.__amount_to_bet(), strat_info=None, mult=2)
@@ -103,14 +58,7 @@ class IronCrossOriginal(IronCross):
         self.strat_info["multiplier"] = multiplier
 
     def on_any_status(self, player, table):
-        if not player.has_bet_type(Field):
-            player.bet(
-                Field(
-                    self.__amount_to_bet(),
-                    double=table.payouts["fielddouble"],
-                    triple=table.payouts["fieldtriple"],
-                )
-            )
+        field_bet(player, table, self.__amount_to_bet())
 
     def on_point_set(self, player, table, last_roll):
         passline_odds(player, table, self.__amount_to_bet(), strat_info=None, mult=2)
@@ -199,13 +147,7 @@ class DiceDoctor(Strategy):
         else:
             amount = bet_progression[len(bet_progression) - 1] * self.unit / 5
 
-        player.bet(
-            Field(
-                amount,
-                double=table.payouts["fielddouble"],
-                triple=table.payouts["fieldtriple"],
-            )
-        )
+        field_bet(player, table, amount)
 
 
 # class HammerLock(Strategy):

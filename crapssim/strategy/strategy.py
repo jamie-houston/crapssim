@@ -35,7 +35,11 @@ class Strategy:
     """
     Bet based on status.
     Overwrite any method you want to use
-    Do NOT overwrite update bets unless you don't want the other methods to work
+    Do NOT overwrite update_bets unless you don't want the other methods to work
+    That's the callback from the consumer
+
+    You can either implement handle_roll_events and use whichever even you want
+    Or implement one of the below methods
 
     Status of roll in chronological order:
     0. before_roll_callback - before any callbacks

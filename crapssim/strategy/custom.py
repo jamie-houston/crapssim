@@ -1,3 +1,4 @@
+from crapssim.strategy.bets import place
 from crapssim.strategy.strategy import Strategy
 from crapssim.bet import *
 from icecream import ic
@@ -215,42 +216,6 @@ def get_current_total_without_profit(player, unit):
     current_total -= max(unit, player.bankroll_finance.current - player.bankroll_finance.starting)
     current_total = max(unit, current_total)
     return current_total
-
-
-def place(player, table, unit=5, strat_info={"numbers": {6, 8}}, skip_point=True):
-    strat_info["numbers"] = set(strat_info["numbers"]).intersection({4, 5, 6, 8, 9, 10})
-    if skip_point:
-        strat_info["numbers"] -= {table.point.number}
-
-    # Place the provided numbers when point is ON
-    if table.point.is_on():
-        if not player.has_bet("Place4") and 4 in strat_info["numbers"]:
-            player.bet(Place4(unit))
-        if not player.has_bet("Place5") and 5 in strat_info["numbers"]:
-            player.bet(Place5(unit))
-        if not player.has_bet("Place6") and 6 in strat_info["numbers"]:
-            player.bet(Place6(6 / 5 * unit))
-        if not player.has_bet("Place8") and 8 in strat_info["numbers"]:
-            player.bet(Place8(6 / 5 * unit))
-        if not player.has_bet("Place9") and 9 in strat_info["numbers"]:
-            player.bet(Place9(unit))
-        if not player.has_bet("Place10") and 10 in strat_info["numbers"]:
-            player.bet(Place10(unit))
-
-    # Move the bets off the point number if it shows up later
-    if skip_point and table.point.is_on():
-        if player.has_bet("Place4") and table.point.number == 4:
-            player.remove(player.get_bet("Place4"))
-        if player.has_bet("Place5") and table.point.number == 5:
-            player.remove(player.get_bet("Place5"))
-        if player.has_bet("Place6") and table.point.number == 6:
-            player.remove(player.get_bet("Place6"))
-        if player.has_bet("Place8") and table.point.number == 8:
-            player.remove(player.get_bet("Place8"))
-        if player.has_bet("Place9") and table.point.number == 9:
-            player.remove(player.get_bet("Place9"))
-        if player.has_bet("Place10") and table.point.number == 10:
-            player.remove(player.get_bet("Place10"))
 
 
 class SafestWay(Strategy):
