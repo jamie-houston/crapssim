@@ -139,7 +139,7 @@ class Table(object):
         """ TODO: restrict bets that shouldn't be possible based on table"""
         """ TODO: Make the unit parameter specific to each player, and make it more general """
         for p in self.players:
-            if p.continue_rolling:
+            if p.target_reached:
                 self.strat_info[p] = p._add_strategy_bets(
                     self, unit=5, strat_info=self.strat_info[p]
                 )  # unit = 10 to change unit

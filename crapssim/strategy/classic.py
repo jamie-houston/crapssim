@@ -131,96 +131,13 @@ class DiceDoctor(Strategy):
 
         field_bet(player, table, amount)
 
+
 class NoFieldOnComeOut(Strategy):
     def after_roll_callback(self, player, table):
         if table.point.is_off():
             player.remove_if_present("Field")
 
+
 class NoField(Strategy):
     def after_roll_callback(self, player, table):
         player.remove_if_present("Field")
-
-class IronCrossNoFieldOnComeOut(Strategy):
-
-    def __init__(self, unit=5, verbose=False):
-        super().__init__(unit, verbose)
-        self.strategies = (IronCrossLadder(unit, verbose), NoFieldOnComeOut(unit, verbose))
-
-class IronCrossNoField(Strategy):
-
-    def __init__(self, unit=5, verbose=False):
-        super().__init__(unit, verbose)
-        self.strategies = (IronCrossLadder(unit, verbose), NoField(unit, verbose))
-
-    # class HammerLock(Strategy):
-    """
-    1 unit pass line bet
-    1 unit don’t pass bet, with a lay of 6 units in odds
-    A phased place bet approach (no matter what the point is):
-    Start with 2 unit (with cap) place bet each on 6 and 8
-    If one of these bets wins, shift to 1 unit each inside (place the 5, 6, 8, and 9)
-    If one of the inside bets wins, take all place bets down
-    """
-    # def on_coming_out(self, player, table):
-    #     player.bet(PassLine(self.unit))
-    #
-    # def on_point_set(self, player, table, last_roll):
-    #     passline_odds(player, table, self.unit(), strat_info=None, mult=345)
-    #
-    #     place_nums = set()
-    #     for bet in player.bets_on_table:
-    #         if isinstance(bet, Place):
-    #             place_nums.add(bet.winning_numbers[0])
-    #     place_point_nums = place_nums.copy()
-    #     place_point_nums.add(table.point.number)
-    #
-    #     has_place68 = (6 in place_nums) or (8 in place_nums)
-    #     has_place5689 = (
-    #             (5 in place_nums) or (6 in place_nums) or (8 in place_nums) or (9 in place_nums)
-    #     )
-    #
-    #     # 3 phases, place68, place_inside, takedown
-    #     if self.strat_info is None or table.point.is_off():
-    #         self.strat_info = {"mode": "place68"}
-    #         for bet_nm in ["Place5", "Place6", "Place8", "Place9"]:
-    #             player.remove_if_present(bet_nm)
-    #
-    #     if self.strat_info["mode"] == "place68":
-    #         if table.point.is_on() and has_place68 and place_nums != {6, 8}:
-    #             # assume that a place 6/8 has won
-    #             if player.has_bet("Place6"):
-    #                 player.remove(player.get_bet("Place6"))
-    #             if player.has_bet("Place8"):
-    #                 player.remove(player.get_bet("Place8"))
-    #             self.strat_info["mode"] = "place_inside"
-    #             place(
-    #                 player,
-    #                 table,
-    #                 self.unit,
-    #                 self.strat_info={"numbers": {5, 6, 8, 9}},
-    #                 self.skip_point=False,
-    #             )
-    #         else:
-    #             place(
-    #                 player,
-    #                 table,
-    #                 2 * unit,
-    #                 strat_info={"numbers": {6, 8}},
-    #                 skip_point=False,
-    #             )
-    #     elif strat_info["mode"] == "place_inside":
-    #         if table.point.is_on() and has_place5689 and place_nums != {5, 6, 8, 9}:
-    #             # assume that a place 5/6/8/9 has won
-    #             for bet_nm in ["Place5", "Place6", "Place8", "Place9"]:
-    #                 player.remove_if_present(bet_nm)
-    #             strat_info["mode"] = "takedown"
-    #         else:
-    #             place(
-    #                 player,
-    #                 table,
-    #                 unit,
-    #                 strat_info={"numbers": {5, 6, 8, 9}},
-    #                 skip_point=False,
-    #             )
-    #     elif strat_info["mode"] == "takedown" and table.point.is_off():
-    #         strat_info = None

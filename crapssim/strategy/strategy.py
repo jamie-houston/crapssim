@@ -2,7 +2,6 @@ from enum import Enum
 from typing import final
 
 from crapssim.bet import BetStatus
-from crapssim.strategy.alternative import AlternativeStrategy
 
 """
 Various betting strategies that are based on conditions of the CrapsTable.
@@ -67,7 +66,10 @@ class Strategy:
     def __init__(self, unit=5, verbose=False):
         self.base_unit = unit
         self.verbose = verbose
-        self.strategies = ()
+        self.strategies = []
+
+    def __call__(self, other):
+        self.strategies.append(other)
 
     @final
     def update_bets(self, player, table, unit, strat_info=None):

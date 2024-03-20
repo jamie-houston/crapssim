@@ -36,7 +36,7 @@ class Player(object):
         self.bankroll_finance.current = bankroll
         self.bankroll_finance.smallest = bankroll
         self.bankroll_finance.largest = bankroll
-        self.continue_rolling = True
+        self.target_reached = False
         self.bet_stats = BetStats()
 
         self.bet_strategy = bet_strategy
@@ -164,7 +164,7 @@ class Player(object):
             self.logger.log_red(f"{self.name} LOST " + ", ".join(losing_bets))
 
         if self.bankroll_finance.target is not None and self.bankroll_finance.target <= self.bankroll_finance.current:
-            self.continue_rolling = False
+            self.target_reached = True
         return info
 
 class MoneyField:
