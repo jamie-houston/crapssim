@@ -13,3 +13,8 @@ Python/tempCodeRunnerFile.py
 /dist/
 /build/
 /*.egg-info
+*.csv
+__pycache__
+.idea
+
+venv

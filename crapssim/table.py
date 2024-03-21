@@ -12,11 +12,11 @@ class TableUpdate:
             dice_outcome: typing.Iterable[int] | None = None,
             verbose: bool = False):
         """Run through the roll logic of the table."""
-        self.set_new_shooter(table)
         self.run_strategies(table)
         self.before_roll(table)
         self.update_table_stats(table)
         self.roll(table, dice_outcome, verbose)
+        self.set_new_shooter(table)
         self.after_roll(table)
         self.update_bets(table, verbose)
         self.update_points(table, verbose)
@@ -46,6 +46,7 @@ class TableUpdate:
     @staticmethod
     def update_bets(table: 'Table', verbose=False):
         for player in table.players:
+            print(f'Player {player}')
             player.update_bet(verbose=verbose)
 
     @staticmethod
@@ -262,6 +263,12 @@ class Table:
         """
         return sum([p.total_bet_amount + p.bankroll for p in self.players])
 
+    def get_player(self, player_name):
+        return ([p for p in self.players if p.name == player_name] or None)[0]
+
+
+    def __repr__(self) -> str:
+        return f'{self.point} - {self.dice.total}'
 
 class Player:
     """
@@ -348,3 +355,6 @@ class Player:
             print(f"{self.name} won ${result.amount - bet.amount} on {bet}!")
         elif result.lost:
             print(f"{self.name} lost ${bet.amount} on {bet}.")
+
+    def __repr__(self) -> str:
+        return f'{self.name} - ${self.bankroll}'

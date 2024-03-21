@@ -32,3 +32,6 @@ class Dice:
         self.n_rolls += 1
         self.result = outcome
         self.total = sum(self.result)
+
+    def __repr__(self) -> str:
+        return f'{self.total} - ${self.result}'
