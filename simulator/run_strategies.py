@@ -1,5 +1,32 @@
+from dataclasses import dataclass
+
 import crapssim
 from crapssim import Table
+
+@dataclass
+class PlayerStatistics:
+    name: str
+    min_bankroll: float
+    max_bankroll: float
+    target_reached_count = 0
+    bankrupt_count = 0
+
+class SimulatorStatistics:
+    total_rolls = 0
+    def __init__(self, strategies, starting_bankroll):
+        self.players = [PlayerStatistics(name=player, min_bankroll=starting_bankroll, max_bankroll=starting_bankroll) for player in strategies.keys()]
+
+
+    def update_statistics(self, table):
+        print(f'Updating {table}')
+        self.total_rolls += table.dice.n_rolls
+        for p in table.players:
+            stat = [player for player in self.players if player.name == p.name][0]
+            stat.min_bankroll = min(p.bankroll, stat.min_bankroll)
+            stat.max_bankroll = max(p.bankroll, stat.max_bankroll)
+            if p.bankroll < base_unit:
+                stat.bankrupt_count += 1
+
 
 verbose = True
 max_shooters = 1
@@ -12,13 +39,16 @@ strategies = {
     "betdontpass": crapssim.strategy.examples.BetDontPass(base_unit),
 }
 
+simulator = SimulatorStatistics(strategies, bankroll)
+
 for i in range(n_sim):
     table = Table()
     for s in strategies:
         table.add_player(bankroll=bankroll,strategy=strategies[s], name=s)
 
-    table.run(max_rolls=float("inf"), max_shooter=max_shooters, verbose=verbose)
+    table.run(max_rolls=float("inf"), max_shooter=max_shooters, verbose=verbose, external_event=simulator.update_statistics)
     for p in table.players:
         print(f"{i}, {p.strategy}, {p.bankroll}, {bankroll}, {table.dice.n_rolls}")
 
 print(f"\n{n_sim} runs.  {max_shooters} max shooters")
+print(simulator.players)

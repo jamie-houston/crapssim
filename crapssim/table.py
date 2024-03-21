@@ -8,9 +8,11 @@ from .strategy import Strategy, BetPassLine
 
 class TableUpdate:
     """Object for processing a table after the dice has been rolled."""
+
     def run(self, table: 'Table',
             dice_outcome: typing.Iterable[int] | None = None,
-            verbose: bool = False):
+            verbose: bool = False,
+            external_event = None):
         """Run through the roll logic of the table."""
         self.run_strategies(table)
         self.before_roll(table)
@@ -20,6 +22,7 @@ class TableUpdate:
         self.after_roll(table)
         self.update_bets(table, verbose)
         self.update_points(table, verbose)
+        external_event(table)
 
     @staticmethod
     def before_roll(table: 'Table'):
@@ -165,7 +168,8 @@ class Table:
     def run(self, max_rolls: int,
             max_shooter: float | int = float("inf"),
             verbose: bool = True,
-            runout: bool = False) -> None:
+            runout: bool = False,
+            external_event = None) -> None:
         """
         Runs the craps table until a stopping condition is met.
 
@@ -185,7 +189,7 @@ class Table:
 
         continue_rolling = True
         while continue_rolling:
-            TableUpdate().run(self, verbose=verbose)
+            TableUpdate().run(self, verbose=verbose, external_event=external_event)
             continue_rolling = self.should_keep_rolling(max_rolls, max_shooter, runout)
 
     def fixed_run(self, dice_outcomes: typing.Iterable[typing.Iterable], verbose: bool = False) \
@@ -266,9 +270,9 @@ class Table:
     def get_player(self, player_name):
         return ([p for p in self.players if p.name == player_name] or None)[0]
 
-
     def __repr__(self) -> str:
         return f'{self.point} - {self.dice.total}'
+
 
 class Player:
     """
