@@ -4,16 +4,15 @@ from prettytable import PrettyTable
 
 import crapssim
 from crapssim import Table
-from crapssimulator import get_count_percent
 
 
 @dataclass
 class PlayerStatistics:
     name: str
     min_bankroll: float
-    min_bankroll_rols: 0
+    min_bankroll_rolls = 0
     max_bankroll: float
-    max_bankroll_rols: 0
+    max_bankroll_rolls = 0
     target_reached_count = 0
     bankrupt_count = 0
     total_bankroll = 0
@@ -43,9 +42,8 @@ class SimulatorStatistics:
         stat.total_bankroll += player.bankroll
 
 
-    @staticmethod
-    def get_count_percent(count, total):
-        return f"{count} ( {(count / total) * 100:.0f}%)"
+def get_count_percent(count, total):
+    return f"{count} ( {(count / total) * 100:.0f}%)"
 
 
 verbose = True
@@ -81,7 +79,7 @@ for player in simulator.players:
         get_count_percent(player.target_reached_count, n_sim),
         get_count_percent(player.bankrupt_count, n_sim),
         round(player.total_bankroll / n_sim, 2), "BIG WIN", "BIG LOGG",
-        "BIG BET", f'{player.max_bankroll} ({player.max_bankroll_rols})', f'{player.min_bankroll} ({player.min_bankroll_rols})'])
+        "BIG BET", f'{player.max_bankroll} ({player.max_bankroll_rolls})', f'{player.min_bankroll} ({player.min_bankroll_rolls})'])
 # print(simulator.players)
 
 print (result_table)
