@@ -4,7 +4,7 @@ from crapssim.simulator.statistics import SimulatorStatistics
 
 verbose = False
 max_shooters = 10
-n_sim = 1000
+n_sim = 10
 bankroll = 1000
 base_unit = 25
 strategies = {
