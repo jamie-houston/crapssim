@@ -11,6 +11,8 @@ strategies = {
     "place68": crapssim.strategy.examples.PassLinePlace68(base_unit),
     "ironcross": crapssim.strategy.examples.IronCross(base_unit),
     "betdontpass": crapssim.strategy.examples.BetDontPass(base_unit),
+    "risk12": crapssim.strategy.examples.Risk12(),
+    "betpassline": crapssim.strategy.examples.BetPassLine(base_unit),
 }
 
 simulator = SimulatorStatistics(strategies, bankroll)
