@@ -49,7 +49,6 @@ class TableUpdate:
     @staticmethod
     def update_bets(table: 'Table', verbose=False):
         for player in table.players:
-            print(f'Player {player}')
             player.update_bet(verbose=verbose)
 
     @staticmethod
