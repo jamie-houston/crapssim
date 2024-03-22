@@ -47,10 +47,10 @@ def get_count_percent(count, total):
 
 
 verbose = True
-max_shooters = 1
-n_sim = 1
+max_shooters = 10
+n_sim = 1000
 bankroll = 1000
-base_unit = 5
+base_unit = 25
 strategies = {
     "place68": crapssim.strategy.examples.PassLinePlace68(base_unit),
     "ironcross": crapssim.strategy.examples.IronCross(base_unit),
