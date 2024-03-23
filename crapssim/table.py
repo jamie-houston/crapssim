@@ -168,7 +168,7 @@ class Table:
             max_shooter: float | int = float("inf"),
             verbose: bool = True,
             runout: bool = False,
-            external_event = None) -> None:
+            update_after_roll = None) -> None:
         """
         Runs the craps table until a stopping condition is met.
 
@@ -188,7 +188,7 @@ class Table:
 
         continue_rolling = True
         while continue_rolling:
-            TableUpdate().run(self, verbose=verbose, external_event=external_event)
+            TableUpdate().run(self, verbose=verbose, update_after_roll=update_after_roll)
             continue_rolling = self.should_keep_rolling(max_rolls, max_shooter, runout)
 
     def fixed_run(self, dice_outcomes: typing.Iterable[typing.Iterable], verbose: bool = False) \
