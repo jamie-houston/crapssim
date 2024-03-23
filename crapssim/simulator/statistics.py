@@ -33,7 +33,7 @@ class SimulatorStatistics:
                 stat.min_bankroll_rolls = table.dice.n_rolls
             if stat.max_bankroll < p.bankroll:
                 stat.max_bankroll = p.bankroll
-                stat.max_bankroll_rols = table.dice.n_rolls
+                stat.max_bankroll_rolls = table.dice.n_rolls
             if p.bankroll < stat.base_unit:
                 stat.bankrupt_count += 1
 
