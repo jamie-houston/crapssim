@@ -12,7 +12,7 @@ class TableUpdate:
     def run(self, table: 'Table',
             dice_outcome: typing.Iterable[int] | None = None,
             verbose: bool = False,
-            external_event = None):
+            update_after_roll = None):
         """Run through the roll logic of the table."""
         self.run_strategies(table)
         self.before_roll(table)
@@ -22,7 +22,7 @@ class TableUpdate:
         self.after_roll(table)
         self.update_bets(table, verbose)
         self.update_points(table, verbose)
-        external_event(table)
+        update_after_roll(table)
 
     @staticmethod
     def before_roll(table: 'Table'):

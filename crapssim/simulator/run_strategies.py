@@ -22,7 +22,7 @@ for i in range(n_sim):
     for s in strategies:
         table.add_player(bankroll=bankroll,strategy=strategies[s], name=s)
 
-    table.run(max_rolls=float("inf"), max_shooter=max_shooters, verbose=verbose, external_event=simulator.update_statistics)
+    table.run(max_rolls=float("inf"), max_shooter=max_shooters, verbose=verbose, update_after_roll=simulator.update_after_roll())
     for p in table.players:
         simulator.update_after_all_rolls(p)
     #     print(f"{i}, {p.strategy}, {p.bankroll}, {bankroll}, {table.dice.n_rolls}")
