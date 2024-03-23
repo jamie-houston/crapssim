@@ -45,6 +45,8 @@ class SimulatorStatistics:
             player_stats.max_bankroll_rolls = p.table.dice.n_rolls
         if p.bankroll < player_stats.base_unit:
             player_stats.bankrupt_count += 1
+        if p.bankroll > player_stats.bankroll_target:
+            player_stats.target_reached_count += 1
 
     def __update_bet_stats(self, p, player_stats):
         for bet in p.bets:
