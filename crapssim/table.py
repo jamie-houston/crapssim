@@ -264,7 +264,7 @@ class Table:
         -------
         The total sum of all players total_bet_amounts and bankroll.
         """
-        return sum([p.total_bet_amount + p.bankroll for p in self.players])
+        return sum([p.total_cash for p in self.players])
 
     def get_player(self, player_name):
         return ([p for p in self.players if p.name == player_name] or None)[0]
@@ -311,6 +311,10 @@ class Player:
     @property
     def total_bet_amount(self) -> float:
         return sum(x.amount for x in self.bets)
+
+    @property
+    def total_cash(self) -> float:
+        return self.total_bet_amount + self.bankroll
 
     @property
     def table(self) -> Table:

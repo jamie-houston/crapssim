@@ -4,6 +4,11 @@ from prettytable import PrettyTable
 
 
 @dataclass
+class PlayerRollStatistics:
+    target_reached = False
+    bankrupt_reached = False
+
+@dataclass
 class PlayerStatistics:
     name: str
     min_bankroll: float
@@ -18,35 +23,36 @@ class PlayerStatistics:
     biggest_loss = 0
     base_unit: int
     biggest_bet = 0
+    roll_statistics = PlayerRollStatistics()
 
 
 class SimulatorStatistics:
     total_rolls = 0
-    total_simulations = 0
 
-    def __init__(self, strategies, starting_bankroll, base_unit=25):
+    def __init__(self, strategies, starting_bankroll, base_unit=25, total_simulations = 0):
         self.players = [PlayerStatistics(name=player, min_bankroll=starting_bankroll, max_bankroll=starting_bankroll,
                                          base_unit=base_unit, bankroll_target=starting_bankroll * 1.5) for player in
                         strategies.keys()]
+        self.total_simulations = total_simulations
 
     def update_after_roll(self, table):
         self.total_rolls += table.dice.n_rolls
         for p in table.players:
             player_stats = next(player for player in self.players if player.name == p.name)
-            self.__update_bankroll_stats(p, player_stats)
+            self.__update_bankroll_stats(player_stats, p.total_cash, table.dice.n_rolls)
             self.__update_bet_stats(p, player_stats)
 
-    def __update_bankroll_stats(self, p, player_stats):
-        if player_stats.min_bankroll > p.bankroll:
-            player_stats.min_bankroll = p.bankroll
-            player_stats.min_bankroll_rolls = p.table.dice.n_rolls
-        if player_stats.max_bankroll < p.bankroll:
-            player_stats.max_bankroll = p.bankroll
-            player_stats.max_bankroll_rolls = p.table.dice.n_rolls
-        if p.bankroll < player_stats.base_unit:
-            player_stats.bankrupt_count += 1
-        if p.bankroll > player_stats.bankroll_target:
-            player_stats.target_reached_count += 1
+    def __update_bankroll_stats(self,player_stats, player_cash, number_of_rolls):
+        if player_stats.min_bankroll > player_cash:
+            player_stats.min_bankroll = player_cash
+            player_stats.min_bankroll_rolls = number_of_rolls
+        if player_stats.max_bankroll < player_cash:
+            player_stats.max_bankroll = player_cash
+            player_stats.max_bankroll_rolls = number_of_rolls
+        if player_cash < player_stats.base_unit:
+            player_stats.roll_statistics.bankrupt_reached = True
+        if player_cash > player_stats.bankroll_target:
+            player_stats.roll_statistics.target_reached = True
 
     def __update_bet_stats(self, p, player_stats):
         for bet in p.bets:
@@ -59,9 +65,13 @@ class SimulatorStatistics:
 
     def update_after_all_rolls(self, player):
         stat = next(p1 for p1 in self.players if p1.name == player.name)
-        stat.total_bankroll += player.bankroll
-        self.total_simulations += 1
-
+        stat.total_bankroll += player.total_cash
+        if stat.roll_statistics.target_reached:
+            stat.target_reached_count += 1
+        if stat.roll_statistics.bankrupt_reached:
+            stat.bankrupt_count += 1
+        stat.roll_statistics.target_reached = False
+        stat.roll_statistics.bankrupt_reached = False
 
     def generate_table(self):
         result_table = PrettyTable(
@@ -78,7 +88,6 @@ class SimulatorStatistics:
                 f'{player.min_bankroll} ({player.min_bankroll_rolls})'])
 
         return result_table
-
 
     def get_count_percent(self, count):
         return f"{count} ( {(count / self.total_simulations) * 100:.0f}%)"

@@ -15,7 +15,7 @@ strategies = {
     "betpassline": crapssim.strategy.examples.BetPassLine(base_unit),
 }
 
-simulator = SimulatorStatistics(strategies, bankroll)
+simulator = SimulatorStatistics(strategies, bankroll, total_simulations = n_sim)
 
 for i in range(n_sim):
     table = Table()
