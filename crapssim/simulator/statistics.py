@@ -8,6 +8,7 @@ class PlayerRollStatistics:
     target_reached = False
     bankrupt_reached = False
 
+
 @dataclass
 class PlayerStatistics:
     name: str
@@ -23,15 +24,16 @@ class PlayerStatistics:
     biggest_loss = 0
     base_unit: int
     biggest_bet = 0
-    roll_statistics = PlayerRollStatistics()
+    roll_statistics: PlayerRollStatistics
 
 
 class SimulatorStatistics:
     total_rolls = 0
 
-    def __init__(self, strategies, starting_bankroll, base_unit=25, total_simulations = 0):
+    def __init__(self, strategies, starting_bankroll, base_unit=25, total_simulations=0):
         self.players = [PlayerStatistics(name=player, min_bankroll=starting_bankroll, max_bankroll=starting_bankroll,
-                                         base_unit=base_unit, bankroll_target=starting_bankroll * 1.5) for player in
+                                         base_unit=base_unit, bankroll_target=starting_bankroll * 1.5,
+                                         roll_statistics=PlayerRollStatistics()) for player in
                         strategies.keys()]
         self.total_simulations = total_simulations
 
@@ -42,16 +44,18 @@ class SimulatorStatistics:
             self.__update_bankroll_stats(player_stats, p.total_cash, table.dice.n_rolls)
             self.__update_bet_stats(p, player_stats)
 
-    def __update_bankroll_stats(self,player_stats, player_cash, number_of_rolls):
+    def __update_bankroll_stats(self, player_stats, player_cash, number_of_rolls):
         if player_stats.min_bankroll > player_cash:
             player_stats.min_bankroll = player_cash
             player_stats.min_bankroll_rolls = number_of_rolls
         if player_stats.max_bankroll < player_cash:
             player_stats.max_bankroll = player_cash
             player_stats.max_bankroll_rolls = number_of_rolls
-        if player_cash < player_stats.base_unit:
+        if not player_stats.roll_statistics.bankrupt_reached and player_cash < player_stats.base_unit:
+            print(f"{player_stats.name} bankrupt")
             player_stats.roll_statistics.bankrupt_reached = True
-        if player_cash > player_stats.bankroll_target:
+        if not player_stats.roll_statistics.target_reached and player_cash >= player_stats.bankroll_target:
+            print(f"{player_stats.name} target")
             player_stats.roll_statistics.target_reached = True
 
     def __update_bet_stats(self, p, player_stats):
@@ -67,8 +71,10 @@ class SimulatorStatistics:
         stat = next(p1 for p1 in self.players if p1.name == player.name)
         stat.total_bankroll += player.total_cash
         if stat.roll_statistics.target_reached:
+            print(f"{player.name} has target_reached")
             stat.target_reached_count += 1
         if stat.roll_statistics.bankrupt_reached:
+            print(f"{player.name} has bankrupt_reached")
             stat.bankrupt_count += 1
         stat.roll_statistics.target_reached = False
         stat.roll_statistics.bankrupt_reached = False
