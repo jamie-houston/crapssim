@@ -1,6 +1,7 @@
 import typing
 
 from crapssim.dice import Dice
+from . import logging
 from .bet import Bet, BetResult
 from .point import Point
 from .strategy import Strategy, BetPassLine
@@ -12,7 +13,7 @@ class TableUpdate:
     def run(self, table: 'Table',
             dice_outcome: typing.Iterable[int] | None = None,
             verbose: bool = False,
-            update_after_roll = None):
+            update_after_roll=None):
         """Run through the roll logic of the table."""
         self.run_strategies(table)
         self.before_roll(table)
@@ -37,10 +38,8 @@ class TableUpdate:
             table.dice.fixed_roll(fixed_outcome)
         else:
             table.dice.roll()
-        if verbose:
-            print("")
-            print("Dice out!")
-            print(f"Shooter rolled {table.dice.total} {table.dice.result}")
+        logging.log_yellow(
+            f"\nShooter rolled {table.dice.total}", verbose)
 
     @staticmethod
     def after_roll(table: 'Table'):
@@ -72,10 +71,8 @@ class TableUpdate:
         for player, bet in table.yield_player_bets():
             bet.update_point(player)
         table.point.update(table.dice)
-
-        if verbose:
-            print(f"Point is {table.point.status} ({table.point.number})")
-            print(f"Total Player Cash is ${table.total_player_cash}")
+        logging.log_green(
+            f"Point is {table.point.status} ({table.point.number}). Player cash ${table.total_player_cash}.", verbose)
 
     @staticmethod
     def run_strategies(table: 'Table'):
@@ -159,17 +156,15 @@ class Table:
         verbose
             If True prints a welcome message and the initial players.
         """
-        if verbose:
-            print("Welcome to the Craps Table!")
+        logging.log_green("Welcome to the Craps Table!", verbose)
         self.ensure_one_player()
-        if verbose:
-            print(f"Initial players: {[p.name for p in self.players]}")
+        logging.log_green(f"Initial players: {[p.name for p in self.players]}", verbose)
 
     def run(self, max_rolls: int,
             max_shooter: float | int = float("inf"),
             verbose: bool = True,
             runout: bool = False,
-            update_after_roll = None) -> None:
+            update_after_roll=None) -> None:
         """
         Runs the craps table until a stopping condition is met.
 
@@ -348,21 +343,30 @@ class Player:
             self.strategy.update_bets(self)
 
     def update_bet(self, verbose: bool = False) -> None:
+        winning_bets = []
+        losing_bets = []
         for bet in self.bets[:]:
             result = bet.get_result(self.table)
             self.bankroll += result.bankroll_change
 
             if verbose:
-                self.print_bet_update(bet, result)
+                if result.won:
+                    winning_bets.append(f"${result.amount - bet.amount} on {bet}")
+                elif result.lost:
+                    losing_bets.append(f"${bet.amount} on {bet}")
 
             if result.remove:
                 self.bets.remove(bet)
+        if verbose:
+            self.print_bet_update(winning_bets, losing_bets)
 
-    def print_bet_update(self, bet: Bet, result: BetResult) -> None:
-        if result.won:
-            print(f"{self.name} won ${result.amount - bet.amount} on {bet}!")
-        elif result.lost:
-            print(f"{self.name} lost ${bet.amount} on {bet}.")
+    def print_bet_update(self, winning_bets, losing_bets) -> None:
+        if winning_bets:
+            logging.log_green(f"{self.name} WON " + ", ".join(winning_bets))
+        if losing_bets:
+            logging.log_red(f"{self.name} LOST " + ", ".join(losing_bets))
 
-    def __repr__(self) -> str:
+
+
+def __repr__(self) -> str:
         return f'{self.name} - ${self.bankroll}'

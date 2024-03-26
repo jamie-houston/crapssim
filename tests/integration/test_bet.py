@@ -1,6 +1,6 @@
 import pytest
 
-from crapssim import Table, Dice
+from crapssim import Table, Dice, logging
 from crapssim.bet import PassLine, Come, Odds
 from crapssim.bet.hard_way import HardWay
 from crapssim.bet.one_roll import Field, Any7, Two, Three, Yo, Boxcars, AnyCraps, CAndE
@@ -753,7 +753,7 @@ def test_fire(rolls, correct_status, correct_win_amt, correct_remove):
         TableUpdate().run(table, roll)
 
     result = bet.get_result(table)
-    print(result.amount)
+    logging.log_green(result.amount)
     if result.won:
         status = 'win'
     elif result.lost:

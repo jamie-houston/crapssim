@@ -2,6 +2,7 @@ import crapssim as craps
 import crapssim.strategy.examples
 import crapssim.strategy.odds
 import crapssim.strategy.simple_bet
+from crapssim import logging
 
 
 def test_first_chunk():
@@ -28,4 +29,4 @@ def test_second_chunk():
 
         table.run(max_rolls=float("inf"), max_shooter=10, verbose=False)
         for p in table.players:
-            print(f"{i}, {p.strategy}, {p.bankroll}, {bankroll}, {table.dice.n_rolls}")
+            logging.log(f"{i}, {p.strategy}, {p.bankroll}, {bankroll}, {table.dice.n_rolls}")
