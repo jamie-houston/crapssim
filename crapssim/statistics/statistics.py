@@ -84,6 +84,7 @@ class SimulatorStatistics:
             ["strategy", "hit target", "$<Unit", "Avg $", "biggest win", "biggest loss",
              "biggest bet", "highest $, rolls", "lowest $, rolls"])
 
+        result_table.padding_width = 0
         for player in self.players:
             result_table.add_row([
                 player.name,

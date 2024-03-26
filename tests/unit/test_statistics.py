@@ -1,7 +1,7 @@
 import pytest
 
 from crapssim import Table, Player
-from crapssim.simulator.statistics import SimulatorStatistics
+from crapssim.statistics.statistics import SimulatorStatistics
 from crapssim.strategy import Strategy
 
 

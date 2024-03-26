@@ -568,11 +568,12 @@ class Risk12(Strategy):
     is established, places either the 6 the 8, or both depending on if the player won enough
     pre-point to cover those bets."""
 
-    def __init__(self) -> None:
+    def __init__(self, bet_amount: typing.SupportsFloat) -> None:
         """Pass line and field bet before the point is established. Once the point is established
         place the 6 and 8.
         """
         super().__init__()
+        self.bet_amount = bet_amount
         self.pre_point_winnings: float = 0.0
 
     def completed(self, player: 'Player') -> bool:
@@ -737,10 +738,11 @@ class DiceDoctor(FieldWinProgression):
     """Field progression strategy with progressive increases and decreases. Equivalent to:
     FieldWinProgression([10, 20, 15, 30, 25, 50, 35, 70, 50, 100, 75, 150])"""
 
-    def __init__(self) -> None:
+    def __init__(self, bet_amount: typing.SupportsFloat) -> None:
         """Field bet with a progression if you win of [10, 20, 15, 30, 25, 50, 35, 70, 50, 100, 75,
         150]
         """
+        self.bet_amount = bet_amount
         super().__init__([10, 20, 15, 30, 25, 50, 35, 70, 50, 100, 75, 150])
 
     def __repr__(self) -> str:
