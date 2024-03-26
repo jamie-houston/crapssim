@@ -1,5 +1,7 @@
 import typing
 
+import numpy
+
 from crapssim.bet import WinningLosingNumbersBet
 from crapssim.point import Point
 
@@ -47,6 +49,8 @@ class Come(WinningLosingNumbersBet):
     def get_winning_numbers(self, table: "Table") -> list[int]:
         if self.point == Point(None):
             return [7, 11]
+        if isinstance(self.point, numpy.int64):
+            self.point = Point(self.point)
         return [self.point.number]
 
     def get_losing_numbers(self, table: "Table") -> list[int]:
@@ -119,6 +123,8 @@ class DontCome(WinningLosingNumbersBet):
     def get_losing_numbers(self, table: "Table") -> list[int]:
         if self.point is None:
             return [7, 11]
+        if isinstance(self.point, numpy.int64):
+            self.point = Point(self.point)
         return [self.point.number]
 
     def update_point(self, player: 'Player'):

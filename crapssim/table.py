@@ -22,7 +22,8 @@ class TableUpdate:
         self.after_roll(table)
         self.update_bets(table, verbose)
         self.update_points(table, verbose)
-        update_after_roll(table)
+        if update_after_roll is not None:
+            update_after_roll(table)
 
     @staticmethod
     def before_roll(table: 'Table'):
