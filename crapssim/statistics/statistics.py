@@ -1,6 +1,28 @@
+import operator
 from dataclasses import dataclass
 
 from prettytable import PrettyTable
+
+
+class MoneyField:
+    def __init__(self, *, default):
+        self._default = default
+
+    def __set_name__(self, owner, name):
+        self._name = "_" + name
+
+    def __get__(self, obj, type):
+        if obj is None:
+            return self._default
+
+        return getattr(obj, self._name, self._default)
+
+    def __set__(self, obj, value):
+        setattr(obj, self._name, round(value, 2))
+
+    def __str__(self):
+        return f'${self._name}'
+
 
 
 @dataclass
@@ -9,23 +31,22 @@ class PlayerRollStatistics:
     bankrupt_reached = False
 
 
-@dataclass
+@dataclass(order=True)
 class PlayerStatistics:
     name: str
-    min_bankroll: float
+    min_bankroll: MoneyField(default=0)
     min_bankroll_rolls = 0
-    max_bankroll: float
+    max_bankroll: MoneyField(default=0)
     max_bankroll_rolls = 0
     target_reached_count = 0
     bankroll_target: float
     bankrupt_count = 0
     total_bankroll = 0
-    biggest_win = 0
-    biggest_loss = 0
+    biggest_win = MoneyField(default=0)
+    biggest_loss = MoneyField(default=0)
     base_unit: int
-    biggest_bet = 0
+    biggest_bet = MoneyField(default=0)
     roll_statistics: PlayerRollStatistics
-
 
 class SimulatorStatistics:
     total_rolls = 0
@@ -82,14 +103,14 @@ class SimulatorStatistics:
 
         result_table.padding_width = 0
         # for player in sorted(self.players, key=lambda item: item.bankroll):
-        for player in self.players:
+        for player in sorted(self.players, key=operator.attrgetter("target_reached_count")):
             result_table.add_row([
                 player.name,
                 self.get_count_percent(player.target_reached_count),
                 self.get_count_percent(player.bankrupt_count),
                 round(player.total_bankroll / self.total_simulations, 2), player.biggest_win, player.biggest_loss,
-                player.biggest_bet, f'{player.max_bankroll} ({player.max_bankroll_rolls})',
-                f'{player.min_bankroll} ({player.min_bankroll_rolls})'])
+                player.biggest_bet, f'${player.max_bankroll:.2f} ({player.max_bankroll_rolls})',
+                f'${player.min_bankroll:.2f} ({player.min_bankroll_rolls})'])
 
         return result_table
 

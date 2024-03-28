@@ -1,12 +1,13 @@
 import crapssim
 from crapssim import Table, logging
 from crapssim.statistics.statistics import SimulatorStatistics
+from crapssim.strategy.custom import IronCrossLadder
 from crapssim.strategy.examples import *
 
 if __name__ == '__main__':
 
-    # change_defaults = False
-    change_defaults = input("Change defaults? (default no) ").lower()[:1] == 'y'
+    change_defaults = False
+    # change_defaults = input("Change defaults? (default no) ").lower()[:1] == 'y'
 
     def query_bool(question, default):
         try:
@@ -48,6 +49,7 @@ if __name__ == '__main__':
         TwoCome,
         # BetPlace,
         # FieldWinProgression,
+        IronCrossLadder,
         # Place682Come,
     }
 
