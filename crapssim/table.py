@@ -225,13 +225,13 @@ class Table:
         if runout:
             return (self.dice.n_rolls < max_rolls
                     and self.n_shooters <= max_shooter
-                    and not any(x.strategy.completed(x) for x in self.players)
+                    and not all(x.strategy.completed(x) for x in self.players)
                     ) or self.player_has_bets
         else:
             return (
                     self.dice.n_rolls < max_rolls
                     and self.n_shooters <= max_shooter
-                    and not any(x.strategy.completed(x) for x in self.players)
+                    and not all(x.strategy.completed(x) for x in self.players)
             )
 
     def ensure_one_player(self) -> None:
@@ -333,7 +333,9 @@ class Player:
     def remove_bet(self, bet: Bet) -> None:
         if bet in self.bets and bet.is_removable(self):
             self.bankroll += bet.amount
+            print(f"Before: {self.bets}")
             self.bets.remove(bet)
+            print(f"After: {self.bets}")
 
     def add_strategy_bets(self) -> None:
         """ Implement the given betting strategy

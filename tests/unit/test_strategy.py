@@ -7,9 +7,9 @@ from crapssim.bet import Bet, PassLine, Come, HardWay, Odds, DontCome, Place, Do
     BetResult
 from crapssim.strategy import Strategy, AggregateStrategy, BetIfTrue, RemoveIfTrue, IfBetNotExist, \
     BetPointOff, BetPointOn, CountStrategy, BetPlace
-from crapssim.strategy.core import ReplaceIfTrue, RemoveByType
+from crapssim.strategy.core import ReplaceIfTrue, RemoveByType, StopOnTarget
 from crapssim.strategy.examples import TwoCome, Pass2Come, PassLinePlace68, PlaceInside, \
-    Place68Move59, Place682Come, HammerLock, Risk12, DiceDoctor, Place68CPR
+    Place68Move59, Place682Come, HammerLock, Risk12, DiceDoctor, Place68CPR, IronCross
 from crapssim.strategy.odds import OddsAmountStrategy, OddsMultiplierStrategy
 from crapssim.strategy.simple_bet import BaseSimpleBet, SimpleStrategyMode
 
@@ -1150,3 +1150,11 @@ def test_place_68_cpr_update_bets_initial_bets_placed_no_update(player):
     player.bets = [Place(6, 6), Place(8, 6)]
     strategy.update_bets(player)
     player.add_bet.assert_not_called()
+
+def test_target_hit_stops_bets(player):
+    stategy = IronCross(base_amount=5)
+    # stategy = StopOnTarget(bankroll_target=player.bankroll)
+    player.bankroll = 10000
+    player.bets = [Place(6, 6), Place(8, 6)]
+    stategy.update_bets(player)
+    assert len(player.bets) == 0

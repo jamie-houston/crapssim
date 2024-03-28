@@ -3,54 +3,72 @@ from crapssim import Table, logging
 from crapssim.statistics.statistics import SimulatorStatistics
 from crapssim.strategy.custom import IronCrossLadder
 from crapssim.strategy.examples import *
+import configparser
 
 if __name__ == '__main__':
 
-    change_defaults = False
-    # change_defaults = input("Change defaults? (default no) ").lower()[:1] == 'y'
+    config_file = "config.ini"
+    config = configparser.ConfigParser()
+    config.read(config_file)
 
-    def query_bool(question, default):
+    current_settings = config["LATEST"] or config["DEFAULT"]
+
+
+    # change_defaults = False
+    change_defaults = input("Change defaults? (default no) ").lower()[:1] == 'y'
+
+    def query_bool(question):
+        value = current_settings.getboolean(question)
         try:
             if change_defaults:
-                return input(f"{question} (default {default}) ").lower()[:1] == 'y'
+                value = input(f"{question} (default {value}) ").lower()[:1] == 'y'
         except Exception:
             pass
-        return default
-    def query_int(question, default):
+        current_settings[question] = str(value)
+        return value
+
+    def query_int(question):
+        value = current_settings.getint(question)
         try:
             if change_defaults:
-                return int(input(f"{question} (default {default}? ") or default)
+                value = int(input(f"{question} (default {value}? ") or value)
         except Exception:
             pass
-        return default
+        current_settings[question] = str(value)
+        return value
 
-    verbose = query_bool("Verbose", False)
+    verbose = query_bool("verbose")
 
-    max_shooters = query_int("Max Shooters", 10)
-    n_sim = query_int("Number of simulations", 10)
-    bankroll = query_int("Bankroll", 1000)
-    base_unit = query_int("Base Unit", 25)
+    max_shooters = query_int("max_shooters")
+    n_sim = query_int("n_sim")
+    bankroll = query_int("bankroll")
+    base_unit = query_int("base_unit")
+
+    config['LATEST'] = current_settings
+
+    with open(config_file, 'w') as configfile:
+        config.write(configfile)
 
     all_strategies = {
-        BetDontPass,
-        BetPassLine,
-        DiceDoctor,
-        HammerLock,
+        # BetDontPass,
+        # BetPassLine,
+        # DiceDoctor,
+        # HammerLock,
         IronCross,
-        Knockout,
-        Pass2Come,
-        PassLinePlace68,
-        PassLinePlace68Move59,
-        Place68CPR,
-        Place68DontCome2Odds,
-        Place68Move59,
-        PlaceInside,
-        Risk12,
-        TwoCome,
+        # Knockout,
+        # Pass2Come,
+        # PassLinePlace68,
+        # PassLinePlace68Move59,
+        # Place68CPR,
+        # Place68DontCome2Odds,
+        # Place68Move59,
+        # PlaceInside,
+        # Risk12,
+        # TwoCome,
         # BetPlace,
         # FieldWinProgression,
-        IronCrossLadder,
-        Place682Come,
+        # IronCrossLadder,
+        # Place682Come,
     }
 
     strategies = {strat.__name__: strat(base_unit) for strat in all_strategies}

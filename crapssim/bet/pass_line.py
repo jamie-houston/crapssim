@@ -59,6 +59,8 @@ class Come(WinningLosingNumbersBet):
         return [7]
 
     def update_point(self, player: 'Player'):
+        if isinstance(self.point, numpy.int64):
+            self.point = Point(self.point)
         if self.point.status == 'Off' and player.table.dice.total in (4, 5, 6, 8, 9, 10):
             player.bets.remove(self)
             player.bets.append(Come(self.amount, player.table.dice.total))

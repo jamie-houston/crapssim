@@ -158,6 +158,7 @@ class BetIfTrue(Strategy):
 class RemoveIfTrue(Strategy):
     """Strategy that removes all bets that are True for a given key. The key takes the Bet and the
      Player as parameters."""
+
     def __init__(self, key: typing.Callable[['Bet', 'Player'], bool]):
         """The strategy will remove all bets that are true for the given key.
 
@@ -206,6 +207,7 @@ class RemoveIfTrue(Strategy):
 class ReplaceIfTrue(Strategy):
     """Strategy that iterates through the bets on the table and if the given key is true, replaces
     the bet with the given bet."""
+
     def __init__(self, bet: Bet, key: typing.Callable[[Bet, 'Player'], bool]):
         self.key = key
         self.bet = bet
@@ -263,6 +265,7 @@ class BetPointOff(BetIfTrue):
     """Strategy that adds a bet if the table point is Off, and the Player doesn't have a bet on the
     table. Equivalent to BetIfTrue(bet, lambda p: p.table.point.status == "Off"
                                         and bet not in p.bets)"""
+
     def __init__(self, bet: Bet):
         """Adds the given bet if the table point is Off and the player doesn't have that bet on the
         table.
@@ -283,6 +286,7 @@ class BetPointOn(BetIfTrue):
     """Strategy that adds a bet if the table point is On, and the Player doesn't have a bet on the
     table. Equivalent to BetIfTrue(bet, lambda p: p.table.point.status == "On"
                                         and bet not in p.bets)"""
+
     def __init__(self, bet: Bet):
         """Add a bet if the point is On.
 
@@ -300,6 +304,7 @@ class BetPointOn(BetIfTrue):
 class CountStrategy(BetIfTrue):
     """Strategy that checks how many bets exist of a certain type. If the number of bets of that
     type is less than the given count, it places the bet (if the bet isn't already on the table.)"""
+
     def __init__(self, bet_type: typing.Type[Bet] | tuple[typing.Type[Bet], ...],
                  count: int,
                  bet: Bet):
@@ -388,5 +393,25 @@ class CountStrategy(BetIfTrue):
 
 class RemoveByType(RemoveIfTrue):
     """Remove any bets that are of the given type(s)."""
+
     def __init__(self, bet_type: typing.Type[Bet] | tuple[typing.Type[Bet], ...]):
         super().__init__(lambda b, p: isinstance(b, bet_type))
+
+
+class StopOnTarget(Strategy):
+    def __init__(self, bankroll_target):
+        self.bankroll_target = bankroll_target
+        super().__init__()
+
+    def __target_hit(self, player):
+        return self.bankroll_target <= player.bankroll
+
+    def update_bets(self, player: 'Player') -> None:
+        if self.__target_hit(player):
+            for bet in player.bets[:]:
+                player.remove_bet(bet)
+
+    def completed(self, player: 'Player') -> bool:
+        if self.__target_hit(player):
+            for bet in player.bets[:]:
+                player.remove_bet(bet)
