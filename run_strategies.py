@@ -50,7 +50,7 @@ if __name__ == '__main__':
         # BetPlace,
         # FieldWinProgression,
         IronCrossLadder,
-        # Place682Come,
+        Place682Come,
     }
 
     strategies = {strat.__name__: strat(base_unit) for strat in all_strategies}
