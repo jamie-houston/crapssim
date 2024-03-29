@@ -38,7 +38,7 @@ class SimulatorStatistics:
         self.total_simulations = total_simulations
 
     def update_after_roll(self, player):
-        player_stats = next(p for p in self.players if p.name == p.name)
+        player_stats = next(p for p in self.players if p.name == player.name)
         self.__update_bankroll_stats(player_stats, player.total_cash, player.table.dice.n_rolls)
         self.__update_bet_stats(player, player_stats)
 

@@ -39,7 +39,7 @@ class TableUpdate:
         logging.log_yellow(
             f"\nShooter rolled {table.dice.total}", verbose)
 
-    def after_roll(self, table: 'Table', update_after_roll: typing.Callable[['Table'], None]):
+    def after_roll(self, table: 'Table', update_after_roll: typing.Callable[['Player'], None]):
         for player in table.players:
             if update_after_roll is not None:
                 update_after_roll(player)
@@ -367,6 +367,5 @@ class Player:
         if losing_bets:
             logging.log_red(f"{self.name} LOST " + ", ".join(losing_bets))
 
-
-def __repr__(self) -> str:
-    return f'{self.name} - ${self.bankroll}'
+    def __repr__(self) -> str:
+        return f'{self.name} - ${self.bankroll}'
