@@ -37,11 +37,10 @@ class SimulatorStatistics:
             strategies.keys()]
         self.total_simulations = total_simulations
 
-    def update_after_roll(self, table):
-        for p in table.players:
-            player_stats = next(player for player in self.players if player.name == p.name)
-            self.__update_bankroll_stats(player_stats, p.total_cash, table.dice.n_rolls)
-            self.__update_bet_stats(p, player_stats)
+    def update_after_roll(self, player):
+        player_stats = next(p for p in self.players if p.name == p.name)
+        self.__update_bankroll_stats(player_stats, player.total_cash, player.table.dice.n_rolls)
+        self.__update_bet_stats(player, player_stats)
 
     def __update_bankroll_stats(self, player_stats, player_cash, number_of_rolls):
         if player_stats.min_bankroll > player_cash:

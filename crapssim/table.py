@@ -20,11 +20,9 @@ class TableUpdate:
         self.update_table_stats(table)
         self.roll(table, dice_outcome, verbose)
         self.set_new_shooter(table)
-        self.after_roll(table)
+        self.after_roll(table, update_after_roll)
         self.update_bets(table, verbose)
         self.update_points(table, verbose)
-        if update_after_roll is not None:
-            update_after_roll(table)
 
     @staticmethod
     def before_roll(table: 'Table'):
@@ -41,9 +39,10 @@ class TableUpdate:
         logging.log_yellow(
             f"\nShooter rolled {table.dice.total}", verbose)
 
-    @staticmethod
-    def after_roll(table: 'Table'):
+    def after_roll(self, table: 'Table', update_after_roll: typing.Callable[['Table'], None]):
         for player in table.players:
+            if update_after_roll is not None:
+                update_after_roll(player)
             player.strategy.after_roll(player)
 
     @staticmethod
@@ -164,7 +163,7 @@ class Table:
             max_shooter: float | int = float("inf"),
             verbose: bool = True,
             runout: bool = False,
-            update_after_roll=None) -> None:
+            update_after_roll: typing.Callable[['Table'], None] = None) -> None:
         """
         Runs the craps table until a stopping condition is met.
 
@@ -178,6 +177,8 @@ class Table:
             If true, print results from table during each roll
         runout : bool
             If true, continue past max_rolls until player has no more bets on the table
+        update_after_roll: (Table) -> None
+            Optional method to call for every player after every roll
         """
 
         self._setup_run(verbose)
@@ -367,6 +368,5 @@ class Player:
             logging.log_red(f"{self.name} LOST " + ", ".join(losing_bets))
 
 
-
 def __repr__(self) -> str:
-        return f'{self.name} - ${self.bankroll}'
+    return f'{self.name} - ${self.bankroll}'

@@ -7,6 +7,7 @@ from crapssim.bet import PassLine, Come
 from crapssim.bet.one_roll import Field
 from crapssim.bet.pass_line import DontPass, DontCome
 from crapssim.bet.place import Place
+from crapssim.point import Point
 from crapssim.strategy import OddsMultiplierStrategy, PassLineOddsMultiplier, DontPassOddsMultiplier
 from crapssim.strategy.core import CountStrategy, BetPointOff, Strategy, \
     IfBetNotExist, BetIfTrue, AggregateStrategy, BetPointOn, RemoveIfTrue, RemoveByType
@@ -265,7 +266,7 @@ class Place68Move59(Strategy):
             if (player.table.point.number == number and
                     PassLine(self.pass_come_amount) in player.bets):
                 pass_line_come_points.append(number)
-            elif Come(self.pass_come_amount, number) in player.bets:
+            elif Come(self.pass_come_amount, Point(number)) in player.bets:
                 pass_line_come_points.append(number)
         return pass_line_come_points
 

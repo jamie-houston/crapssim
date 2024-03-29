@@ -1,11 +1,15 @@
-import crapssim
+import argparse
+
 from crapssim import Table, logging
 from crapssim.statistics.statistics import SimulatorStatistics
-from crapssim.strategy.custom import IronCrossLadder
 from crapssim.strategy.examples import *
 import configparser
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--use-defaults', action='store_true', help='Update default params')
+    args = parser.parse_args()
+
 
     config_file = "config.ini"
     config = configparser.ConfigParser()
@@ -13,9 +17,7 @@ if __name__ == '__main__':
 
     current_settings = config["LATEST"] or config["DEFAULT"]
 
-
-    # change_defaults = False
-    change_defaults = input("Change defaults? (default no)? ").lower()[:1] == 'y'
+    change_defaults = not (args.use_defaults or input("Keep defaults? (default no)? ").lower()[:1] == 'y')
 
     def query_bool(question):
         value = current_settings.getboolean(question)

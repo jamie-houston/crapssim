@@ -1,7 +1,5 @@
 import typing
 
-import numpy
-
 from crapssim.bet import WinningLosingNumbersBet
 from crapssim.point import Point
 
@@ -35,13 +33,10 @@ class PassLine(WinningLosingNumbersBet):
 
 
 class Come(WinningLosingNumbersBet):
-    def __init__(self, bet_amount: typing.SupportsFloat, point: Point | int | None = None):
+    def __init__(self, bet_amount: typing.SupportsFloat, point: Point | None = None):
         super().__init__(bet_amount)
 
-        if point is None or isinstance(point, int):
-            point = Point(point)
-
-        self.point = point
+        self.point = Point(point) if point is None or isinstance(point, int) else point
 
     def get_payout_ratio(self, table: "Table") -> float:
         return 1.0
@@ -49,8 +44,6 @@ class Come(WinningLosingNumbersBet):
     def get_winning_numbers(self, table: "Table") -> list[int]:
         if self.point == Point(None):
             return [7, 11]
-        if isinstance(self.point, numpy.int64):
-            self.point = Point(self.point)
         return [self.point.number]
 
     def get_losing_numbers(self, table: "Table") -> list[int]:
@@ -59,11 +52,9 @@ class Come(WinningLosingNumbersBet):
         return [7]
 
     def update_point(self, player: 'Player'):
-        if isinstance(self.point, numpy.int64):
-            self.point = Point(self.point)
         if self.point.status == 'Off' and player.table.dice.total in (4, 5, 6, 8, 9, 10):
             player.bets.remove(self)
-            player.bets.append(Come(self.amount, player.table.dice.total))
+            player.bets.append(Come(self.amount, Point(player.table.dice.total)))
 
     def is_removable(self, player: "Player") -> bool:
         if self.point.status == 'On':
@@ -109,10 +100,7 @@ class DontCome(WinningLosingNumbersBet):
     def __init__(self, bet_amount: typing.SupportsFloat, point: int | None = None) -> None:
         super().__init__(bet_amount)
 
-        if point is None or isinstance(point, int):
-            point = Point(point)
-
-        self.point = point
+        self.point = Point(point) if point is None or not isinstance(point, Point) else point
 
     def get_payout_ratio(self, table: "Table") -> float:
         return 1.0
@@ -125,8 +113,6 @@ class DontCome(WinningLosingNumbersBet):
     def get_losing_numbers(self, table: "Table") -> list[int]:
         if self.point is None:
             return [7, 11]
-        if isinstance(self.point, numpy.int64):
-            self.point = Point(self.point)
         return [self.point.number]
 
     def update_point(self, player: 'Player'):
