@@ -9,7 +9,7 @@ from crapssim.bet.pass_line import DontPass, DontCome
 from crapssim.bet.place import Place
 from crapssim.strategy import OddsMultiplierStrategy, PassLineOddsMultiplier, DontPassOddsMultiplier
 from crapssim.strategy.core import CountStrategy, BetPointOff, Strategy, \
-    IfBetNotExist, BetIfTrue, AggregateStrategy, BetPointOn, RemoveIfTrue, RemoveByType, StopOnTarget
+    IfBetNotExist, BetIfTrue, AggregateStrategy, BetPointOn, RemoveIfTrue, RemoveByType
 from crapssim.strategy.simple_bet import Place5Amount, Place6Amount, Place8Amount, Place9Amount
 
 if typing.TYPE_CHECKING:
@@ -440,8 +440,7 @@ class IronCross(AggregateStrategy):
                          BetPlace({5: place_five_amount,
                                    6: place_six_eight_amount,
                                    8: place_six_eight_amount}),
-                         BetPointOn(Field(base_amount)),
-                         StopOnTarget(100))
+                         BetPointOn(Field(base_amount)))
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}(base_amount={self.base_amount})'

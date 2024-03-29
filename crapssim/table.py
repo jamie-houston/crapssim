@@ -333,9 +333,7 @@ class Player:
     def remove_bet(self, bet: Bet) -> None:
         if bet in self.bets and bet.is_removable(self):
             self.bankroll += bet.amount
-            print(f"Before: {self.bets}")
             self.bets.remove(bet)
-            print(f"After: {self.bets}")
 
     def add_strategy_bets(self) -> None:
         """ Implement the given betting strategy

@@ -34,4 +34,4 @@ class Dice:
         self.total = sum(self.result)
 
     def __repr__(self) -> str:
-        return f'{self.total} - ${self.result}'
+        return f'{self.total} : {self.result}'

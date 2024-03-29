@@ -15,13 +15,14 @@ if __name__ == '__main__':
 
 
     # change_defaults = False
-    change_defaults = input("Change defaults? (default no) ").lower()[:1] == 'y'
+    change_defaults = input("Change defaults? (default no)? ").lower()[:1] == 'y'
 
     def query_bool(question):
         value = current_settings.getboolean(question)
         try:
             if change_defaults:
-                value = input(f"{question} (default {value}) ").lower()[:1] == 'y'
+                reply = input(f"{question} (default {'yes' if value else 'no'})? ").lower()[:1]
+                value = value if len(reply) == 0 else reply == 'y'
         except Exception:
             pass
         current_settings[question] = str(value)
@@ -31,7 +32,7 @@ if __name__ == '__main__':
         value = current_settings.getint(question)
         try:
             if change_defaults:
-                value = int(input(f"{question} (default {value}? ") or value)
+                value = int(input(f"{question} (default {value})? ") or value)
         except Exception:
             pass
         current_settings[question] = str(value)
@@ -50,21 +51,21 @@ if __name__ == '__main__':
         config.write(configfile)
 
     all_strategies = {
-        # BetDontPass,
-        # BetPassLine,
-        # DiceDoctor,
-        # HammerLock,
+        BetDontPass,
+        BetPassLine,
+        DiceDoctor,
+        HammerLock,
         IronCross,
-        # Knockout,
-        # Pass2Come,
-        # PassLinePlace68,
-        # PassLinePlace68Move59,
-        # Place68CPR,
-        # Place68DontCome2Odds,
-        # Place68Move59,
-        # PlaceInside,
-        # Risk12,
-        # TwoCome,
+        Knockout,
+        Pass2Come,
+        PassLinePlace68,
+        PassLinePlace68Move59,
+        Place68CPR,
+        Place68DontCome2Odds,
+        Place68Move59,
+        PlaceInside,
+        Risk12,
+        TwoCome,
         # BetPlace,
         # FieldWinProgression,
         # IronCrossLadder,

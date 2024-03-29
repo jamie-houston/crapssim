@@ -396,22 +396,3 @@ class RemoveByType(RemoveIfTrue):
 
     def __init__(self, bet_type: typing.Type[Bet] | tuple[typing.Type[Bet], ...]):
         super().__init__(lambda b, p: isinstance(b, bet_type))
-
-
-class StopOnTarget(Strategy):
-    def __init__(self, bankroll_target):
-        self.bankroll_target = bankroll_target
-        super().__init__()
-
-    def __target_hit(self, player):
-        return self.bankroll_target <= player.bankroll
-
-    def update_bets(self, player: 'Player') -> None:
-        if self.__target_hit(player):
-            for bet in player.bets[:]:
-                player.remove_bet(bet)
-
-    def completed(self, player: 'Player') -> bool:
-        if self.__target_hit(player):
-            for bet in player.bets[:]:
-                player.remove_bet(bet)
