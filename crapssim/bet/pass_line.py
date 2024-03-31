@@ -31,6 +31,9 @@ class PassLine(WinningLosingNumbersBet):
             return True
         return False
 
+    def __repr__(self) -> str:
+        return f"Passline ${self.amount}"
+
 
 class Come(WinningLosingNumbersBet):
     def __init__(self, bet_amount: typing.SupportsFloat, point: Point | None = None):

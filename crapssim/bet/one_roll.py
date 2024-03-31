@@ -27,8 +27,9 @@ class OneRollBet(WinningLosingNumbersBet, ABC):
 
 
 class Field(OneRollBet):
+    numbers = [2, 3, 4, 9, 10, 11, 12]
     def __init__(self, bet_amount: typing.SupportsFloat):
-        super().__init__([2, 3, 4, 9, 10, 11, 12], bet_amount)
+        super().__init__(self.numbers, bet_amount)
 
     def get_payout_ratio(self, table: "Table") -> float:
         if table.dice.total in table.settings['field_payouts']:

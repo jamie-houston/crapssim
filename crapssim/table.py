@@ -48,6 +48,7 @@ class TableUpdate:
     @staticmethod
     def update_bets(table: 'Table', verbose=False):
         for player in table.players:
+            logging.log(f"{player.name} current bets: {player.bets}", verbose)
             player.update_bet(verbose=verbose)
 
     @staticmethod

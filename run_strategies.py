@@ -2,6 +2,7 @@ import argparse
 
 from crapssim import Table, logging
 from crapssim.statistics.statistics import SimulatorStatistics
+from crapssim.strategy.custom import RedCross
 from crapssim.strategy.examples import *
 import configparser
 
@@ -56,7 +57,7 @@ if __name__ == '__main__':
         # BetDontPass,
         # BetPassLine,
         # DiceDoctor,
-        HammerLock,
+        # HammerLock,
         IronCross,
         # Knockout,
         # Pass2Come,
@@ -68,6 +69,7 @@ if __name__ == '__main__':
         # PlaceInside,
         # Risk12,
         # TwoCome,
+        RedCross,
         # BetPlace,
         # FieldWinProgression,
         # IronCrossLadder,

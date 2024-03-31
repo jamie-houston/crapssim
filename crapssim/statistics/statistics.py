@@ -74,9 +74,12 @@ class SimulatorStatistics:
             ["strategy", "hit target", "$<Unit", "Avg $", "biggest win", "biggest loss",
              "biggest bet", "highest $, rolls", "lowest $, rolls"])
 
+        roll_table = PrettyTable(["strategy", "target rolls", "bankrupt rolls"])
+
         result_table.padding_width = 0
         # for player in sorted(self.players, key=lambda item: item.bankroll):
         for player in sorted(self.players, key=operator.attrgetter("total_bankroll")):
+            roll_table.add_row([player.name, player.target_reached_sim, player.bankrupt_reached_sim])
             result_table.add_row([
                 player.name,
                 self.get_count_percent(player.target_reached_sim),
@@ -85,7 +88,7 @@ class SimulatorStatistics:
                 player.biggest_bet, f'${player.max_bankroll:.2f} ({player.max_bankroll_rolls})',
                 f'${player.min_bankroll:.2f} ({player.min_bankroll_rolls})'])
 
-        return result_table
+        return result_table, roll_table
 
     def get_count_percent(self, list):
         return f"{len(list)} ( {(len(list) / self.total_simulations) * 100:.0f}%)"
