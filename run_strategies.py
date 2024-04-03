@@ -91,5 +91,5 @@ if __name__ == '__main__':
             simulator.update_after_all_rolls(p)
     logging.log(f"\n{n_sim} runs.  {max_shooters} max shooters")
 
-    result_table = simulator.generate_table()
+    result_table = simulator.generate_table(n_sim<=10)
     print(result_table)

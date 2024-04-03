@@ -8,8 +8,8 @@ from prettytable import PrettyTable
 class PlayerStatistics:
     name: str
     base_unit: int
-    min_bankroll_rolls = 0
-    max_bankroll_rolls = 0
+    min_bankroll_roll = 0
+    max_bankroll_roll = 0
     biggest_win = 0
     biggest_loss = 0
     biggest_bet = 0
@@ -45,10 +45,10 @@ class SimulatorStatistics:
     def __update_bankroll_stats(self, player_stats, player_cash, number_of_rolls):
         if player_stats.min_bankroll > player_cash:
             player_stats.min_bankroll = player_cash
-            player_stats.min_bankroll_rolls = number_of_rolls
+            player_stats.min_bankroll_roll = self.total_sims
         if player_stats.max_bankroll < player_cash:
             player_stats.max_bankroll = player_cash
-            player_stats.max_bankroll_rolls = number_of_rolls
+            player_stats.max_bankroll_roll = self.total_sims
         if player_cash < player_stats.base_unit:
             player_stats.target_reached_sim.add(self.total_sims)
         if player_cash >= player_stats.bankroll_target:
@@ -69,10 +69,10 @@ class SimulatorStatistics:
         stat = next(p1 for p1 in self.players if p1.name == player.name)
         stat.total_bankroll += player.total_cash
 
-    def generate_table(self):
+    def generate_table(self, include_rolls=False):
         result_table = PrettyTable(
             ["strategy", "hit target", "$<Unit", "Avg $", "biggest win", "biggest loss",
-             "biggest bet", "highest $, rolls", "lowest $, rolls"])
+             "biggest bet", "highest $, roll#", "lowest $, roll#"])
 
         roll_table = PrettyTable(["strategy", "target rolls", "bankrupt rolls"])
 
@@ -85,10 +85,10 @@ class SimulatorStatistics:
                 self.get_count_percent(player.target_reached_sim),
                 self.get_count_percent(player.bankrupt_reached_sim),
                 f'${player.total_bankroll / self.total_simulations:.2f}', player.biggest_win, player.biggest_loss,
-                player.biggest_bet, f'${player.max_bankroll:.2f} ({player.max_bankroll_rolls})',
-                f'${player.min_bankroll:.2f} ({player.min_bankroll_rolls})'])
+                player.biggest_bet, f'${player.max_bankroll:.2f} ({player.max_bankroll_roll})',
+                f'${player.min_bankroll:.2f} ({player.min_bankroll_roll})'])
 
-        return result_table, roll_table
+        return result_table, roll_table if include_rolls else None
 
     def get_count_percent(self, list):
         return f"{len(list)} ( {(len(list) / self.total_simulations) * 100:.0f}%)"
