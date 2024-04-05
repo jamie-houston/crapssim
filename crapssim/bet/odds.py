@@ -65,5 +65,4 @@ class Odds(WinningLosingNumbersBet):
         return self.__class__, self.base_type, self.number
 
     def __repr__(self):
-        return f'Odds(base_type={self.base_type}, number={self.number}, ' \
-               f'bet_amount={self.amount})'
+        return f'${self.amount} on {self.base_type.__name__} Odds [{self.number}]'

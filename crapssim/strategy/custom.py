@@ -1,7 +1,7 @@
 from crapssim import Player
 from crapssim.bet import Field
-from crapssim.strategy import AggregateStrategy, Strategy, PassLineOddsMultiplier, BetPointOn
-from crapssim.strategy.examples import IronCross, DiceDoctor, BetPassLine, BetPlace
+from crapssim.strategy import AggregateStrategy
+from crapssim.strategy.examples import IronCross, BetPlace
 
 
 class RedCross(AggregateStrategy):
@@ -23,7 +23,7 @@ class RedCross(AggregateStrategy):
         self.base_amount = base_amount
         self.field_amount = 0
 
-        super().__init__(IronCross(base_amount=base_amount))
+        super().__init__(IronCross(base_amount=base_amount*3))
 
     def after_roll(self, player: 'Player') -> None:
         """If it's a seven out, set field amount (for place 4,9,10) back to 0
@@ -45,7 +45,7 @@ class RedCross(AggregateStrategy):
             if isinstance(bet, Field):
                 bet_result = bet.get_result(player.table)
                 if bet_result.won:
-                    bet_amount = self.field_amount + self.base_amount
+                    bet_amount = self.field_amount + (bet.amount / 3)
                     # TODO: Increment (update?) with each win
                     BetPlace({4: bet_amount, 9: bet_amount, 10: bet_amount}, skip_point=True).update_bets(player)
 

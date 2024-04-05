@@ -96,7 +96,7 @@ class Bet(ABC):
         return hash(self.get_hash_key())
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}(amount={self.amount})'
+        return f'${self.amount} {self.__class__.__name__} {getattr(self, "point", "")}'
 
     def __add__(self, other: 'Bet') -> 'Bet':
         if isinstance(other, typing.SupportsFloat):

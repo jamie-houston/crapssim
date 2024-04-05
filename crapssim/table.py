@@ -355,7 +355,7 @@ class Player:
                 if result.won:
                     winning_bets.append(f"${result.amount - bet.amount} on {bet}")
                 elif result.lost:
-                    losing_bets.append(f"${bet.amount} on {bet}")
+                    losing_bets.append(f"${bet}")
 
             if result.remove:
                 self.bets.remove(bet)

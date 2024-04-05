@@ -29,4 +29,4 @@ class Place(WinningLosingNumbersBet):
         return Place, self.number
 
     def __repr__(self) -> str:
-        return f'Place(number={self.winning_numbers[0]}, bet_amount={self.amount})'
+        return f'${self.amount} Place [{self.winning_numbers[0]}]'

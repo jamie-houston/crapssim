@@ -7,6 +7,14 @@ if typing.TYPE_CHECKING:
     from crapssim.table import Table, Player
 
 
+def repr_with_point(cls):
+    def __repr__(self):
+        return f'{cls.__name__}({self.__dict__})'
+    def __repr__(self) -> str:
+        return f'${self.amount} on {cls.__name__} [{self.point}]'
+    cls.__repr__ = __repr__
+    return cls
+
 class PassLine(WinningLosingNumbersBet):
     def get_payout_ratio(self, table: "Table") -> float:
         return 1.0
@@ -31,10 +39,8 @@ class PassLine(WinningLosingNumbersBet):
             return True
         return False
 
-    def __repr__(self) -> str:
-        return f"Passline ${self.amount}"
 
-
+@repr_with_point
 class Come(WinningLosingNumbersBet):
     def __init__(self, bet_amount: typing.SupportsFloat, point: Point | None = None):
         super().__init__(bet_amount)
@@ -75,9 +81,6 @@ class Come(WinningLosingNumbersBet):
     def get_placed_key(self) -> typing.Hashable:
         return Come, self.point
 
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}(bet_amount={self.amount}, point={self.point})'
-
 
 class DontPass(WinningLosingNumbersBet):
     def get_payout_ratio(self, table: "Table") -> float:
@@ -99,6 +102,7 @@ class DontPass(WinningLosingNumbersBet):
         return False
 
 
+@repr_with_point
 class DontCome(WinningLosingNumbersBet):
     def __init__(self, bet_amount: typing.SupportsFloat, point: int | None = None) -> None:
         super().__init__(bet_amount)
@@ -134,5 +138,3 @@ class DontCome(WinningLosingNumbersBet):
     def get_placed_key(self) -> typing.Hashable:
         return DontCome, self.point
 
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}(bet_amount={self.amount}, point={self.point})'
