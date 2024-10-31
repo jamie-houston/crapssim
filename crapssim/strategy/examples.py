@@ -12,12 +12,13 @@ from crapssim.strategy import OddsMultiplierStrategy, PassLineOddsMultiplier, Do
 from crapssim.strategy.core import CountStrategy, BetPointOff, Strategy, \
     IfBetNotExist, BetIfTrue, AggregateStrategy, BetPointOn, RemoveIfTrue, RemoveByType
 from crapssim.strategy.simple_bet import Place5Amount, Place6Amount, Place8Amount, Place9Amount
+from abc import ABC
 
 if typing.TYPE_CHECKING:
     from crapssim.table import Player
 
-
-class BetPlace(Strategy):
+# Base class
+class BetPlace(Strategy, ABC):
     """Strategy that makes multiple Place bets of given amounts. It can also skip making the bet
     if the point is the same as the given bet number."""
 
@@ -669,7 +670,8 @@ class Knockout(AggregateStrategy):
         return f'{self.__class__.__name__}(amount={self.bet_amount})'
 
 
-class FieldWinProgression(Strategy):
+# Base class
+class FieldWinProgression(Strategy, ABC):
     """Strategy that every time a Field bet is won, moves to the next amount in the progression and
     places a Field bet for that amount."""
 

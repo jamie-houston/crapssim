@@ -15,14 +15,15 @@ class PlayerStatistics:
     biggest_bet = 0
     target_reached_sim: set = field(default_factory=set)
     bankrupt_reached_sim: set = field(default_factory=set)
-    total_bankroll: float = field(init=False)
+    total_bankroll: float = 0
     bankroll_target: float = None
     min_bankroll: float = field(init=False)
     max_bankroll: float = field(init=False)
     starting_bankroll: InitVar[float | None] = None
 
     def __post_init__(self, starting_bankroll):
-        self.total_bankroll = self.min_bankroll = self.max_bankroll = starting_bankroll
+        self.min_bankroll = starting_bankroll
+        self.max_bankroll = starting_bankroll
         if self.bankroll_target is None:
             self.bankroll_target = starting_bankroll * 1.5
 
