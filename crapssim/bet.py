@@ -116,6 +116,13 @@ class _MetaBetABC(ABCMeta):
     def __repr__(cls):
         return f"crapssim.bet.{cls.__name__}"
 
+    def __str__(cls):
+        return f"{cls.__name__}"
+
+
+def _compact_float(x) -> str:
+    return str(int(x)) if isinstance(x, float) and x.is_integer() else format(x, ".15g")
+
 
 class Bet(ABC, metaclass=_MetaBetABC):
     """
@@ -226,6 +233,9 @@ class Bet(ABC, metaclass=_MetaBetABC):
 
     def __rsub__(self, other):
         return self.__sub__(other)
+
+    def __str__(self) -> str:
+        return f"${_compact_float(self.amount)} {self.__class__.__name__}"
 
 
 class _WinningLosingNumbersBet(Bet, ABC):
@@ -438,6 +448,10 @@ class Come(_WinningLosingNumbersBet):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(amount={self.amount}, number={self.number})"
 
+    def __str__(self) -> str:
+        number_str = f"({self.number})" if self.number is not None else ""
+        return f"{super().__str__()}{number_str}"
+
 
 class DontPass(_WinningLosingNumbersBet):
     """
@@ -546,6 +560,10 @@ class DontCome(_WinningLosingNumbersBet):
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(amount={self.amount}, number={self.number})"
+
+    def __str__(self) -> str:
+        number_str = f"({self.number})" if self.number is not None else ""
+        return f"{super().__str__()}{number_str}"
 
 
 # Odds bets -------------------------------------------------------------------
@@ -663,9 +681,18 @@ class Odds(_WinningLosingNumbersBet):
 
     def __repr__(self):
         return (
-            f"Odds(base_type={self.base_type}, number={self.number}, amount={self.amount}"
+            f"Odds(base_type={repr(self.base_type)}, "
+            f"number={self.number}, amount={self.amount}"
             f"{self._get_always_working_repr()}"
         )
+
+    def __str__(self) -> str:
+        number_str = f", {self.number}" if self.number is not None else ""
+
+        if issubclass(self.base_type, (PassLine, DontPass)):
+            return f"{super().__str__()}({self.base_type})"
+        elif issubclass(self.base_type, (Come, Put, DontCome)):
+            return f"{super().__str__()}({self.base_type}{number_str})"
 
 
 class Put(_SimpleBet):
@@ -691,6 +718,9 @@ class Put(_SimpleBet):
 
     def __repr__(self) -> str:
         return f"Put({self.number}, amount={self.amount})"
+
+    def __str__(self) -> str:
+        return f"{super().__str__()}({self.number})"
 
 
 # Place bets ------------------------------------------------------------------
@@ -727,6 +757,9 @@ class Place(_SimpleBet):
 
     def __repr__(self) -> str:
         return f"Place({self.winning_numbers[0]}, amount={self.amount})"
+
+    def __str__(self) -> str:
+        return f"{super().__str__()}({self.number})"
 
 
 def _compute_vig(
@@ -815,6 +848,9 @@ class Buy(_SimpleBet):
     def __repr__(self) -> str:
         return f"Buy({self.number}, amount={self.amount})"
 
+    def __str__(self) -> str:
+        return f"{super().__str__()}({self.number})"
+
 
 class Lay(_SimpleBet):
     """True-odds bet against 4/5/6/8/9/10, paying if 7 arrives first.
@@ -871,6 +907,9 @@ class Lay(_SimpleBet):
 
     def __repr__(self) -> str:
         return f"Lay({self.number}, amount={self.amount})"
+
+    def __str__(self) -> str:
+        return f"{super().__str__()}({self.number})"
 
 
 # _WinningLosingNumbersBets with variable payouts -----------------------------------------------------------------
@@ -1178,6 +1217,9 @@ class HardWay(Bet):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.number}, amount={self.amount})"
 
+    def __str__(self) -> str:
+        return f"{super().__str__()}({self.number})"
+
 
 # Hop bets -------------------------------------------------------------------
 
@@ -1236,6 +1278,10 @@ class Hop(Bet):
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.result}, amount={self.amount})"
+
+    def __str__(self) -> str:
+        result_str = f"({self.result[0]},{self.result[1]})"
+        return f"{super().__str__()}{result_str}"
 
 
 # Fire bet -------------------------------------------------------------------
