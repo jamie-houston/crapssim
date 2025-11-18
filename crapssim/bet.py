@@ -820,6 +820,9 @@ class Lay(_SimpleBet):
     """True-odds bet against 4/5/6/8/9/10, paying if 7 arrives first.
 
     Commission may be taken on the win or upfront based on ``vig_paid_on_win``.
+    Note that the vig is taken on the amount won, not the bet amount,
+    since this is typically done in a casino (e.g. Laying the 4 for $40, which
+    pays $20, would have a $1 vig).
     """
 
     true_odds = {4: 0.5, 10: 0.5, 5: 2 / 3, 9: 2 / 3, 6: 5 / 6, 8: 5 / 6}
@@ -836,7 +839,8 @@ class Lay(_SimpleBet):
 
     def vig(self, table: "Table") -> float:
         rounding, floor = _vig_policy(table.settings)
-        return _compute_vig(self.amount, rounding=rounding, floor=floor)
+        gross_win = self.amount * self.payout_ratio
+        return _compute_vig(gross_win, rounding=rounding, floor=floor)
 
     def cost(self, table: "Table") -> float:
         if table.settings.get("vig_paid_on_win", True):
