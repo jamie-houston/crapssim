@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 For an alternative view, connecting these changes to Pull Requests, Issues, and new contributors, see the [GitHub Releases](https://github.com/skent259/crapssim/releases)
 
-The format is moving towards this style for new entries: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), 
+The format is moving towards [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) style for new entries, 
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
@@ -14,11 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * New bets: `Horn`, `World` (Whirl), `Big6`/`Big8`, `Buy`, `Lay`, and `Put` (with or without odds) 
   * Corresponding single bet strategies
   * Corresponding odds strategies: `PutOddsAmount`, `PutOddsMultiplier`
-  * Corresponding examples strategies: `QuickProps`, `BuySampler`, `LaySampler`, `PutWithOdds`, `HornExample`, `WorldExample`
+  * Corresponding examples strategies: `QuickProps`, `BuySampler`, `LaySampler`, `PutWithOdds`
 * Vig policy settings to TableSettings
 * `WinMultiplier` family of strategies which take a desired win multiple and calculates the correct amount based on the bet amount. 
   * `WinMultiplier` is the general strategy which takes specific bet type argument
   * Convenience strategies for individual bets: `PassLineWinMultiplier`, `ComeWinMultiplier`, `DontPassWinMultiplier`, `DontComeWinMultiplier`, and `PutWinMultiplier` 
+* `ThreePointMolly` and `ThreePointDolly` strategies with variable odds/win mutipliers
 * Stress tests, expanded examples, tools as part of the Vanilla Expansion Project
 
 ### Fixed

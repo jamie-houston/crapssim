@@ -1,11 +1,5 @@
-from crapssim.strategy.examples import (
-    BuySampler,
-    HornExample,
-    LaySampler,
-    PutWithOdds,
-    QuickProps,
-    WorldExample,
-)
+from crapssim.strategy.examples import BuySampler, LaySampler, PutWithOdds, QuickProps
+from crapssim.strategy.single_bet import BetHorn, BetWorld
 from crapssim.table import Table
 
 # Fixed roll sequence to exercise typical paths:
@@ -40,8 +34,8 @@ def main():
                 always_working=True,
             ),
         ),
-        ("HornExample", lambda: HornExample(amount=4.0)),
-        ("WorldExample", lambda: WorldExample(amount=5.0)),
+        ("HornExample", lambda: BetHorn(amount=4.0)),
+        ("WorldExample", lambda: BetWorld(amount=5.0)),
     ]
     for name, factory in runs:
         run_example(name, factory)
