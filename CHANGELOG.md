@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 *  `DontPass` and `DontCome` bets will now "push" on a come-out 12, bringing the bet down and returing the bet amount to the player. `_WinningLosingNumbersBet` gains `get_push_numbers()` method to accomodate. 
+*  The `Risk12` strategy will now take down place bets after hitting point (i.e. place bets not working), which is aligned to table conventions
 *  `OddsMultiplier `__repr__` logic so that floats, ints, and incomplete dictionaries all work for odds/win multiplier
  
 ## [0.3.2] - 2025-10-11
