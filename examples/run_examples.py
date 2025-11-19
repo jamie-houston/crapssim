@@ -18,7 +18,7 @@ def run_example(name, strategy_factory):
     print(f"Final bankroll: {player.bankroll:.2f}")
     # Show remaining open bets (should be few or none in these demos)
     if player.bets:
-        print("Open bets:", [repr(bet) for bet in player.bets])
+        print("Open bets:", [str(bet) for bet in player.bets])
 
 
 def main():
@@ -42,4 +42,5 @@ def main():
 
 
 if __name__ == "__main__":
+    main()
     main()
