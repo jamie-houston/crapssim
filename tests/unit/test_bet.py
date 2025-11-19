@@ -215,6 +215,7 @@ def test_str_names():
         (crapssim.bet.Put(10, 1), "$1 Put(10)"),
     ]
     for bet, bet_name in bets:
+        print(bet)
         assert str(bet) == bet_name
 # fmt: on
 

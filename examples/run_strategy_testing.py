@@ -29,7 +29,7 @@ def run_scenario(rolls):
     # Show remaining open bets (should be few or none in these demos)
     # Note this does not run strategy to add/clear bets for next roll
     if player.bets:
-        print("Open bets:", [repr(bet) for bet in player.bets])
+        print("Open bets:", [str(bet) for bet in player.bets])
 
 
 def main():

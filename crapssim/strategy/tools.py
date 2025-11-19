@@ -421,8 +421,8 @@ class CountStrategy(AddIfTrue):
     def __repr__(self) -> str:
         return (
             f"{self.__class__.__name__}"
-            f"(bet_type={repr(self.bet_type)}, count={self.count}, "
-            f"bet={repr(self.bet)})"
+            f"(bet_type={self.bet_type!r}, count={self.count}, "
+            f"bet={self.bet!r})"
         )
 
 

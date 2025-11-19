@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* New bets: `Horn`, `World` (Whirl), `Big6`/`Big8`, `Buy`, `Lay`, and `Put` (with or without odds) 
+* New bets: `Horn`, `World` (Whirl), `Big6`/`Big8`, `Buy`, `Lay`, and `Put` (with or without odds) from [@nova-rey](https://github.com/nova-rey)
   * Corresponding single bet strategies
   * Corresponding odds strategies: `PutOddsAmount`, `PutOddsMultiplier`
   * Corresponding examples strategies: `QuickProps`, `BuySampler`, `LaySampler`, `PutWithOdds`
@@ -22,11 +22,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `ThreePointMolly` and `ThreePointDolly` strategies with variable odds/win mutipliers
 * Stress tests, expanded examples, tools as part of the Vanilla Expansion Project
 
+### Changed
+
+* The default printout for bets is now more compact and easy to read (the `__str__` method is defined; instead of only `__repr__`)
+
 ### Fixed
 
 *  `DontPass` and `DontCome` bets will now "push" on a come-out 12, bringing the bet down and returing the bet amount to the player. `_WinningLosingNumbersBet` gains `get_push_numbers()` method to accomodate. 
 *  The `Risk12` strategy will now take down place bets after hitting point (i.e. place bets not working), which is aligned to table conventions
-*  `OddsMultiplier `__repr__` logic so that floats, ints, and incomplete dictionaries all work for odds/win multiplier
+*  `OddsMultiplier` `__repr__` logic so that floats, ints, and incomplete dictionaries all work for odds/win multiplier
  
 ## [0.3.2] - 2025-10-11
 

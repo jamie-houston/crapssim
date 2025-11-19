@@ -681,7 +681,7 @@ class Odds(_WinningLosingNumbersBet):
 
     def __repr__(self):
         return (
-            f"Odds(base_type={repr(self.base_type)}, "
+            f"Odds(base_type={self.base_type!r}, "
             f"number={self.number}, amount={self.amount}"
             f"{self._get_always_working_repr()}"
         )
